@@ -3,17 +3,18 @@
 import { useCampaignQuery } from '@/hooks/useCampaign';
 import { CharactersView } from '@/components/characters/CharactersView';
 import { CombatsListView } from '@/components/combats/CombatsListView';
+import { SimplifiedCombatCreation } from '@/components/combat-wizard/SimplifiedCombatCreation';
 
 interface CampaignSubRouteHandlerProps {
   campaignId: string;
-  subRoute: string;
+  slugSegments: string[];
 }
 
 /**
  * Client component that handles campaign sub-routes
  * Fetches campaign data and renders appropriate view
  */
-export function CampaignSubRouteHandler({ campaignId, subRoute }: CampaignSubRouteHandlerProps) {
+export function CampaignSubRouteHandler({ campaignId, slugSegments }: CampaignSubRouteHandlerProps) {
   const { data: campaign, isLoading, error } = useCampaignQuery(campaignId);
 
   // Show loading state
@@ -40,12 +41,19 @@ export function CampaignSubRouteHandler({ campaignId, subRoute }: CampaignSubRou
     );
   }
 
+  // Extract first segment as main route
+  const [mainRoute, ...restSegments] = slugSegments;
+
   // Route to appropriate view
-  switch (subRoute) {
+  switch (mainRoute) {
     case 'characters':
       return <CharactersView campaignId={campaignId} campaignName={campaign.name} />;
 
     case 'combats':
+      // Handle nested combats routes
+      if (restSegments.length > 0 && restSegments[0] === 'new') {
+        return <SimplifiedCombatCreation campaignId={campaignId} campaignName={campaign.name} />;
+      }
       return <CombatsListView campaignId={campaignId} campaignName={campaign.name} />;
 
     default:
@@ -53,7 +61,7 @@ export function CampaignSubRouteHandler({ campaignId, subRoute }: CampaignSubRou
         <div className="container mx-auto px-4 py-8 max-w-7xl">
           <div className="text-center py-12">
             <h1 className="text-3xl font-bold mb-2">Page not found</h1>
-            <p className="text-muted-foreground">The page {subRoute} does not exist.</p>
+            <p className="text-muted-foreground">The page {slugSegments.join('/')} does not exist.</p>
           </div>
         </div>
       );

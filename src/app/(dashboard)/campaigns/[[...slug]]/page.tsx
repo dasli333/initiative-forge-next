@@ -31,11 +31,11 @@ export default async function CampaignsRoute({ params }: CampaignsRouteProps) {
   }
 
   // First segment = campaign ID
-  const [campaignId, subRoute] = slug;
+  const campaignId = slug[0];
 
-  // Handle sub-routes
-  if (subRoute) {
-    return <CampaignSubRouteHandler campaignId={campaignId} subRoute={subRoute} />;
+  // Handle sub-routes (pass remaining segments)
+  if (slug.length > 1) {
+    return <CampaignSubRouteHandler campaignId={campaignId} slugSegments={slug.slice(1)} />;
   }
 
   // Campaign detail page
