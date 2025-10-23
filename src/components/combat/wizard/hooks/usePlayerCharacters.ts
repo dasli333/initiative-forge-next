@@ -1,23 +1,30 @@
 import { useQuery } from "@tanstack/react-query";
-import type { ListPlayerCharactersResponseDTO } from "@/types";
+import { getSupabaseClient } from "@/lib/supabase";
+import type { PlayerCharacter } from "@/types";
 
 /**
- * Hook do pobierania postaci graczy dla kampanii
- * Używa TanStack Query (useQuery)
+ * Hook for fetching player characters for a campaign
+ * Uses TanStack Query (useQuery) with direct Supabase calls
  */
 export function usePlayerCharacters(campaignId: string) {
   return useQuery({
     queryKey: ["player-characters", campaignId],
     queryFn: async () => {
-      const response = await fetch(`/api/campaigns/${campaignId}/characters`);
+      const supabase = getSupabaseClient();
 
-      if (!response.ok) {
+      const { data, error } = await supabase
+        .from("player_characters")
+        .select("*")
+        .eq("campaign_id", campaignId)
+        .order("name", { ascending: true });
+
+      if (error) {
+        console.error("Error fetching player characters:", error);
         throw new Error("Failed to fetch player characters");
       }
 
-      const data: ListPlayerCharactersResponseDTO = await response.json();
-      return data.characters;
+      return data as PlayerCharacter[];
     },
-    staleTime: 5 * 60 * 1000, // 5 minut
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }

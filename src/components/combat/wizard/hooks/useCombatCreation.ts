@@ -1,37 +1,36 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import type { CreateCombatCommand, CombatDTO } from "@/types";
+import { toast } from "sonner";
+import { getSupabaseClient } from "@/lib/supabase";
+import { createCombat } from "@/lib/api/combats";
+import { useAuth } from "@/providers/AuthProvider";
+import type { CreateCombatCommand } from "@/types";
 
 /**
- * Hook do tworzenia walki
- * Używa TanStack Query (useMutation)
+ * Hook for creating a combat encounter
+ * Uses TanStack Query (useMutation) with direct Supabase calls
  */
 export function useCombatCreation(campaignId: string) {
   const router = useRouter();
+  const { user } = useAuth();
 
   return useMutation({
     mutationFn: async (command: CreateCombatCommand) => {
-      const response = await fetch(`/api/campaigns/${campaignId}/combats`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(command),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to create combat");
+      if (!user) {
+        throw new Error("User not authenticated");
       }
 
-      const data: CombatDTO = await response.json();
-      return data;
+      const supabase = getSupabaseClient();
+      return await createCombat(supabase, user.id, campaignId, command);
     },
     onSuccess: (combat) => {
-      // Redirect do combat tracker (używa uproszczonego URL bez campaign_id)
+      toast.success("Combat created successfully!");
+      // Redirect to combat tracker
       router.push(`/combats/${combat.id}`);
     },
-    onError: (error) => {
-      // Wyświetl error toast (np. Shadcn Toast)
+    onError: (error: Error) => {
       console.error("Error creating combat:", error);
+      toast.error(error.message || "Failed to create combat");
     },
   });
 }
