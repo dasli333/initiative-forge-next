@@ -2,6 +2,7 @@
 
 import { useCampaignQuery } from '@/hooks/useCampaign';
 import { CharactersView } from '@/components/characters/CharactersView';
+import { CombatsListView } from '@/components/combats/CombatsListView';
 
 interface CampaignSubRouteHandlerProps {
   campaignId: string;
@@ -43,6 +44,9 @@ export function CampaignSubRouteHandler({ campaignId, subRoute }: CampaignSubRou
   switch (subRoute) {
     case 'characters':
       return <CharactersView campaignId={campaignId} campaignName={campaign.name} />;
+
+    case 'combats':
+      return <CombatsListView campaignId={campaignId} campaignName={campaign.name} />;
 
     default:
       return (
