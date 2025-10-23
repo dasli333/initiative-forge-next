@@ -2,7 +2,9 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { getSupabaseClient } from '@/lib/supabase';
+import { getCampaigns } from '@/lib/api/campaigns';
 import type { User, Session } from '@supabase/supabase-js';
 
 interface AuthContextType {
@@ -18,6 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const supabase = getSupabaseClient();
@@ -27,6 +30,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+
+      // Prefetch campaigns if user is authenticated
+      if (session?.user) {
+        queryClient.prefetchQuery({
+          queryKey: ['campaigns'],
+          queryFn: getCampaigns,
+        });
+      }
     });
 
     // Listen for auth changes
@@ -39,7 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [queryClient]);
 
   const signOut = async () => {
     const supabase = getSupabaseClient();
