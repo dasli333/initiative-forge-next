@@ -51,7 +51,7 @@ export interface ActionDTO {
   damage?: {
     average: number;
     formula: string;
-    type: string;
+    type?: string;
   }[];
 }
 
