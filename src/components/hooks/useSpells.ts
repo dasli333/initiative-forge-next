@@ -10,9 +10,8 @@ import type { Spell } from '@/types';
  */
 export interface UseSpellsParams {
   searchQuery: string;
-  type: string | null;
-  size: string | null;
-  alignment: string | null;
+  level: number | null;
+  class: string | null;
   limit: number;
 }
 
@@ -52,22 +51,21 @@ export function useSpells(params: UseSpellsParams) {
 
         // Apply filters
         if (params.searchQuery) {
-          query = query.ilike('data->>name', `%${params.searchQuery}%`);
+          query = query.or(`data->>name.ilike.%${params.searchQuery}%,data->name->>en.ilike.%${params.searchQuery}%,data->name->>pl.ilike.%${params.searchQuery}%`);
         }
-        if (params.type) {
-          query = query.eq('data->>type', params.type);
+        if (params.level !== null) {
+          query = query.eq('data->>level', String(params.level));
         }
-        if (params.size) {
-          query = query.eq('data->>size', params.size);
-        }
-        if (params.alignment) {
-          query = query.eq('data->>alignment', params.alignment);
+        if (params.class) {
+          // Filter by class using JSONB contains operator
+          query = query.contains('data->classes', [params.class]);
         }
 
         // Apply pagination
         query = query
           .range(pageParam as number, (pageParam as number) + params.limit - 1)
-          .order('data->>name', { ascending: true });
+          .order('data->>level', { ascending: true })
+          .order('data->name->>en', { ascending: true });
 
         const { data, error, count } = await query;
 

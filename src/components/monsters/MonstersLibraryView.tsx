@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from "react";
 import { MonstersHeader } from "./MonstersHeader";
 import { MonsterList } from "./MonsterList";
