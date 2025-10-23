@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SqlDialectMappings">
+    <file url="file://$PROJECT_DIR$/supabase/migrations/20251008130000_create_initial_schema.sql" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/supabase/migrations/20251012000001_seed_spells.sql" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/supabase/migrations/20251012000002_seed_monsters.sql" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/supabase/migrations/20251018000001_alter_conditions_add_localized_name.sql" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/supabase/migrations/20251018000002_seed_conditions.sql" dialect="GenericSQL" />
+  </component>
+</project>

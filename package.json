@@ -72,6 +72,7 @@
     "eslint-config-next": "16.0.0",
     "happy-dom": "^20.0.8",
     "jsdom": "^27.0.1",
+    "supabase": "^2.53.6",
     "tailwindcss": "^4",
     "tsx": "^4.20.6",
     "typescript": "^5",
