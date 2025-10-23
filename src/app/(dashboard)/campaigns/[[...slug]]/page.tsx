@@ -1,5 +1,6 @@
 import { CampaignDetailClient } from '@/components/campaigns/CampaignDetailClient';
 import { CampaignsContent } from '@/components/campaigns/CampaignsContent';
+import { CampaignSubRouteHandler } from '@/components/campaigns/CampaignSubRouteHandler';
 
 interface CampaignsRouteProps {
   params: Promise<{
@@ -14,7 +15,11 @@ export function generateStaticParams() {
 
 /**
  * Campaigns catch-all route
- * Handles both /campaigns (list) and /campaigns/[id] (detail) with client-side routing
+ * Handles:
+ * - /campaigns → campaigns list
+ * - /campaigns/[id] → campaign detail
+ * - /campaigns/[id]/characters → characters management
+ * - /campaigns/[id]/combats → combats management
  * This approach is necessary for output: 'export' with dynamic routes
  */
 export default async function CampaignsRoute({ params }: CampaignsRouteProps) {
@@ -26,12 +31,11 @@ export default async function CampaignsRoute({ params }: CampaignsRouteProps) {
   }
 
   // First segment = campaign ID
-  const [campaignId] = slug;
+  const [campaignId, subRoute] = slug;
 
   // Handle sub-routes
-  if (slug.length > 1) {
-    // Future: /campaigns/[id]/characters, /campaigns/[id]/combats, etc.
-    return <div>Sub-route: {slug.join('/')}</div>;
+  if (subRoute) {
+    return <CampaignSubRouteHandler campaignId={campaignId} subRoute={subRoute} />;
   }
 
   // Campaign detail page
