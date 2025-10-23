@@ -1,14 +1,27 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, waitFor } from "@/test/utils/test-utils";
 import { CombatsListView } from "./CombatsListView";
-import { mockNavigate } from "astro:transitions/client";
+import { mockPush } from "@/test/mocks/next-router";
 import { createMockCombat, createMockCombatsList, createMockCombatsArray } from "@/test/factories/combat.factory";
 import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query";
 import type { ListCombatsResponseDTO } from "@/types";
 
-// Mock custom hooks
-vi.mock("@/components/hooks/useCombatsList");
-vi.mock("@/components/hooks/useDeleteCombat");
+// Mock next/navigation
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: mockPush,
+    replace: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+  usePathname: () => "/",
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+// Mock React Query hooks - these are the actual hooks used by CombatsListView
+vi.mock("@/hooks/useCombats");
 
 // Mock child components to isolate unit tests
 vi.mock("./CombatsHeader", () => ({
@@ -52,20 +65,6 @@ vi.mock("./EmptyState", () => ({
   ),
 }));
 
-vi.mock("./ErrorState", () => ({
-  ErrorState: ({ onRetry }: { onRetry: () => void }) => (
-    <div data-testid="error-state">
-      <button onClick={onRetry} data-testid="retry-button">
-        Retry
-      </button>
-    </div>
-  ),
-}));
-
-vi.mock("./SkeletonLoader", () => ({
-  SkeletonLoader: () => <div data-testid="skeleton-loader">Loading...</div>,
-}));
-
 vi.mock("./DeleteConfirmationDialog", () => ({
   DeleteConfirmationDialog: ({ isOpen, combatName, onConfirm, onCancel, isDeleting }: any) =>
     isOpen ? (
@@ -86,27 +85,26 @@ describe("CombatsListView", () => {
   const mockCampaignName = "Test Campaign";
 
   // Mock implementations
-  let mockUseCombatsList: ReturnType<typeof vi.fn>;
-  let mockUseDeleteCombat: ReturnType<typeof vi.fn>;
+  let mockUseCombatsQuery: ReturnType<typeof vi.fn>;
+  let mockUseDeleteCombatMutation: ReturnType<typeof vi.fn>;
   let mockMutate: ReturnType<typeof vi.fn>;
   let mockRefetch: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     // Reset mocks
-    mockNavigate.mockClear();
+    mockPush.mockClear();
     mockMutate = vi.fn();
     mockRefetch = vi.fn();
 
     // Setup default mock implementations
-    mockUseCombatsList = vi.fn();
-    mockUseDeleteCombat = vi.fn();
+    mockUseCombatsQuery = vi.fn();
+    mockUseDeleteCombatMutation = vi.fn();
 
     // Import and setup mocks dynamically
-    const useCombatsListModule = await import("@/components/hooks/useCombatsList");
-    const useDeleteCombatModule = await import("@/components/hooks/useDeleteCombat");
+    const useCombatsModule = await import("@/hooks/useCombats");
 
-    vi.mocked(useCombatsListModule.useCombatsList).mockImplementation(mockUseCombatsList);
-    vi.mocked(useDeleteCombatModule.useDeleteCombat).mockImplementation(mockUseDeleteCombat);
+    vi.mocked(useCombatsModule.useCombatsQuery).mockImplementation(mockUseCombatsQuery);
+    vi.mocked(useCombatsModule.useDeleteCombatMutation).mockImplementation(mockUseDeleteCombatMutation);
   });
 
   afterEach(() => {
@@ -119,58 +117,61 @@ describe("CombatsListView", () => {
 
   describe("Conditional Rendering", () => {
     it("should render skeleton loader when loading", () => {
-      mockUseCombatsList.mockReturnValue({
+      mockUseCombatsQuery.mockReturnValue({
         data: undefined,
         isLoading: true,
         isError: false,
         refetch: mockRefetch,
       } as Partial<UseQueryResult<ListCombatsResponseDTO>>);
 
-      mockUseDeleteCombat.mockReturnValue({
+      mockUseDeleteCombatMutation.mockReturnValue({
         mutate: mockMutate,
         isPending: false,
       } as Partial<UseMutationResult>);
 
-      render(<CombatsListView campaignId={mockCampaignId} campaignName={mockCampaignName} />);
+      const { container } = render(<CombatsListView campaignId={mockCampaignId} campaignName={mockCampaignName} />);
 
-      expect(screen.getByTestId("skeleton-loader")).toBeInTheDocument();
+      // Check for skeleton elements
+      const skeletons = container.querySelectorAll('[data-slot="skeleton"]');
+      expect(skeletons.length).toBeGreaterThan(0);
       expect(screen.queryByTestId("combats-grid")).not.toBeInTheDocument();
       expect(screen.queryByTestId("error-state")).not.toBeInTheDocument();
       expect(screen.queryByTestId("empty-state")).not.toBeInTheDocument();
     });
 
     it("should render error state when error occurs", () => {
-      mockUseCombatsList.mockReturnValue({
+      mockUseCombatsQuery.mockReturnValue({
         data: undefined,
         isLoading: false,
         isError: true,
         refetch: mockRefetch,
       } as Partial<UseQueryResult<ListCombatsResponseDTO>>);
 
-      mockUseDeleteCombat.mockReturnValue({
+      mockUseDeleteCombatMutation.mockReturnValue({
         mutate: mockMutate,
         isPending: false,
       } as Partial<UseMutationResult>);
 
       render(<CombatsListView campaignId={mockCampaignId} campaignName={mockCampaignName} />);
 
-      expect(screen.getByTestId("error-state")).toBeInTheDocument();
+      // Check for error state content
+      expect(screen.getByText("Failed to load combats")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /try again/i })).toBeInTheDocument();
       expect(screen.queryByTestId("combats-grid")).not.toBeInTheDocument();
-      expect(screen.queryByTestId("skeleton-loader")).not.toBeInTheDocument();
       expect(screen.queryByTestId("empty-state")).not.toBeInTheDocument();
     });
 
     it("should render empty state when no combats exist", () => {
       const emptyData = createMockCombatsList([]);
 
-      mockUseCombatsList.mockReturnValue({
+      mockUseCombatsQuery.mockReturnValue({
         data: emptyData,
         isLoading: false,
         isError: false,
         refetch: mockRefetch,
       } as Partial<UseQueryResult<ListCombatsResponseDTO>>);
 
-      mockUseDeleteCombat.mockReturnValue({
+      mockUseDeleteCombatMutation.mockReturnValue({
         mutate: mockMutate,
         isPending: false,
       } as Partial<UseMutationResult>);
@@ -187,14 +188,14 @@ describe("CombatsListView", () => {
       const combats = createMockCombatsArray(3);
       const data = createMockCombatsList(combats);
 
-      mockUseCombatsList.mockReturnValue({
+      mockUseCombatsQuery.mockReturnValue({
         data,
         isLoading: false,
         isError: false,
         refetch: mockRefetch,
       } as Partial<UseQueryResult<ListCombatsResponseDTO>>);
 
-      mockUseDeleteCombat.mockReturnValue({
+      mockUseDeleteCombatMutation.mockReturnValue({
         mutate: mockMutate,
         isPending: false,
       } as Partial<UseMutationResult>);
@@ -217,14 +218,14 @@ describe("CombatsListView", () => {
       const combats = createMockCombatsArray(2);
       const data = createMockCombatsList(combats);
 
-      mockUseCombatsList.mockReturnValue({
+      mockUseCombatsQuery.mockReturnValue({
         data,
         isLoading: false,
         isError: false,
         refetch: mockRefetch,
       } as Partial<UseQueryResult<ListCombatsResponseDTO>>);
 
-      mockUseDeleteCombat.mockReturnValue({
+      mockUseDeleteCombatMutation.mockReturnValue({
         mutate: mockMutate,
         isPending: false,
       } as Partial<UseMutationResult>);
@@ -236,8 +237,8 @@ describe("CombatsListView", () => {
       const createButton = screen.getByTestId("create-new-button");
       await user.click(createButton);
 
-      expect(mockNavigate).toHaveBeenCalledTimes(1);
-      expect(mockNavigate).toHaveBeenCalledWith(`/campaigns/${mockCampaignId}/combats/new`);
+      expect(mockPush).toHaveBeenCalledTimes(1);
+      expect(mockPush).toHaveBeenCalledWith(`/campaigns/${mockCampaignId}/combats/new`);
     });
 
     it("should navigate to combat page when handleResume is called", async () => {
@@ -246,8 +247,8 @@ describe("CombatsListView", () => {
       const resumeButton = screen.getByTestId("resume-combat-1");
       await user.click(resumeButton);
 
-      expect(mockNavigate).toHaveBeenCalledTimes(1);
-      expect(mockNavigate).toHaveBeenCalledWith("/combats/combat-1");
+      expect(mockPush).toHaveBeenCalledTimes(1);
+      expect(mockPush).toHaveBeenCalledWith("/combats/combat-1");
     });
 
     it("should navigate to combat page when handleView is called", async () => {
@@ -256,8 +257,8 @@ describe("CombatsListView", () => {
       const viewButton = screen.getByTestId("view-combat-1");
       await user.click(viewButton);
 
-      expect(mockNavigate).toHaveBeenCalledTimes(1);
-      expect(mockNavigate).toHaveBeenCalledWith("/combats/combat-1");
+      expect(mockPush).toHaveBeenCalledTimes(1);
+      expect(mockPush).toHaveBeenCalledWith("/combats/combat-1");
     });
 
     it("should call navigate with different combat IDs for different combats", async () => {
@@ -267,12 +268,12 @@ describe("CombatsListView", () => {
       const resumeButton2 = screen.getByTestId("resume-combat-2");
 
       await user.click(resumeButton1);
-      expect(mockNavigate).toHaveBeenLastCalledWith("/combats/combat-1");
+      expect(mockPush).toHaveBeenLastCalledWith("/combats/combat-1");
 
       await user.click(resumeButton2);
-      expect(mockNavigate).toHaveBeenLastCalledWith("/combats/combat-2");
+      expect(mockPush).toHaveBeenLastCalledWith("/combats/combat-2");
 
-      expect(mockNavigate).toHaveBeenCalledTimes(2);
+      expect(mockPush).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -285,14 +286,14 @@ describe("CombatsListView", () => {
       const combat = createMockCombat({ id: "combat-to-delete", name: "Test Combat" });
       const data = createMockCombatsList([combat]);
 
-      mockUseCombatsList.mockReturnValue({
+      mockUseCombatsQuery.mockReturnValue({
         data,
         isLoading: false,
         isError: false,
         refetch: mockRefetch,
       } as Partial<UseQueryResult<ListCombatsResponseDTO>>);
 
-      mockUseDeleteCombat.mockReturnValue({
+      mockUseDeleteCombatMutation.mockReturnValue({
         mutate: mockMutate,
         isPending: false,
       } as Partial<UseMutationResult>);
@@ -370,7 +371,7 @@ describe("CombatsListView", () => {
     });
 
     it("should show loading state in dialog when deletion is pending", async () => {
-      mockUseDeleteCombat.mockReturnValue({
+      mockUseDeleteCombatMutation.mockReturnValue({
         mutate: mockMutate,
         isPending: true,
       } as Partial<UseMutationResult>);
@@ -396,14 +397,14 @@ describe("CombatsListView", () => {
       const combats = createMockCombatsArray(1);
       const data = createMockCombatsList(combats);
 
-      mockUseCombatsList.mockReturnValue({
+      mockUseCombatsQuery.mockReturnValue({
         data,
         isLoading: false,
         isError: false,
         refetch: mockRefetch,
       } as Partial<UseQueryResult<ListCombatsResponseDTO>>);
 
-      mockUseDeleteCombat.mockReturnValue({
+      mockUseDeleteCombatMutation.mockReturnValue({
         mutate: mockMutate,
         isPending: false,
       } as Partial<UseMutationResult>);
@@ -418,14 +419,14 @@ describe("CombatsListView", () => {
       const combats = createMockCombatsArray(3);
       const data = createMockCombatsList(combats);
 
-      mockUseCombatsList.mockReturnValue({
+      mockUseCombatsQuery.mockReturnValue({
         data,
         isLoading: false,
         isError: false,
         refetch: mockRefetch,
       } as Partial<UseQueryResult<ListCombatsResponseDTO>>);
 
-      mockUseDeleteCombat.mockReturnValue({
+      mockUseDeleteCombatMutation.mockReturnValue({
         mutate: mockMutate,
         isPending: false,
       } as Partial<UseMutationResult>);
@@ -439,21 +440,21 @@ describe("CombatsListView", () => {
     });
 
     it("should pass refetch function to ErrorState", async () => {
-      mockUseCombatsList.mockReturnValue({
+      mockUseCombatsQuery.mockReturnValue({
         data: undefined,
         isLoading: false,
         isError: true,
         refetch: mockRefetch,
       } as Partial<UseQueryResult<ListCombatsResponseDTO>>);
 
-      mockUseDeleteCombat.mockReturnValue({
+      mockUseDeleteCombatMutation.mockReturnValue({
         mutate: mockMutate,
         isPending: false,
       } as Partial<UseMutationResult>);
 
       const { user } = render(<CombatsListView campaignId={mockCampaignId} campaignName={mockCampaignName} />);
 
-      const retryButton = screen.getByTestId("retry-button");
+      const retryButton = screen.getByRole("button", { name: /try again/i });
       await user.click(retryButton);
 
       expect(mockRefetch).toHaveBeenCalledTimes(1);
@@ -463,14 +464,14 @@ describe("CombatsListView", () => {
       const combat = createMockCombat({ id: "combat-123", name: "Dragon Battle" });
       const data = createMockCombatsList([combat]);
 
-      mockUseCombatsList.mockReturnValue({
+      mockUseCombatsQuery.mockReturnValue({
         data,
         isLoading: false,
         isError: false,
         refetch: mockRefetch,
       } as Partial<UseQueryResult<ListCombatsResponseDTO>>);
 
-      mockUseDeleteCombat.mockReturnValue({
+      mockUseDeleteCombatMutation.mockReturnValue({
         mutate: mockMutate,
         isPending: false,
       } as Partial<UseMutationResult>);
@@ -487,14 +488,14 @@ describe("CombatsListView", () => {
       const combats = createMockCombatsArray(1);
       const data = createMockCombatsList(combats);
 
-      mockUseCombatsList.mockReturnValue({
+      mockUseCombatsQuery.mockReturnValue({
         data,
         isLoading: false,
         isError: false,
         refetch: mockRefetch,
       } as Partial<UseQueryResult<ListCombatsResponseDTO>>);
 
-      mockUseDeleteCombat.mockReturnValue({
+      mockUseDeleteCombatMutation.mockReturnValue({
         mutate: mockMutate,
         isPending: false,
       } as Partial<UseMutationResult>);
@@ -515,14 +516,14 @@ describe("CombatsListView", () => {
       const combats = createMockCombatsArray(1);
       const data = createMockCombatsList(combats);
 
-      mockUseCombatsList.mockReturnValue({
+      mockUseCombatsQuery.mockReturnValue({
         data,
         isLoading: false,
         isError: false,
         refetch: mockRefetch,
       } as Partial<UseQueryResult<ListCombatsResponseDTO>>);
 
-      mockUseDeleteCombat.mockReturnValue({
+      mockUseDeleteCombatMutation.mockReturnValue({
         mutate: mockMutate,
         isPending: false,
       } as Partial<UseMutationResult>);
@@ -533,18 +534,18 @@ describe("CombatsListView", () => {
       const createButton = screen.getByTestId("create-new-button");
       await user.click(createButton);
 
-      expect(mockNavigate).toHaveBeenCalledWith(`/campaigns/${customCampaignId}/combats/new`);
+      expect(mockPush).toHaveBeenCalledWith(`/campaigns/${customCampaignId}/combats/new`);
     });
 
     it("should call useCombatsList with correct campaignId", () => {
-      mockUseCombatsList.mockReturnValue({
+      mockUseCombatsQuery.mockReturnValue({
         data: createMockCombatsList([]),
         isLoading: false,
         isError: false,
         refetch: mockRefetch,
       } as Partial<UseQueryResult<ListCombatsResponseDTO>>);
 
-      mockUseDeleteCombat.mockReturnValue({
+      mockUseDeleteCombatMutation.mockReturnValue({
         mutate: mockMutate,
         isPending: false,
       } as Partial<UseMutationResult>);
@@ -552,18 +553,18 @@ describe("CombatsListView", () => {
       const testCampaignId = "test-campaign-999";
       render(<CombatsListView campaignId={testCampaignId} campaignName="Test" />);
 
-      expect(mockUseCombatsList).toHaveBeenCalledWith(testCampaignId);
+      expect(mockUseCombatsQuery).toHaveBeenCalledWith(testCampaignId);
     });
 
     it("should call useDeleteCombat with correct campaignId", () => {
-      mockUseCombatsList.mockReturnValue({
+      mockUseCombatsQuery.mockReturnValue({
         data: createMockCombatsList([]),
         isLoading: false,
         isError: false,
         refetch: mockRefetch,
       } as Partial<UseQueryResult<ListCombatsResponseDTO>>);
 
-      mockUseDeleteCombat.mockReturnValue({
+      mockUseDeleteCombatMutation.mockReturnValue({
         mutate: mockMutate,
         isPending: false,
       } as Partial<UseMutationResult>);
@@ -571,7 +572,7 @@ describe("CombatsListView", () => {
       const testCampaignId = "test-campaign-999";
       render(<CombatsListView campaignId={testCampaignId} campaignName="Test" />);
 
-      expect(mockUseDeleteCombat).toHaveBeenCalledWith(testCampaignId);
+      expect(mockUseDeleteCombatMutation).toHaveBeenCalledWith(testCampaignId);
     });
 
     it("should maintain header visibility across all states", () => {
@@ -583,12 +584,12 @@ describe("CombatsListView", () => {
       ];
 
       states.forEach((state) => {
-        mockUseCombatsList.mockReturnValue({
+        mockUseCombatsQuery.mockReturnValue({
           ...state,
           refetch: mockRefetch,
         } as Partial<UseQueryResult<ListCombatsResponseDTO>>);
 
-        mockUseDeleteCombat.mockReturnValue({
+        mockUseDeleteCombatMutation.mockReturnValue({
           mutate: mockMutate,
           isPending: false,
         } as Partial<UseMutationResult>);

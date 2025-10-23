@@ -6,7 +6,21 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CombatControlBar } from "./CombatControlBar";
 import { useLanguageStore } from "@/stores/languageStore";
-import { mockNavigate } from "@/test/mocks/astro-navigation";
+import { mockPush } from "@/test/mocks/next-router";
+
+// Mock next/navigation
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: mockPush,
+    replace: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+  usePathname: () => "/",
+  useSearchParams: () => new URLSearchParams(),
+}));
 
 // ============================================================================
 // Mock Setup
@@ -36,7 +50,7 @@ const defaultProps = {
 beforeEach(() => {
   // Clear all mocks before each test
   vi.clearAllMocks();
-  mockNavigate.mockClear();
+  mockPush.mockClear();
 
   // Reset language store to English
   useLanguageStore.setState({ selectedLanguage: "en" });
@@ -352,15 +366,15 @@ describe("CombatControlBar - Button Click Handlers", () => {
     expect(mockOnNextTurn).toHaveBeenCalledTimes(1);
   });
 
-  it("should call navigate when Back clicked", async () => {
+  it("should call router.push when Back clicked", async () => {
     const user = userEvent.setup();
     render(<CombatControlBar {...defaultProps} isCombatStarted={true} />);
 
     const backButton = screen.getByText("Back");
     await user.click(backButton);
 
-    expect(mockNavigate).toHaveBeenCalledTimes(1);
-    expect(mockNavigate).toHaveBeenCalledWith("/campaigns/test-campaign-123/combats");
+    expect(mockPush).toHaveBeenCalledTimes(1);
+    expect(mockPush).toHaveBeenCalledWith("/campaigns/test-campaign-123/combats");
   });
 
   it("should navigate with correct campaignId", async () => {
@@ -376,7 +390,7 @@ describe("CombatControlBar - Button Click Handlers", () => {
     const backButton = screen.getByText("Back");
     await user.click(backButton);
 
-    expect(mockNavigate).toHaveBeenCalledWith("/campaigns/different-campaign-456/combats");
+    expect(mockPush).toHaveBeenCalledWith("/campaigns/different-campaign-456/combats");
   });
 });
 
@@ -578,7 +592,7 @@ describe("CombatControlBar - Edge Cases", () => {
     const backButton = screen.getByText("Back");
     await user.click(backButton);
 
-    expect(mockNavigate).toHaveBeenCalledWith("/campaigns//combats");
+    expect(mockPush).toHaveBeenCalledWith("/campaigns//combats");
   });
 
   it("should handle round 0", () => {
