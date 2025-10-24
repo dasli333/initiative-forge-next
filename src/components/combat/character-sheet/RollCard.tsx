@@ -19,9 +19,27 @@ export function RollCard({ roll }: RollCardProps) {
 
   const cardBorder = roll.isCrit ? "border-emerald-500" : roll.isFail ? "border-red-500" : "";
 
-  // Format roll breakdown: "3, 5" or "18"
+  // Format roll breakdown with highlighting the used roll
   const formatRollBreakdown = () => {
-    return roll.rolls.join(", ");
+    if (roll.rolls.length === 1) {
+      // Normal roll - no highlighting needed
+      return <span>Roll: {roll.rolls[0]}</span>;
+    }
+
+    // Advantage/Disadvantage - highlight the roll that was used
+    // The used roll is: result - modifier
+    const usedRoll = roll.result - roll.modifier;
+
+    return (
+      <span>
+        Roll: {roll.rolls.map((r, i) => (
+          <span key={i}>
+            {i > 0 && ", "}
+            {r === usedRoll ? <strong className="font-bold">{r}</strong> : r}
+          </span>
+        ))}
+      </span>
+    );
   };
 
   return (
@@ -39,7 +57,7 @@ export function RollCard({ roll }: RollCardProps) {
         </div>
         <div className="text-[14px] text-muted-foreground space-y-0.5">
           <p className="italic whitespace-nowrap">{roll.formula}</p>
-          <p className="font-mono whitespace-nowrap" data-testid="roll-details">Roll: {formatRollBreakdown()}</p>
+          <p className="font-mono whitespace-nowrap" data-testid="roll-details">{formatRollBreakdown()}</p>
         </div>
       </CardContent>
     </Card>

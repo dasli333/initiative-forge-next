@@ -307,7 +307,8 @@ test.describe("MVP Complete Flow", () => {
 
     await trackerPage.executeAction("Longsword");
     const advantageRoll = await trackerPage.getLastRollResult();
-    expect(advantageRoll.details).toContain("advantage");
+    // Advantage shows 2 rolls (e.g., "Roll: 5, 16")
+    expect(advantageRoll.details).toMatch(/\d+,\s*\d+/);
 
     // Test Disadvantage Mode
     await trackerPage.setRollMode("disadvantage");
@@ -319,7 +320,8 @@ test.describe("MVP Complete Flow", () => {
 
     await trackerPage.executeAction("Longsword");
     const disadvantageRoll = await trackerPage.getLastRollResult();
-    expect(disadvantageRoll.details).toContain("disadvantage");
+    // Disadvantage shows 2 rolls (e.g., "Roll: 5, 16")
+    expect(disadvantageRoll.details).toMatch(/\d+,\s*\d+/);
 
     // Reset to normal
     await trackerPage.setRollMode("normal");
