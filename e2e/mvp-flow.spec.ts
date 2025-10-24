@@ -279,10 +279,13 @@ test.describe("MVP Complete Flow", () => {
     // ===================================================================
     // STEP 10: COMBAT ACTIONS & ROLLS
     // ===================================================================
+    // Find participant with Longsword action (Hobgoblin)
+    await trackerPage.goToParticipantWithAction("Longsword");
+
     // Execute attack action
     await trackerPage.executeAction("Longsword");
     const rollResult = await trackerPage.getLastRollResult();
-    expect(rollResult.type).toContain("Attack");
+    expect(rollResult.type.toLowerCase()).toContain("attack");
     expect(rollResult.total).toBeGreaterThan(0);
     expect(rollResult.details).toBeTruthy();
 
@@ -299,6 +302,9 @@ test.describe("MVP Complete Flow", () => {
     mode = await trackerPage.getCurrentRollMode();
     expect(mode).toBe("advantage");
 
+    // Find participant with Longsword action (Hobgoblin)
+    await trackerPage.goToParticipantWithAction("Longsword");
+
     await trackerPage.executeAction("Longsword");
     const advantageRoll = await trackerPage.getLastRollResult();
     expect(advantageRoll.details).toContain("advantage");
@@ -307,6 +313,9 @@ test.describe("MVP Complete Flow", () => {
     await trackerPage.setRollMode("disadvantage");
     mode = await trackerPage.getCurrentRollMode();
     expect(mode).toBe("disadvantage");
+
+    // Find participant with Longsword action (Hobgoblin)
+    await trackerPage.goToParticipantWithAction("Longsword");
 
     await trackerPage.executeAction("Longsword");
     const disadvantageRoll = await trackerPage.getLastRollResult();

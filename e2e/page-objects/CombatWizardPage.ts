@@ -88,11 +88,24 @@ export class CombatWizardPage {
    */
   async searchMonster(searchTerm: string) {
     await this.monsterSearchInput.fill(searchTerm);
-    // Wait for search results
-    await this.page.waitForTimeout(500);
+    // Wait for search results - either monster card appears or "no results" message
+    await this.page.waitForTimeout(300); // Initial debounce wait
+
+    // Wait for either search results or no results message
+    await Promise.race([
+      this.page.waitForSelector('[data-testid^="monster-card-"]', { state: "visible", timeout: 3000 }).catch(() => null),
+      this.page.waitForSelector('text=No monsters found', { state: "visible", timeout: 3000 }).catch(() => null)
+    ]);
+
+    // Additional small wait for UI to stabilize
+    await this.page.waitForTimeout(200);
   }
 
   async addMonster(monsterName: string, count: number = 1) {
+    // Wait for monster card to be visible first
+    const monsterCard = this.monsterCard(monsterName);
+    await monsterCard.waitFor({ state: "visible", timeout: 5000 });
+
     // First, add the monster if not already added
     const addButton = this.addMonsterButton(monsterName);
     const isVisible = await addButton.isVisible().catch(() => false);

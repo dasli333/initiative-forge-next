@@ -203,10 +203,24 @@ export class CombatTrackerPage {
   /**
    * Character Sheet (Active Participant) Methods
    */
+  async hasAction(actionName: string): Promise<boolean> {
+    const actionButton = this.page.getByTestId(`action-button-${actionName}`);
+    return await actionButton.isVisible().catch(() => false);
+  }
+
   async executeAction(actionName: string) {
     const actionButton = this.page.getByTestId(`action-button-${actionName}`);
     await actionButton.click();
     await this.page.waitForTimeout(300);
+  }
+
+  async goToParticipantWithAction(actionName: string, maxAttempts: number = 10): Promise<void> {
+    for (let i = 0; i < maxAttempts; i++) {
+      const hasAction = await this.hasAction(actionName);
+      if (hasAction) return;
+      await this.goToNextTurn();
+    }
+    throw new Error(`Could not find participant with action: ${actionName} after ${maxAttempts} attempts`);
   }
 
   async getLastRollResult(): Promise<{ type: string; total: number; details: string }> {
