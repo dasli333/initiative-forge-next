@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { ConditionDTO } from "@/types";
+import { useLanguageStore } from "@/stores/languageStore";
 
 interface AddConditionDialogProps {
   isOpen: boolean;
@@ -32,6 +33,7 @@ export function AddConditionDialog({
   onAdd,
   onCancel,
 }: AddConditionDialogProps) {
+  const selectedLanguage = useLanguageStore((state) => state.selectedLanguage);
   const [selectedConditionId, setSelectedConditionId] = useState<string>("");
   const [duration, setDuration] = useState<string>(""); // Empty string = indefinite
 
@@ -79,7 +81,7 @@ export function AddConditionDialog({
                 ) : (
                   availableConditions.map((condition) => (
                     <SelectItem key={condition.id} value={condition.id}>
-                      {condition.name.pl}
+                      {condition.name[selectedLanguage]}
                     </SelectItem>
                   ))
                 )}
@@ -106,7 +108,7 @@ export function AddConditionDialog({
           {/* Condition Description Preview */}
           {selectedCondition && (
             <div className="rounded-md border p-3 bg-muted/30">
-              <p className="text-sm font-semibold mb-1">{selectedCondition.name.pl}</p>
+              <p className="text-sm font-semibold mb-1">{selectedCondition.name[selectedLanguage]}</p>
               <p className="text-xs text-muted-foreground line-clamp-3">{selectedCondition.description}</p>
             </div>
           )}
