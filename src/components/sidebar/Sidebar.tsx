@@ -3,7 +3,7 @@
 import { useCallback } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@/providers/AuthProvider';
+import { useAuthStore } from '@/stores/authStore';
 import { useCampaignStore } from '@/stores/campaignStore';
 import { AppHeader } from './AppHeader';
 import { CurrentCampaignDisplay } from './CurrentCampaignDisplay';
@@ -15,13 +15,13 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { user, loading, signOut } = useAuth();
+  const { user, isLoading, logout } = useAuthStore();
   const { selectedCampaignId, selectedCampaign, clearSelection } = useCampaignStore();
 
   // Handle logout with full cleanup
   const handleLogout = useCallback(async () => {
-    // 1. Logout from Supabase (clears session)
-    await signOut();
+    // 1. Logout from Supabase (clears session and auth state)
+    await logout();
 
     // 2. Clear campaign selection (both in-memory and localStorage)
     clearSelection();
@@ -31,7 +31,7 @@ export function Sidebar() {
 
     // 4. Redirect to login
     router.push('/login');
-  }, [signOut, clearSelection, queryClient, router]);
+  }, [logout, clearSelection, queryClient, router]);
 
   return (
     <aside
@@ -53,7 +53,7 @@ export function Sidebar() {
       </nav>
 
       {/* Bottom Section - User Menu */}
-      {loading ? (
+      {isLoading ? (
         <div className="h-16 bg-slate-800 animate-pulse m-4 rounded" />
       ) : (
         user && <UserMenu user={user} onLogout={handleLogout} />

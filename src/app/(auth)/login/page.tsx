@@ -3,25 +3,25 @@
 import { Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { LoginForm } from '@/components/auth/LoginForm';
-import { useAuth } from '@/providers/AuthProvider';
+import { useAuthStore } from '@/stores/authStore';
 import Link from 'next/link';
 
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, loading } = useAuth();
+  const { user, isLoading } = useAuthStore();
 
   const redirect = searchParams.get('redirect') || '/campaigns';
 
   // If already logged in, redirect to campaigns
   useEffect(() => {
-    if (!loading && user) {
+    if (!isLoading && user) {
       router.push(redirect);
     }
-  }, [user, loading, redirect, router]);
+  }, [user, isLoading, redirect, router]);
 
   // Show nothing while checking auth
-  if (loading) {
+  if (isLoading) {
     return null;
   }
 

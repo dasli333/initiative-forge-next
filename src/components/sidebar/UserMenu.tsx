@@ -10,10 +10,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import type { User } from '@supabase/supabase-js';
+import type { UserViewModel } from '@/types';
 
 interface UserMenuProps {
-  user: User;
+  user: UserViewModel;
   onLogout: () => Promise<void>;
 }
 
@@ -34,10 +34,10 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-3 px-4 py-3 hover:bg-slate-800 transition-colors w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
           <Avatar className="h-8 w-8">
-            {user.user_metadata?.avatar_url && <AvatarImage src={user.user_metadata.avatar_url} alt={user.email || 'User'} />}
-            <AvatarFallback className="bg-emerald-500/10 text-emerald-500">{getInitials(user.email || 'U')}</AvatarFallback>
+            {user.avatar && <AvatarImage src={user.avatar} alt={user.email} />}
+            <AvatarFallback className="bg-emerald-500/10 text-emerald-500">{getInitials(user.email)}</AvatarFallback>
           </Avatar>
-          <span className="text-sm text-slate-300 truncate">{truncateEmail(user.email || 'Unknown')}</span>
+          <span className="text-sm text-slate-300 truncate">{truncateEmail(user.email)}</span>
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-56">

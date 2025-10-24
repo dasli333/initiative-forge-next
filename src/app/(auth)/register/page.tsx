@@ -3,22 +3,22 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { RegisterForm } from '@/components/auth/RegisterForm';
-import { useAuth } from '@/providers/AuthProvider';
+import { useAuthStore } from '@/stores/authStore';
 import Link from 'next/link';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { user, loading } = useAuth();
+  const { user, isLoading } = useAuthStore();
 
   // If already logged in, redirect to campaigns
   useEffect(() => {
-    if (!loading && user) {
+    if (!isLoading && user) {
       router.push('/campaigns');
     }
-  }, [user, loading, router]);
+  }, [user, isLoading, router]);
 
   // Show nothing while checking auth
-  if (loading) {
+  if (isLoading) {
     return null;
   }
 

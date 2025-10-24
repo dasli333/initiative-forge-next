@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { getSupabaseClient } from "@/lib/supabase";
 import { createCombat } from "@/lib/api/combats";
-import { useAuth } from "@/providers/AuthProvider";
+import { useAuthStore } from "@/stores/authStore";
 import type { CreateCombatCommand } from "@/types";
 
 /**
@@ -12,7 +12,7 @@ import type { CreateCombatCommand } from "@/types";
  */
 export function useCombatCreation(campaignId: string) {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user } = useAuthStore();
 
   return useMutation({
     mutationFn: async (command: CreateCombatCommand) => {

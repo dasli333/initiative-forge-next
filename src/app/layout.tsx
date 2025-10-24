@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { QueryProvider } from '@/providers/QueryProvider';
-import { AuthProvider } from '@/providers/AuthProvider';
+import { AuthInitializer } from '@/providers/AuthInitializer';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from '@/components/ui/sonner';
 import './globals.css';
@@ -20,10 +20,10 @@ export default function RootLayout({
       <body>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <QueryProvider>
-            <AuthProvider>
+            <AuthInitializer>
               {children}
               <Toaster />
-            </AuthProvider>
+            </AuthInitializer>
           </QueryProvider>
         </ThemeProvider>
       </body>

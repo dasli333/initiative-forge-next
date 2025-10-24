@@ -2,21 +2,21 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/providers/AuthProvider';
+import { useAuthStore } from '@/stores/authStore';
 
 export default function HomePage() {
   const router = useRouter();
-  const { user, loading } = useAuth();
+  const { user, isLoading } = useAuthStore();
 
   useEffect(() => {
-    if (!loading) {
+    if (!isLoading) {
       if (user) {
         router.push('/campaigns');
       } else {
         router.push('/login');
       }
     }
-  }, [user, loading, router]);
+  }, [user, isLoading, router]);
 
   return (
     <div className="flex h-screen items-center justify-center">

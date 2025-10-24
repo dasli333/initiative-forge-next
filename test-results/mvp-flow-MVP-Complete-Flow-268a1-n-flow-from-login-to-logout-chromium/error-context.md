@@ -10,7 +10,7 @@
         - generic [ref=e14]: Initiative Forge
       - generic [ref=e15]:
         - generic [ref=e16]: Current Campaign
-        - heading "Updated MVP Campaign_1761310018437" [level=2] [ref=e17]
+        - heading "Updated MVP Campaign_1761311921258" [level=2] [ref=e17]
       - navigation [ref=e18]:
         - generic [ref=e19]:
           - heading "Global" [level=2] [ref=e20]
@@ -35,17 +35,17 @@
           - list [ref=e40]:
             - listitem [ref=e41]:
               - link "Campaign Home" [ref=e42] [cursor=pointer]:
-                - /url: /campaigns/ddd5cde4-8e93-4e70-a367-a14e1f5e993c
+                - /url: /campaigns/9c67a631-ef88-447a-81d6-0dddbdde9c06
                 - img [ref=e43]
                 - generic [ref=e46]: Campaign Home
             - listitem [ref=e47]:
               - link "Combat" [ref=e48] [cursor=pointer]:
-                - /url: /campaigns/ddd5cde4-8e93-4e70-a367-a14e1f5e993c/combats
+                - /url: /campaigns/9c67a631-ef88-447a-81d6-0dddbdde9c06/combats
                 - img [ref=e49]
                 - generic [ref=e58]: Combat
             - listitem [ref=e59]:
               - link "Player Characters" [ref=e60] [cursor=pointer]:
-                - /url: /campaigns/ddd5cde4-8e93-4e70-a367-a14e1f5e993c/characters
+                - /url: /campaigns/9c67a631-ef88-447a-81d6-0dddbdde9c06/characters
                 - img [ref=e61]
                 - generic [ref=e66]: Player Characters
       - button "T test@test.pl" [ref=e67]:
@@ -76,10 +76,10 @@
             - generic [ref=e93]:
               - generic [ref=e94]:
                 - generic [ref=e95]:
-                  - heading "Rogue_1761310023439" [level=3] [ref=e96]
+                  - heading "Rogue_1761311928699" [level=3] [ref=e96]
                   - paragraph [ref=e97]: player character
                 - generic [ref=e98]:
-                  - generic [ref=e99]: "20"
+                  - generic [ref=e99]: "12"
                   - generic [ref=e100]:
                     - img
                     - text: "15"
@@ -103,18 +103,18 @@
             - generic [ref=e119]:
               - generic [ref=e120]:
                 - generic [ref=e121]:
-                  - 'heading "Goblin Warrior #1" [level=3] [ref=e122]'
-                  - paragraph [ref=e123]: monster
+                  - heading "Fighter_1761311926356" [level=3] [ref=e122]
+                  - paragraph [ref=e123]: player character
                 - generic [ref=e124]:
-                  - generic [ref=e125]: "20"
+                  - generic [ref=e125]: "10"
                   - generic [ref=e126]:
                     - img
-                    - text: "15"
+                    - text: "16"
               - generic [ref=e128]:
                 - generic [ref=e129]:
                   - generic [ref=e130]:
                     - generic [ref=e131]: HP
-                    - generic [ref=e132]: 10/10
+                    - generic [ref=e132]: 25/30
                   - progressbar [ref=e133]
                 - generic [ref=e135]:
                   - spinbutton [ref=e136]
@@ -129,7 +129,7 @@
                   - 'heading "Goblin Warrior #2" [level=3] [ref=e144]'
                   - paragraph [ref=e145]: monster
                 - generic [ref=e146]:
-                  - generic [ref=e147]: "20"
+                  - generic [ref=e147]: "10"
                   - generic [ref=e148]:
                     - img
                     - text: "15"
@@ -149,18 +149,18 @@
             - generic [ref=e163]:
               - generic [ref=e164]:
                 - generic [ref=e165]:
-                  - heading "Fighter_1761310021085" [level=3] [ref=e166]
-                  - paragraph [ref=e167]: player character
+                  - 'heading "Goblin Warrior #1" [level=3] [ref=e166]'
+                  - paragraph [ref=e167]: monster
                 - generic [ref=e168]:
-                  - generic [ref=e169]: "16"
+                  - generic [ref=e169]: "7"
                   - generic [ref=e170]:
                     - img
-                    - text: "16"
+                    - text: "15"
               - generic [ref=e172]:
                 - generic [ref=e173]:
                   - generic [ref=e174]:
                     - generic [ref=e175]: HP
-                    - generic [ref=e176]: 25/30
+                    - generic [ref=e176]: 10/10
                   - progressbar [ref=e177]
                 - generic [ref=e179]:
                   - spinbutton [ref=e180]
@@ -172,10 +172,10 @@
             - generic [ref=e185]:
               - generic [ref=e186]:
                 - generic [ref=e187]:
-                  - heading "Wizard_1761310022348" [level=3] [ref=e188]
+                  - heading "Wizard_1761311927622" [level=3] [ref=e188]
                   - paragraph [ref=e189]: player character
                 - generic [ref=e190]:
-                  - generic [ref=e191]: "12"
+                  - generic [ref=e191]: "5"
                   - generic [ref=e192]:
                     - img
                     - text: "12"
@@ -198,7 +198,7 @@
                   - heading "Hobgoblin Warrior" [level=3] [ref=e210]
                   - paragraph [ref=e211]: monster
                 - generic [ref=e212]:
-                  - generic [ref=e213]: "8"
+                  - generic [ref=e213]: "2"
                   - generic [ref=e214]:
                     - img
                     - text: "18"
@@ -217,187 +217,142 @@
                 - text: Add Condition
         - generic [ref=e228]:
           - generic [ref=e231]:
-            - 'heading "Goblin wojownik #1" [level=2] [ref=e232]'
+            - heading "Fighter_1761311926356" [level=2] [ref=e232]
             - generic [ref=e233]:
               - img
-              - text: AC 15
-          - generic [ref=e235]:
-            - generic [ref=e236]:
-              - heading "Ability Scores" [level=3] [ref=e237]:
-                - img [ref=e238]
-                - text: Ability Scores
-              - table [ref=e246]:
-                - rowgroup [ref=e247]:
-                  - row "STR DEX CON INT WIS CHA" [ref=e248]:
-                    - cell "STR" [ref=e249]
-                    - cell "DEX" [ref=e250]
-                    - cell "CON" [ref=e251]
-                    - cell "INT" [ref=e252]
-                    - cell "WIS" [ref=e253]
-                    - cell "CHA" [ref=e254]
-                - rowgroup [ref=e255]:
-                  - row "8 (-1) 15 (+2) 10 (+0) 10 (+0) 8 (-1) 8 (-1)" [ref=e256]:
-                    - cell "8 (-1)" [ref=e257]:
-                      - generic [ref=e258]: "8"
-                      - generic [ref=e259]: (-1)
-                    - cell "15 (+2)" [ref=e260]:
-                      - generic [ref=e261]: "15"
-                      - generic [ref=e262]: (+2)
-                    - cell "10 (+0)" [ref=e263]:
-                      - generic [ref=e264]: "10"
-                      - generic [ref=e265]: (+0)
-                    - cell "10 (+0)" [ref=e266]:
-                      - generic [ref=e267]: "10"
-                      - generic [ref=e268]: (+0)
-                    - cell "8 (-1)" [ref=e269]:
-                      - generic [ref=e270]: "8"
-                      - generic [ref=e271]: (-1)
-                    - cell "8 (-1)" [ref=e272]:
-                      - generic [ref=e273]: "8"
-                      - generic [ref=e274]: (-1)
-            - generic [ref=e276]:
-              - heading "Combat Properties" [level=3] [ref=e277]:
-                - img [ref=e278]
-                - text: Combat Properties
-              - generic [ref=e281]:
-                - generic [ref=e282]:
-                  - img [ref=e283]
-                  - generic [ref=e287]: Gear
-                - generic [ref=e288]:
-                  - generic [ref=e289]: Leather Armor
-                  - generic [ref=e290]: Scimitar
-                  - generic [ref=e291]: Shield
-                  - generic [ref=e292]: Shortbow
-            - generic [ref=e295]:
-              - generic [ref=e296]:
-                - generic [ref=e297]:
-                  - img [ref=e298]
-                  - generic [ref=e307]: Actions
-                - generic [ref=e308]:
-                  - 'button "Scimitar Attack: +4 5 (1d6 + 2) Slashing 2 (1d4) Slashing Melee Attack Roll: +4, reach 5 ft. Hit: 5 (1d6 + 2) Slashing damage, plus 2 (1d4) Slashing damage if the attack roll had Advantage." [ref=e309]':
-                    - img
-                    - generic [ref=e310]:
-                      - generic [ref=e311]:
-                        - paragraph [ref=e312]: Scimitar
-                        - generic [ref=e313]: "Attack: +4"
-                        - generic [ref=e314]: 5 (1d6 + 2) Slashing
-                        - generic [ref=e315]: 2 (1d4) Slashing
-                      - paragraph [ref=e316]: "Melee Attack Roll: +4, reach 5 ft. Hit: 5 (1d6 + 2) Slashing damage, plus 2 (1d4) Slashing damage if the attack roll had Advantage."
-                  - 'button "Shortbow Attack: +4 5 (1d6 + 2) Piercing 2 (1d4) Piercing Ranged Attack Roll: +4, range 80/320 ft. Hit: 5 (1d6 + 2) Piercing damage, plus 2 (1d4) Piercing damage if the attack roll had Advantage." [ref=e317]':
-                    - img
-                    - generic [ref=e318]:
-                      - generic [ref=e319]:
-                        - paragraph [ref=e320]: Shortbow
-                        - generic [ref=e321]: "Attack: +4"
-                        - generic [ref=e322]: 5 (1d6 + 2) Piercing
-                        - generic [ref=e323]: 2 (1d4) Piercing
-                      - paragraph [ref=e324]: "Ranged Attack Roll: +4, range 80/320 ft. Hit: 5 (1d6 + 2) Piercing damage, plus 2 (1d4) Piercing damage if the attack roll had Advantage."
-              - generic [ref=e325]:
-                - generic [ref=e326]:
-                  - img [ref=e327]
-                  - generic [ref=e329]: Bonus Actions
-                - generic [ref=e331]:
-                  - heading "Nimble Escape" [level=4] [ref=e332]
-                  - paragraph [ref=e333]: The goblin takes the Disengage or Hide action.
-        - generic [ref=e335]:
-          - generic [ref=e337]:
-            - generic [ref=e339]:
-              - generic [ref=e340]: Roll Mode
-              - radiogroup [ref=e341]:
-                - generic [ref=e342]:
-                  - radio "Normal" [checked] [ref=e343]:
-                    - img [ref=e344]
-                  - generic [ref=e346] [cursor=pointer]:
-                    - img [ref=e347]
+              - text: AC 16
+          - generic [ref=e236]:
+            - heading "Ability Scores" [level=3] [ref=e237]:
+              - img [ref=e238]
+              - text: Ability Scores
+            - table [ref=e246]:
+              - rowgroup [ref=e247]:
+                - row "STR DEX CON INT WIS CHA" [ref=e248]:
+                  - cell "STR" [ref=e249]
+                  - cell "DEX" [ref=e250]
+                  - cell "CON" [ref=e251]
+                  - cell "INT" [ref=e252]
+                  - cell "WIS" [ref=e253]
+                  - cell "CHA" [ref=e254]
+              - rowgroup [ref=e255]:
+                - row "16 (+3) 14 (+2) 14 (+2) 10 (+0) 12 (+1) 8 (-1)" [ref=e256]:
+                  - cell "16 (+3)" [ref=e257]:
+                    - generic [ref=e258]: "16"
+                    - generic [ref=e259]: (+3)
+                  - cell "14 (+2)" [ref=e260]:
+                    - generic [ref=e261]: "14"
+                    - generic [ref=e262]: (+2)
+                  - cell "14 (+2)" [ref=e263]:
+                    - generic [ref=e264]: "14"
+                    - generic [ref=e265]: (+2)
+                  - cell "10 (+0)" [ref=e266]:
+                    - generic [ref=e267]: "10"
+                    - generic [ref=e268]: (+0)
+                  - cell "12 (+1)" [ref=e269]:
+                    - generic [ref=e270]: "12"
+                    - generic [ref=e271]: (+1)
+                  - cell "8 (-1)" [ref=e272]:
+                    - generic [ref=e273]: "8"
+                    - generic [ref=e274]: (-1)
+        - generic [ref=e277]:
+          - generic [ref=e279]:
+            - generic [ref=e281]:
+              - generic [ref=e282]: Roll Mode
+              - radiogroup [ref=e283]:
+                - generic [ref=e284]:
+                  - radio "Normal" [checked] [ref=e285]:
+                    - img [ref=e286]
+                  - generic [ref=e288] [cursor=pointer]:
+                    - img [ref=e289]
                     - text: Normal
-                - generic [ref=e348]:
-                  - radio "Advantage" [ref=e349]
-                  - generic [ref=e350] [cursor=pointer]:
-                    - img [ref=e351]
+                - generic [ref=e290]:
+                  - radio "Advantage" [ref=e291]
+                  - generic [ref=e292] [cursor=pointer]:
+                    - img [ref=e293]
                     - text: Advantage
-                - generic [ref=e354]:
-                  - radio "Disadvantage" [ref=e355]
-                  - generic [ref=e356] [cursor=pointer]:
-                    - img [ref=e357]
+                - generic [ref=e296]:
+                  - radio "Disadvantage" [ref=e297]
+                  - generic [ref=e298] [cursor=pointer]:
+                    - img [ref=e299]
                     - text: Disadvantage
-            - paragraph [ref=e363]: No rolls yet
-          - generic [ref=e364]:
-            - generic [ref=e366]:
-              - img [ref=e367]
-              - textbox "Search..." [ref=e370]
-            - generic [ref=e371]:
-              - tablist [ref=e372]:
-                - tab "Conditions" [selected] [ref=e373]
-                - tab "Spells" [ref=e374]
-                - tab "Monsters" [ref=e375]
-              - tabpanel "Conditions" [ref=e379]:
-                - generic [ref=e380]:
-                  - heading "Blinded" [level=3] [ref=e382]:
-                    - button "Blinded" [ref=e383]:
+            - paragraph [ref=e305]: No rolls yet
+          - generic [ref=e306]:
+            - generic [ref=e308]:
+              - img [ref=e309]
+              - textbox "Search..." [ref=e312]
+            - generic [ref=e313]:
+              - tablist [ref=e314]:
+                - tab "Conditions" [selected] [ref=e315]
+                - tab "Spells" [ref=e316]
+                - tab "Monsters" [ref=e317]
+              - tabpanel "Conditions" [ref=e321]:
+                - generic [ref=e322]:
+                  - heading "Blinded" [level=3] [ref=e324]:
+                    - button "Blinded" [ref=e325]:
                       - text: Blinded
                       - img
-                  - heading "Charmed" [level=3] [ref=e385]:
-                    - button "Charmed" [ref=e386]:
+                  - heading "Charmed" [level=3] [ref=e327]:
+                    - button "Charmed" [ref=e328]:
                       - text: Charmed
                       - img
-                  - heading "Deafened" [level=3] [ref=e388]:
-                    - button "Deafened" [ref=e389]:
+                  - heading "Deafened" [level=3] [ref=e330]:
+                    - button "Deafened" [ref=e331]:
                       - text: Deafened
                       - img
-                  - heading "Exhaustion" [level=3] [ref=e391]:
-                    - button "Exhaustion" [ref=e392]:
+                  - heading "Exhaustion" [level=3] [ref=e333]:
+                    - button "Exhaustion" [ref=e334]:
                       - text: Exhaustion
                       - img
-                  - heading "Frightened" [level=3] [ref=e394]:
-                    - button "Frightened" [ref=e395]:
+                  - heading "Frightened" [level=3] [ref=e336]:
+                    - button "Frightened" [ref=e337]:
                       - text: Frightened
                       - img
-                  - heading "Grappled" [level=3] [ref=e397]:
-                    - button "Grappled" [ref=e398]:
+                  - heading "Grappled" [level=3] [ref=e339]:
+                    - button "Grappled" [ref=e340]:
                       - text: Grappled
                       - img
-                  - heading "Incapacitated" [level=3] [ref=e400]:
-                    - button "Incapacitated" [ref=e401]:
+                  - heading "Incapacitated" [level=3] [ref=e342]:
+                    - button "Incapacitated" [ref=e343]:
                       - text: Incapacitated
                       - img
-                  - heading "Invisible" [level=3] [ref=e403]:
-                    - button "Invisible" [ref=e404]:
+                  - heading "Invisible" [level=3] [ref=e345]:
+                    - button "Invisible" [ref=e346]:
                       - text: Invisible
                       - img
-                  - heading "Paralyzed" [level=3] [ref=e406]:
-                    - button "Paralyzed" [ref=e407]:
+                  - heading "Paralyzed" [level=3] [ref=e348]:
+                    - button "Paralyzed" [ref=e349]:
                       - text: Paralyzed
                       - img
-                  - heading "Petrified" [level=3] [ref=e409]:
-                    - button "Petrified" [ref=e410]:
+                  - heading "Petrified" [level=3] [ref=e351]:
+                    - button "Petrified" [ref=e352]:
                       - text: Petrified
                       - img
-                  - heading "Poisoned" [level=3] [ref=e412]:
-                    - button "Poisoned" [ref=e413]:
+                  - heading "Poisoned" [level=3] [ref=e354]:
+                    - button "Poisoned" [ref=e355]:
                       - text: Poisoned
                       - img
-                  - heading "Prone" [level=3] [ref=e415]:
-                    - button "Prone" [ref=e416]:
+                  - heading "Prone" [level=3] [ref=e357]:
+                    - button "Prone" [ref=e358]:
                       - text: Prone
                       - img
-                  - heading "Restrained" [level=3] [ref=e418]:
-                    - button "Restrained" [ref=e419]:
+                  - heading "Restrained" [level=3] [ref=e360]:
+                    - button "Restrained" [ref=e361]:
                       - text: Restrained
                       - img
-                  - heading "Stunned" [level=3] [ref=e421]:
-                    - button "Stunned" [ref=e422]:
+                  - heading "Stunned" [level=3] [ref=e363]:
+                    - button "Stunned" [ref=e364]:
                       - text: Stunned
                       - img
-                  - heading "Unconscious" [level=3] [ref=e424]:
-                    - button "Unconscious" [ref=e425]:
+                  - heading "Unconscious" [level=3] [ref=e366]:
+                    - button "Unconscious" [ref=e367]:
                       - text: Unconscious
                       - img
   - region "Notifications alt+T"
-  - generic [ref=e426]:
-    - img [ref=e428]
-    - button "Open Tanstack query devtools" [ref=e476] [cursor=pointer]:
-      - img [ref=e477]
-  - button "Open Next.js Dev Tools" [ref=e530] [cursor=pointer]:
-    - img [ref=e531]
-  - alert [ref=e534]
+  - generic [ref=e368]:
+    - img [ref=e370]
+    - button "Open Tanstack query devtools" [ref=e418] [cursor=pointer]:
+      - img [ref=e419]
+  - button "Open Next.js Dev Tools" [ref=e472] [cursor=pointer]:
+    - img [ref=e473]
+  - alert [ref=e476]
 ```
