@@ -10,7 +10,7 @@ interface RollInitiativeButtonProps {
 
 export function RollInitiativeButton({ onClick, disabled = false }: RollInitiativeButtonProps) {
   return (
-    <Button onClick={onClick} disabled={disabled} className="w-full" variant="outline">
+    <Button onClick={onClick} disabled={disabled} className="w-full" variant="outline" data-testid="roll-initiative-button">
       <Dices className="mr-2 h-4 w-4" />
       Roll Initiative
     </Button>

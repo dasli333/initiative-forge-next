@@ -134,8 +134,12 @@ export class CombatTrackerPage {
     // Wait for dialog
     await this.page.waitForSelector('[data-testid="condition-select"]', { state: "visible" });
 
+    // Click the Radix UI Select trigger to open the dropdown
     const conditionSelect = this.page.getByTestId("condition-select");
-    await conditionSelect.selectOption({ label: conditionName });
+    await conditionSelect.click();
+
+    // Wait for the dropdown content to appear and click the desired option
+    await this.page.getByRole("option", { name: conditionName }).click();
 
     if (durationRounds !== undefined) {
       const durationInput = this.page.getByTestId("condition-duration-input");

@@ -16,21 +16,21 @@ export function RollControls({ value, onChange }: RollControlsProps) {
       <Label>Roll Mode</Label>
       <RadioGroup value={value} onValueChange={(val) => onChange(val as RollMode)} className="flex gap-4">
         <div className="flex items-center space-x-2">
-          <RadioGroupItem value="normal" id="normal" />
+          <RadioGroupItem value="normal" id="normal" data-testid="roll-mode-normal" data-active={value === "normal"} />
           <Label htmlFor="normal" className="flex items-center gap-1 font-normal cursor-pointer">
             <Equal className="h-4 w-4" />
             Normal
           </Label>
         </div>
         <div className="flex items-center space-x-2">
-          <RadioGroupItem value="advantage" id="advantage" />
+          <RadioGroupItem value="advantage" id="advantage" data-testid="roll-mode-advantage" data-active={value === "advantage"} />
           <Label htmlFor="advantage" className="flex items-center gap-1 font-normal cursor-pointer">
             <TrendingUp className="h-4 w-4" />
             Advantage
           </Label>
         </div>
         <div className="flex items-center space-x-2">
-          <RadioGroupItem value="disadvantage" id="disadvantage" />
+          <RadioGroupItem value="disadvantage" id="disadvantage" data-testid="roll-mode-disadvantage" data-active={value === "disadvantage"} />
           <Label htmlFor="disadvantage" className="flex items-center gap-1 font-normal cursor-pointer">
             <TrendingDown className="h-4 w-4" />
             Disadvantage

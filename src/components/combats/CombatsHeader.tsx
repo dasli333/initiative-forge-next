@@ -43,7 +43,7 @@ export function CombatsHeader({ campaignId, campaignName, onCreateNew }: Combats
 
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Combats</h1>
-        <Button onClick={onCreateNew} className="bg-emerald-600 hover:bg-emerald-700">
+        <Button onClick={onCreateNew} className="bg-emerald-600 hover:bg-emerald-700" data-testid="create-combat-button">
           <Plus className="mr-2 h-4 w-4" />
           Start New Combat
         </Button>

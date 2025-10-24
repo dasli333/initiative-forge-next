@@ -13,7 +13,7 @@ export function EmptyState({ onCreateNew }: EmptyStateProps) {
       <Swords className="h-16 w-16 text-muted-foreground" />
       <h2 className="text-2xl font-semibold">No combats yet</h2>
       <p className="text-muted-foreground">Start your first combat to track initiative and manage encounters</p>
-      <Button onClick={onCreateNew} className="bg-emerald-600 hover:bg-emerald-700">
+      <Button onClick={onCreateNew} className="bg-emerald-600 hover:bg-emerald-700" data-testid="create-combat-button-empty">
         <Plus className="mr-2 h-4 w-4" />
         Start New Combat
       </Button>

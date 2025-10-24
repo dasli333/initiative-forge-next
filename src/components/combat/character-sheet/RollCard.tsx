@@ -25,21 +25,21 @@ export function RollCard({ roll }: RollCardProps) {
   };
 
   return (
-    <Card className={`${cardBorder} overflow-hidden flex-shrink-0 w-auto min-w-[250px] py-1`}>
+    <Card className={`${cardBorder} overflow-hidden flex-shrink-0 w-auto min-w-[250px] py-1`} data-testid={`roll-card-${roll.id}`}>
       <CardContent className="p-2 space-y-1">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5">
             <Icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-            <span className="text-xs font-semibold capitalize whitespace-nowrap">{roll.type}</span>
+            <span className="text-xs font-semibold capitalize whitespace-nowrap" data-testid="roll-type">{roll.type}</span>
             {roll.type === "damage" && roll.damageType && (
               <DamageBadge type={roll.damageType} className="ml-0.5 text-xs px-1.5 py-0" />
             )}
           </div>
-          <span className={`text-xl font-bold ${resultColor} shrink-0`}>{roll.result}</span>
+          <span className={`text-xl font-bold ${resultColor} shrink-0`} data-testid="roll-total">{roll.result}</span>
         </div>
         <div className="text-[14px] text-muted-foreground space-y-0.5">
           <p className="italic whitespace-nowrap">{roll.formula}</p>
-          <p className="font-mono whitespace-nowrap">Roll: {formatRollBreakdown()}</p>
+          <p className="font-mono whitespace-nowrap" data-testid="roll-details">Roll: {formatRollBreakdown()}</p>
         </div>
       </CardContent>
     </Card>

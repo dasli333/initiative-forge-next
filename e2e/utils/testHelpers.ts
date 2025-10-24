@@ -28,7 +28,15 @@ export async function waitForAPIResponse(
 }
 
 /**
+ * @deprecated These API helper functions are obsolete - they use /api routes from the old architecture.
+ * The current app uses direct Supabase calls without Next.js API routes.
+ * For cleanup, use teardown.helpers.ts which uses Supabase directly.
+ * Kept for backward compatibility only.
+ */
+
+/**
  * Delete all campaigns for a user (cleanup)
+ * @deprecated Use teardown.helpers.ts instead
  */
 export async function deleteAllCampaigns(request: APIRequestContext, baseURL: string) {
   const response = await request.get(`${baseURL}/api/campaigns`);
@@ -42,6 +50,7 @@ export async function deleteAllCampaigns(request: APIRequestContext, baseURL: st
 
 /**
  * Delete a specific campaign by ID
+ * @deprecated Use teardown.helpers.ts instead
  */
 export async function deleteCampaign(
   request: APIRequestContext,
@@ -53,6 +62,7 @@ export async function deleteCampaign(
 
 /**
  * Delete a specific character by ID
+ * @deprecated Use teardown.helpers.ts instead
  */
 export async function deleteCharacter(
   request: APIRequestContext,
@@ -64,6 +74,7 @@ export async function deleteCharacter(
 
 /**
  * Delete all combats for a campaign
+ * @deprecated Use teardown.helpers.ts instead
  */
 export async function deleteAllCombatsForCampaign(
   request: APIRequestContext,
@@ -81,6 +92,7 @@ export async function deleteAllCombatsForCampaign(
 
 /**
  * Delete a specific combat by ID
+ * @deprecated Use teardown.helpers.ts instead
  */
 export async function deleteCombat(
   request: APIRequestContext,
@@ -92,6 +104,7 @@ export async function deleteCombat(
 
 /**
  * Create a test campaign
+ * @deprecated Use UI interactions or Supabase directly instead
  */
 export async function createTestCampaign(
   request: APIRequestContext,
@@ -107,6 +120,7 @@ export async function createTestCampaign(
 
 /**
  * Create a test character
+ * @deprecated Use UI interactions or Supabase directly instead
  */
 export async function createTestCharacter(
   request: APIRequestContext,
@@ -154,15 +168,3 @@ export async function waitForStable(page: Page, selector: string, timeout: numbe
   await page.waitForTimeout(300); // Wait for animations
 }
 
-/**
- * Wait for React component to be fully hydrated
- * Components using client:load may have a delay before event handlers are attached
- * This helper waits for the component to signal it's ready via data-hydrated attribute
- */
-export async function waitForHydration(
-  page: Page,
-  selector: string = '[data-hydrated="true"]',
-  timeout: number = 10000
-) {
-  await page.waitForSelector(selector, { timeout });
-}

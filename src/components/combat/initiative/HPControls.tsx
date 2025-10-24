@@ -60,11 +60,11 @@ export function HPControls({ currentHP, maxHP, onHPChange }: HPControlsProps) {
         <div className="flex-1 min-w-0 space-y-0.5">
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground font-medium">HP</span>
-            <span className="font-semibold text-xs">
+            <span className="font-semibold text-xs" data-testid="hp-display">
               {currentHP}/{maxHP}
             </span>
           </div>
-          <Progress value={hpPercentage} className="h-1.5" />
+          <Progress value={hpPercentage} className="h-1.5" data-testid="hp-progress-bar" />
         </div>
 
         {/* Right: Input + Buttons */}
@@ -76,6 +76,7 @@ export function HPControls({ currentHP, maxHP, onHPChange }: HPControlsProps) {
             onChange={handleChange}
             className={`w-14 h-7 text-xs px-2 ${error ? "border-red-500" : ""}`}
             min={1}
+            data-testid="hp-amount-input"
           />
           <Button
             size="sm"
@@ -83,6 +84,7 @@ export function HPControls({ currentHP, maxHP, onHPChange }: HPControlsProps) {
             onClick={handleDamage}
             disabled={!isValid}
             className="h-7 px-2 text-xs"
+            data-testid="hp-damage-button"
           >
             DMG
           </Button>
@@ -91,6 +93,7 @@ export function HPControls({ currentHP, maxHP, onHPChange }: HPControlsProps) {
             className="bg-emerald-600 hover:bg-emerald-700 h-7 px-2 text-xs"
             onClick={handleHeal}
             disabled={!isValid}
+            data-testid="hp-heal-button"
           >
             HEAL
           </Button>

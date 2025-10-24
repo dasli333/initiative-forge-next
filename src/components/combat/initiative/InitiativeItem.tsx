@@ -49,7 +49,7 @@ export function InitiativeItem({
   const unconsciousClasses = isUnconscious ? "opacity-60" : "";
 
   return (
-    <div className={`${baseClasses} ${activeClasses} ${unconsciousClasses}`}>
+    <div className={`${baseClasses} ${activeClasses} ${unconsciousClasses}`} data-testid={`initiative-item-${displayName}`} data-active={isActive}>
       <div className="space-y-3">
         {/* Header: Name + Initiative + AC */}
         <div className="flex items-start justify-between gap-3">
@@ -79,6 +79,7 @@ export function InitiativeItem({
             className="h-7 text-xs"
             onClick={() => setIsDialogOpen(true)}
             disabled={isUnconscious}
+            data-testid="add-condition-button"
           >
             <Plus className="h-3 w-3 mr-1" />
             Add Condition

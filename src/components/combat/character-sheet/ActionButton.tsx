@@ -19,6 +19,7 @@ export function ActionButton({ action, onClick }: ActionButtonProps) {
       variant="outline"
       className="w-full justify-start gap-3 h-auto py-3 overflow-hidden transition-colors hover:bg-transparent hover:border-emerald-500 hover:shadow-sm"
       onClick={() => onClick(action)}
+      data-testid={`action-button-${action.name}`}
     >
       <Icon className="h-4 w-4 shrink-0" />
       <div className="flex-1 text-left overflow-hidden min-w-0">

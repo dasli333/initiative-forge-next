@@ -70,7 +70,7 @@ export function AddConditionDialog({
           <div className="space-y-2">
             <Label htmlFor="condition">Condition</Label>
             <Select value={selectedConditionId} onValueChange={setSelectedConditionId}>
-              <SelectTrigger id="condition">
+              <SelectTrigger id="condition" data-testid="condition-select">
                 <SelectValue placeholder="Select a condition" />
               </SelectTrigger>
               <SelectContent>
@@ -98,6 +98,7 @@ export function AddConditionDialog({
               placeholder="Indefinite"
               value={duration}
               onChange={(e) => setDuration(e.target.value)}
+              data-testid="condition-duration-input"
             />
             <p className="text-xs text-muted-foreground">Leave empty for indefinite duration</p>
           </div>
@@ -115,7 +116,7 @@ export function AddConditionDialog({
           <Button variant="outline" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button onClick={handleAdd} disabled={!selectedConditionId || availableConditions.length === 0}>
+          <Button onClick={handleAdd} disabled={!selectedConditionId || availableConditions.length === 0} data-testid="confirm-add-condition">
             Add Condition
           </Button>
         </DialogFooter>

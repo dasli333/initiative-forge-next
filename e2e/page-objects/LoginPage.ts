@@ -22,13 +22,10 @@ export class LoginPage {
   }
 
   async goto() {
-    await this.page.goto("/auth/login");
+    await this.page.goto("/login");
   }
 
   async login(email: string, password: string) {
-    // Wait for React component to be fully hydrated before interacting
-    await this.page.waitForSelector('[data-hydrated="true"]', { timeout: 10000 });
-
     await this.emailInput.fill(email);
     await this.passwordInput.fill(password);
     await this.submitButton.click();
@@ -47,7 +44,7 @@ export class LoginPage {
    */
   async logout() {
     await this.logoutButton.click();
-    await this.page.waitForURL(/\/auth\/login/, { timeout: 10000 });
+    await this.page.waitForURL(/\/login/, { timeout: 10000 });
   }
 
   async getErrorMessage() {

@@ -1,16 +1,512 @@
 # Page snapshot
 
 ```yaml
-- generic [active] [ref=e1]:
-  - generic [ref=e3]:
-    - heading "404" [level=1] [ref=e4]
-    - heading "This page could not be found." [level=2] [ref=e6]
+- generic:
+  - generic:
+    - navigation:
+      - link:
+        - /url: /campaigns
+        - img
+        - generic: Initiative Forge
+      - generic:
+        - generic: Current Campaign
+        - heading [level=2]: Updated MVP Campaign_1761309335607
+      - navigation:
+        - generic:
+          - heading [level=2]: Global
+          - list:
+            - listitem:
+              - link:
+                - /url: /campaigns
+                - img
+                - generic: My Campaigns
+            - listitem:
+              - link:
+                - /url: /monsters
+                - img
+                - generic: Monsters Library
+            - listitem:
+              - link:
+                - /url: /spells
+                - img
+                - generic: Spells Library
+        - generic:
+          - heading [level=2]: Campaign
+          - list:
+            - listitem:
+              - link:
+                - /url: /campaigns/918b5e8f-14fe-4e8c-ad42-9784ce02d9f2
+                - img
+                - generic: Campaign Home
+            - listitem:
+              - link:
+                - /url: /campaigns/918b5e8f-14fe-4e8c-ad42-9784ce02d9f2/combats
+                - img
+                - generic: Combat
+            - listitem:
+              - link:
+                - /url: /campaigns/918b5e8f-14fe-4e8c-ad42-9784ce02d9f2/characters
+                - img
+                - generic: Player Characters
+      - button:
+        - generic:
+          - generic: T
+        - generic: test@test.pl
+    - main:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - button:
+                    - img
+                    - text: Back
+                  - button:
+                    - img
+                    - text: Save
+                - generic:
+                  - generic: EN
+                  - switch
+              - generic:
+                - generic:
+                  - paragraph: Round 1
+                - button:
+                  - img
+                  - text: Next Turn
+                  - generic: (Space)
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - heading [level=3]: "Goblin Warrior #1"
+                            - paragraph: monster
+                          - generic:
+                            - generic: "16"
+                            - generic:
+                              - img
+                              - text: "15"
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic: HP
+                                - generic: 10/10
+                              - progressbar
+                            - generic:
+                              - spinbutton
+                              - button [disabled]: DMG
+                              - button [disabled]: HEAL
+                        - generic:
+                          - button:
+                            - img
+                            - text: Add Condition
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - heading [level=3]: Hobgoblin Warrior
+                            - paragraph: monster
+                          - generic:
+                            - generic: "12"
+                            - generic:
+                              - img
+                              - text: "18"
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic: HP
+                                - generic: 11/11
+                              - progressbar
+                            - generic:
+                              - spinbutton
+                              - button [disabled]: DMG
+                              - button [disabled]: HEAL
+                        - generic:
+                          - button:
+                            - img
+                            - text: Add Condition
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - heading [level=3]: Rogue_1761309342941
+                            - paragraph: player character
+                          - generic:
+                            - generic: "8"
+                            - generic:
+                              - img
+                              - text: "15"
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic: HP
+                                - generic: 25/25
+                              - progressbar
+                            - generic:
+                              - spinbutton
+                              - button [disabled]: DMG
+                              - button [disabled]: HEAL
+                        - generic:
+                          - button:
+                            - img
+                            - text: Add Condition
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - heading [level=3]: "Goblin Warrior #2"
+                            - paragraph: monster
+                          - generic:
+                            - generic: "4"
+                            - generic:
+                              - img
+                              - text: "15"
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic: HP
+                                - generic: 10/10
+                              - progressbar
+                            - generic:
+                              - spinbutton
+                              - button [disabled]: DMG
+                              - button [disabled]: HEAL
+                        - generic:
+                          - button:
+                            - img
+                            - text: Add Condition
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - heading [level=3]: Fighter_1761309338312
+                            - paragraph: player character
+                          - generic:
+                            - generic: "3"
+                            - generic:
+                              - img
+                              - text: "16"
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic: HP
+                                - generic: 25/30
+                              - progressbar
+                            - generic:
+                              - spinbutton
+                              - button [disabled]: DMG
+                              - button [disabled]: HEAL
+                        - generic:
+                          - button:
+                            - img
+                            - text: Add Condition
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - heading [level=3]: Wizard_1761309341459
+                            - paragraph: player character
+                          - generic:
+                            - generic: "3"
+                            - generic:
+                              - img
+                              - text: "12"
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic: HP
+                                - generic: 20/20
+                              - progressbar
+                            - generic:
+                              - spinbutton
+                              - button [disabled]: DMG
+                              - button [disabled]: HEAL
+                        - generic:
+                          - button:
+                            - img
+                            - text: Add Condition
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - heading [level=2]: Hobgoblin wojownik
+                  - generic:
+                    - img
+                    - text: AC 18
+            - generic:
+              - generic:
+                - generic:
+                  - heading [level=3]:
+                    - img
+                    - text: Ability Scores
+                  - generic:
+                    - generic:
+                      - table:
+                        - rowgroup:
+                          - row:
+                            - cell: STR
+                            - cell: DEX
+                            - cell: CON
+                            - cell: INT
+                            - cell: WIS
+                            - cell: CHA
+                        - rowgroup:
+                          - row:
+                            - cell:
+                              - generic: "13"
+                              - generic: (+1)
+                            - cell:
+                              - generic: "12"
+                              - generic: (+1)
+                            - cell:
+                              - generic: "12"
+                              - generic: (+1)
+                            - cell:
+                              - generic: "10"
+                              - generic: (+0)
+                            - cell:
+                              - generic: "10"
+                              - generic: (+0)
+                            - cell:
+                              - generic: "9"
+                              - generic: (-1)
+                - generic:
+                  - heading [level=3]:
+                    - img
+                    - text: Combat Properties
+                  - generic:
+                    - generic:
+                      - generic:
+                        - img
+                        - generic: Gear
+                      - generic:
+                        - generic: Half Plate Armor
+                        - generic: Longbow
+                        - generic: Longsword
+                        - generic: Shield
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - img
+                        - generic: Traits
+                      - generic:
+                        - generic:
+                          - heading [level=4]: Pack Tactics
+                          - paragraph: The hobgoblin has Advantage on an attack roll against a creature if at least one of the hobgob-lin’s allies is within 5 feet of the creature and the ally doesn’t have the Incapacitated condition.
+                    - generic:
+                      - generic:
+                        - img
+                        - generic: Actions
+                      - generic:
+                        - button:
+                          - img
+                          - generic:
+                            - generic:
+                              - paragraph: Longsword
+                              - generic: "Attack: +3"
+                              - generic: 12 (2d10 + 1) Slashing
+                            - paragraph: "Melee Attack Roll: +3, reach 5 ft. Hit: 12 (2d10 + 1) Slashing damage."
+                        - button:
+                          - img
+                          - generic:
+                            - generic:
+                              - paragraph: Longbow
+                              - generic: "Attack: +3"
+                              - generic: 5 (1d8 + 1) Piercing
+                            - paragraph: "Ranged Attack Roll: +3, range 150/600 ft. Hit: 5 (1d8 + 1) Piercing damage plus 7 (3d4) Poi-son damage."
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: Roll Mode
+                    - radiogroup:
+                      - generic:
+                        - radio [checked]:
+                          - img
+                        - generic:
+                          - img
+                          - text: Normal
+                      - generic:
+                        - radio
+                        - generic:
+                          - img
+                          - text: Advantage
+                      - generic:
+                        - radio
+                        - generic:
+                          - img
+                          - text: Disadvantage
+                - generic:
+                  - generic:
+                    - paragraph: No rolls yet
+            - generic:
+              - generic:
+                - generic:
+                  - img
+                  - textbox:
+                    - /placeholder: Search...
+              - generic:
+                - tablist:
+                  - tab [selected]: Conditions
+                  - tab: Spells
+                  - tab: Monsters
+                - generic:
+                  - generic:
+                    - generic:
+                      - tabpanel:
+                        - generic:
+                          - generic:
+                            - heading [level=3]:
+                              - button:
+                                - text: Blinded
+                                - img
+                          - generic:
+                            - heading [level=3]:
+                              - button:
+                                - text: Charmed
+                                - img
+                          - generic:
+                            - heading [level=3]:
+                              - button:
+                                - text: Deafened
+                                - img
+                          - generic:
+                            - heading [level=3]:
+                              - button:
+                                - text: Exhaustion
+                                - img
+                          - generic:
+                            - heading [level=3]:
+                              - button:
+                                - text: Frightened
+                                - img
+                          - generic:
+                            - heading [level=3]:
+                              - button:
+                                - text: Grappled
+                                - img
+                          - generic:
+                            - heading [level=3]:
+                              - button:
+                                - text: Incapacitated
+                                - img
+                          - generic:
+                            - heading [level=3]:
+                              - button:
+                                - text: Invisible
+                                - img
+                          - generic:
+                            - heading [level=3]:
+                              - button:
+                                - text: Paralyzed
+                                - img
+                          - generic:
+                            - heading [level=3]:
+                              - button:
+                                - text: Petrified
+                                - img
+                          - generic:
+                            - heading [level=3]:
+                              - button:
+                                - text: Poisoned
+                                - img
+                          - generic:
+                            - heading [level=3]:
+                              - button:
+                                - text: Prone
+                                - img
+                          - generic:
+                            - heading [level=3]:
+                              - button:
+                                - text: Restrained
+                                - img
+                          - generic:
+                            - heading [level=3]:
+                              - button:
+                                - text: Stunned
+                                - img
+                          - generic:
+                            - heading [level=3]:
+                              - button:
+                                - text: Unconscious
+                                - img
   - region "Notifications alt+T"
-  - generic [ref=e7]:
-    - img [ref=e9]
-    - button "Open Tanstack query devtools" [ref=e57] [cursor=pointer]:
-      - img [ref=e58]
-  - button "Open Next.js Dev Tools" [ref=e111] [cursor=pointer]:
-    - img [ref=e112]
-  - alert [ref=e115]
+  - generic:
+    - generic:
+      - img
+    - button:
+      - img
+  - button "Open Next.js Dev Tools" [ref=e6] [cursor=pointer]:
+    - img [ref=e7]
+  - alert
+  - dialog:
+    - generic:
+      - heading [level=2]: Add Condition
+      - paragraph: Add a condition to Rogue_1761309342941
+    - generic:
+      - generic:
+        - generic: Condition
+        - combobox [expanded]:
+          - generic: Select a condition
+          - img
+      - generic:
+        - generic: Duration (rounds)
+        - spinbutton
+        - paragraph: Leave empty for indefinite duration
+    - generic:
+      - button: Cancel
+      - button [disabled]: Add Condition
+    - button:
+      - img
+      - generic: Close
+  - listbox [ref=e11]:
+    - option "Oślepiony" [active] [ref=e12]:
+      - generic [ref=e14]: Oślepiony
+    - option "Zauroczony" [ref=e15]:
+      - generic [ref=e17]: Zauroczony
+    - option "Głuchy" [ref=e18]:
+      - generic [ref=e20]: Głuchy
+    - option "Wyczerpanie" [ref=e21]:
+      - generic [ref=e23]: Wyczerpanie
+    - option "Przerażony" [ref=e24]:
+      - generic [ref=e26]: Przerażony
+    - option "Schwytany" [ref=e27]:
+      - generic [ref=e29]: Schwytany
+    - option "Obezwładniony" [ref=e30]:
+      - generic [ref=e32]: Obezwładniony
+    - option "Niewidzialny" [ref=e33]:
+      - generic [ref=e35]: Niewidzialny
+    - option "Sparaliżowany" [ref=e36]:
+      - generic [ref=e38]: Sparaliżowany
+    - option "Spetryfikowany" [ref=e39]:
+      - generic [ref=e41]: Spetryfikowany
+    - option "Zatrucie" [ref=e42]:
+      - generic [ref=e44]: Zatrucie
+    - option "Leżący" [ref=e45]:
+      - generic [ref=e47]: Leżący
+    - option "Skrępowany" [ref=e48]:
+      - generic [ref=e50]: Skrępowany
+    - option "Ogłuszony" [ref=e51]:
+      - generic [ref=e53]: Ogłuszony
+    - option "Nieprzytomny" [ref=e54]:
+      - generic [ref=e56]: Nieprzytomny
 ```

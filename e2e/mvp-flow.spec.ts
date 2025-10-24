@@ -2,6 +2,7 @@ import { test, expect } from "./fixtures/base";
 import { LoginPage } from "./page-objects/LoginPage";
 import { CampaignsPage } from "./page-objects/CampaignsPage";
 import { CharactersPage } from "./page-objects/CharactersPage";
+import { CombatsPage } from "./page-objects/CombatsPage";
 import { CombatWizardPage } from "./page-objects/CombatWizardPage";
 import { CombatTrackerPage } from "./page-objects/CombatTrackerPage";
 import { Sidebar } from "./page-objects/Sidebar";
@@ -154,6 +155,11 @@ test.describe("MVP Complete Flow", () => {
     await sidebar.goToCombat();
     await expect(page).toHaveURL(`/campaigns/${campaignId}/combats`);
 
+    // Click "Start New Combat" button to open the wizard
+    const combatsPage = new CombatsPage(page);
+    await combatsPage.clickCreateCombat();
+    await expect(page).toHaveURL(`/campaigns/${campaignId}/combats/new`);
+
     const wizardPage = new CombatWizardPage(page);
 
     const combatName = generateUniqueName("MVP Combat Session");
@@ -161,8 +167,8 @@ test.describe("MVP Complete Flow", () => {
       name: combatName,
       characters: [fighter.name, wizard.name, rogue.name],
       monsters: [
-        { name: "Goblin", count: 2 },
-        { name: "Orc", count: 1 },
+        { name: "Goblin Warrior", count: 2 },
+        { name: "Hobgoblin Warrior", count: 1 },
       ],
     });
 

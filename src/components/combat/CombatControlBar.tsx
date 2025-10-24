@@ -60,11 +60,11 @@ export function CombatControlBar({
         <div className="flex items-center justify-between gap-4 flex-wrap">
           {/* Left side - Combat controls */}
           <div className="flex items-center gap-2 flex-wrap">
-            <Button onClick={onRollInitiative} variant="outline" size="sm">
+            <Button onClick={onRollInitiative} variant="outline" size="sm" data-testid="roll-initiative-button">
               <Dices className="mr-2 h-4 w-4" />
               Roll Initiative
             </Button>
-            <Button onClick={onStartCombat} disabled={!hasParticipants || !allInitiativesSet} size="sm">
+            <Button onClick={onStartCombat} disabled={!hasParticipants || !allInitiativesSet} size="sm" data-testid="start-combat-button">
               <Play className="mr-2 h-4 w-4" />
               Start Combat
             </Button>
@@ -89,11 +89,11 @@ export function CombatControlBar({
           {/* Row 1: Back, Save, Language Toggle */}
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-2">
-              <Button onClick={handleBack} variant="ghost" size="sm">
+              <Button onClick={handleBack} variant="ghost" size="sm" data-testid="back-button">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back
               </Button>
-              <Button onClick={onSave} disabled={!isDirty || isSaving} variant="outline" size="sm">
+              <Button onClick={onSave} disabled={!isDirty || isSaving} variant="outline" size="sm" data-testid="save-combat-button">
                 <Save className="mr-2 h-4 w-4" />
                 {isSaving ? "Saving..." : "Save"}
               </Button>
@@ -116,7 +116,7 @@ export function CombatControlBar({
           {/* Row 2: Round Counter, Next Turn */}
           <div className="flex items-center gap-2 justify-between">
             <RoundCounter round={currentRound} />
-            <Button onClick={onNextTurn} size="sm" className="bg-emerald-600 hover:bg-emerald-700">
+            <Button onClick={onNextTurn} size="sm" className="bg-emerald-600 hover:bg-emerald-700" data-testid="next-turn-button">
               <ArrowRight className="mr-2 h-4 w-4" />
               Next Turn
               <span className="ml-2 text-xs text-emerald-200">(Space)</span>

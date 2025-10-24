@@ -91,10 +91,10 @@ export function Step4_AddNPCs({
 
       {/* Navigation */}
       <div className="flex justify-between pt-6">
-        <Button onClick={onBack} variant="outline" size="lg">
+        <Button data-testid="wizard-back-button" onClick={onBack} variant="outline" size="lg">
           Back
         </Button>
-        <Button onClick={onNext} size="lg">
+        <Button data-testid="wizard-next-button" onClick={onNext} size="lg">
           Next
         </Button>
       </div>

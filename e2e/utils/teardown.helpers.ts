@@ -1,13 +1,13 @@
 import { createClient } from "@supabase/supabase-js";
-import type { Database } from "../../src/db/database.types";
+import type { Database } from "../../src/types/database";
 
 /**
  * Creates a Supabase client for E2E test cleanup
  * Uses service role or anon key with user authentication
  */
 function createTestSupabaseClient() {
-  const supabaseUrl = process.env.SUPABASE_URL || process.env.PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_KEY || process.env.PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
     throw new Error("Supabase credentials not found in environment");

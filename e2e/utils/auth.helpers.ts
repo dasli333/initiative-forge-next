@@ -23,7 +23,7 @@ export function getTestUser() {
 export async function loginAsTestUser(page: Page) {
   const { username, password } = getTestUser();
 
-  await page.goto("/auth/login");
+  await page.goto("/login");
   await page.getByLabel(/email/i).fill(username);
   await page.getByLabel(/password/i).fill(password);
   await page.getByRole("button", { name: /sign in|log in/i }).click();
@@ -44,7 +44,7 @@ export async function logout(page: Page) {
   await logoutButton.click();
 
   // Wait for redirect to login page
-  await page.waitForURL(/\/auth\/login/, { timeout: 10000 });
+  await page.waitForURL(/\/login/, { timeout: 10000 });
 }
 
 /**
@@ -52,8 +52,8 @@ export async function logout(page: Page) {
  */
 export async function isAuthenticated(page: Page): Promise<boolean> {
   await page.goto("/campaigns");
-  await page.waitForURL(/\/(campaigns|auth\/login)/);
+  await page.waitForURL(/\/(campaigns|login)/);
 
   const currentUrl = page.url();
-  return !currentUrl.includes("/auth/login");
+  return !currentUrl.includes("/login");
 }

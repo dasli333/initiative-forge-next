@@ -21,7 +21,7 @@ export function ConditionBadge({ condition, fullCondition, onRemove }: Condition
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Badge variant="outline" className="group relative gap-1 pr-5">
+          <Badge variant="outline" className="group relative gap-1 pr-5" data-testid={`condition-badge-${fullCondition.name[selectedLanguage]}`}>
             <span className="truncate max-w-[80px]">
               {fullCondition.name[selectedLanguage]}
               {condition.duration_in_rounds !== null && ` ${condition.duration_in_rounds}`}
@@ -35,6 +35,7 @@ export function ConditionBadge({ condition, fullCondition, onRemove }: Condition
                 onRemove(condition.condition_id);
               }}
               aria-label={`Remove ${fullCondition.name[selectedLanguage]} condition`}
+              data-testid="remove-condition-button"
             >
               <X className="h-3 w-3" />
             </Button>

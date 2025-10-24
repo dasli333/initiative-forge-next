@@ -99,12 +99,25 @@ export class CombatWizardPage {
 
     if (isVisible) {
       await addButton.click();
+      // Wait for the monster to be added - the count badge should appear
+      const countBadge = this.monsterCountInput(monsterName);
+      await countBadge.waitFor({ state: "visible", timeout: 5000 });
     }
 
-    // Set the count
+    // Set the count if different from 1
     if (count > 1) {
-      const countInput = this.monsterCountInput(monsterName);
-      await countInput.fill(count.toString());
+      // Click the badge to enter edit mode (this will show the input)
+      const countBadge = this.monsterCountInput(monsterName);
+      await countBadge.click();
+
+      // Wait a bit for the input to appear and be ready
+      await this.page.waitForTimeout(200);
+
+      // Now fill the input
+      await countBadge.fill(count.toString());
+
+      // Press Enter or blur to confirm (Enter is handled by the component)
+      await countBadge.press("Enter");
     }
   }
 
