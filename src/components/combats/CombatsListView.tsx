@@ -58,15 +58,15 @@ export function CombatsListView({ campaignId, campaignName }: CombatsListViewPro
   }, [campaignId, router]);
 
   const handleResume = useCallback(
-    (combatId: string) => {
-      router.push(`/combats/${combatId}`);
+    (combat: CombatSummaryDTO) => {
+      router.push(`/combats/${combat.id}?campaignId=${combat.campaign_id}`);
     },
     [router]
   );
 
   const handleView = useCallback(
-    (combatId: string) => {
-      router.push(`/combats/${combatId}`);
+    (combat: CombatSummaryDTO) => {
+      router.push(`/combats/${combat.id}?campaignId=${combat.campaign_id}`);
     },
     [router]
   );

@@ -15,8 +15,8 @@ import type { CombatSummaryDTO } from '@/types';
 
 export interface CombatCardProps {
   combat: CombatSummaryDTO;
-  onResume: (id: string) => void;
-  onView: (id: string) => void;
+  onResume: (combat: CombatSummaryDTO) => void;
+  onView: (combat: CombatSummaryDTO) => void;
   onDelete: (combat: CombatSummaryDTO) => void;
 }
 
@@ -70,7 +70,7 @@ export function CombatCard({ combat, onResume, onView, onDelete }: CombatCardPro
       </CardContent>
       <CardFooter className="gap-2">
         <Button
-          onClick={() => (isActive ? onResume(combat.id) : onView(combat.id))}
+          onClick={() => (isActive ? onResume(combat) : onView(combat))}
           variant={isActive ? 'default' : 'secondary'}
           className={isActive ? 'flex-1 bg-emerald-600 hover:bg-emerald-700' : 'flex-1'}
         >

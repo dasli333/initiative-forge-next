@@ -5,8 +5,8 @@ import type { CombatSummaryDTO } from '@/types';
 
 export interface CombatsGridProps {
   combats: CombatSummaryDTO[];
-  onResume: (id: string) => void;
-  onView: (id: string) => void;
+  onResume: (combat: CombatSummaryDTO) => void;
+  onView: (combat: CombatSummaryDTO) => void;
   onDelete: (combat: CombatSummaryDTO) => void;
 }
 

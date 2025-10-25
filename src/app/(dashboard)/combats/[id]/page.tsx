@@ -5,14 +5,20 @@ import { getSupabaseServerClient } from "@/lib/supabase.server";
 import { notFound } from "next/navigation";
 import type { CombatDTO, Condition } from "@/types";
 
+export const dynamic = 'force-dynamic';
+
 interface CombatPageProps {
   params: Promise<{
     id: string;
   }>;
+  searchParams: Promise<{
+    campaignId?: string;
+  }>;
 }
 
-export default async function CombatPage({ params }: CombatPageProps) {
+export default async function CombatPage({ params, searchParams }: CombatPageProps) {
   const { id } = await params;
+  const { campaignId: campaignIdFromQuery } = await searchParams;
 
   const queryClient = getQueryClient();
   const supabase = await getSupabaseServerClient();
@@ -21,7 +27,7 @@ export default async function CombatPage({ params }: CombatPageProps) {
   let combatData: CombatDTO | null = null;
 
   try {
-    await queryClient.prefetchQuery({
+    combatData = await queryClient.fetchQuery({
       queryKey: ["combat", id],
       queryFn: async () => {
         const { data, error } = await supabase
@@ -37,9 +43,9 @@ export default async function CombatPage({ params }: CombatPageProps) {
           throw error;
         }
 
-        combatData = data as CombatDTO;
         return data as CombatDTO;
       },
+      staleTime: 0, // Always fetch fresh data
     });
 
     // Prefetch conditions
@@ -57,18 +63,26 @@ export default async function CombatPage({ params }: CombatPageProps) {
       },
     });
   } catch (error) {
-    console.error("[Combat Page] Error prefetching combat:", error);
+    console.error("[Combat Page] Error prefetching combat:", {
+      error,
+      combatId: id,
+      campaignIdFromQuery,
+    });
     notFound();
   }
 
   const dehydratedState = dehydrate(queryClient);
 
-  // Get cached combat to extract campaignId
-  const cachedCombat = queryClient.getQueryData(["combat", id]) as CombatDTO | undefined;
-  const campaignId = cachedCombat?.campaign_id;
+  // Extract campaignId from fetched combat data, with query param as fallback
+  const campaignId = combatData?.campaign_id || campaignIdFromQuery;
 
   if (!campaignId || !combatData) {
-    console.error("[Combat Page] Missing campaignId or combatData");
+    console.error("[Combat Page] Missing campaignId or combatData", {
+      campaignId,
+      campaignIdFromQuery,
+      combatDataCampaignId: combatData?.campaign_id,
+      hasCombatData: !!combatData,
+    });
     notFound();
   }
 
