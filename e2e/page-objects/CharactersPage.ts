@@ -112,8 +112,9 @@ export class CharactersPage {
     await this.fillCharacterForm(data);
     await this.submitButton.click();
 
-    // Wait for modal to close
-    await this.page.waitForTimeout(500);
+    // Wait for character card to appear
+    const characterCard = this.getCharacterCard(data.name);
+    await characterCard.waitFor({ state: "visible", timeout: 10000 });
   }
 
   /**
@@ -182,7 +183,9 @@ export class CharactersPage {
     }
 
     await this.submitButton.click();
-    await this.page.waitForTimeout(500);
+
+    // Wait for the form dialog to close
+    await this.characterNameInput.waitFor({ state: "hidden", timeout: 10000 });
   }
 
   /**
@@ -203,8 +206,8 @@ export class CharactersPage {
     const confirmButton = this.page.getByTestId("confirm-delete-character");
     await confirmButton.click();
 
-    // Wait for deletion to complete
-    await this.page.waitForTimeout(500);
+    // Wait for character card to disappear
+    await card.waitFor({ state: "hidden", timeout: 10000 });
   }
 
   /**

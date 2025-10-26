@@ -41,8 +41,9 @@ export class CampaignsPage {
     await this.campaignNameInput.fill(name);
     await this.confirmCreateButton.click();
 
-    // Wait for the modal to close and campaign to appear
-    await this.page.waitForTimeout(500);
+    // Wait for the campaign card to appear
+    const campaignCard = this.getCampaignCard(name);
+    await campaignCard.waitFor({ state: "visible", timeout: 10000 });
   }
 
   /**
@@ -83,8 +84,9 @@ export class CampaignsPage {
     const saveButton = card.getByTestId("save-campaign-name");
     await saveButton.click();
 
-    // Wait for save to complete
-    await this.page.waitForTimeout(500);
+    // Wait for the new campaign card to appear
+    const newCard = this.getCampaignCard(newName);
+    await newCard.waitFor({ state: "visible", timeout: 10000 });
   }
 
   /**
@@ -105,8 +107,8 @@ export class CampaignsPage {
     const confirmButton = this.page.getByTestId("confirm-delete-campaign");
     await confirmButton.click();
 
-    // Wait for deletion to complete
-    await this.page.waitForTimeout(500);
+    // Wait for the campaign card to disappear
+    await card.waitFor({ state: "hidden", timeout: 10000 });
   }
 
   /**

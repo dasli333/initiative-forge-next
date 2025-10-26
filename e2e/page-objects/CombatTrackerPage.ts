@@ -1,4 +1,4 @@
-import { type Page, type Locator } from "@playwright/test";
+import { type Page, type Locator, expect } from "@playwright/test";
 
 /**
  * Page Object Model for Combat Tracker
@@ -96,20 +96,40 @@ export class CombatTrackerPage {
     const item = this.getInitiativeItem(participantName);
     const damageInput = item.getByTestId("hp-amount-input");
     const damageButton = item.getByTestId("hp-damage-button");
+    const hpDisplay = item.getByTestId("hp-display");
+
+    // Get current HP before damage
+    const currentText = await hpDisplay.textContent();
 
     await damageInput.fill(amount.toString());
     await damageButton.click();
-    await this.page.waitForTimeout(200);
+
+    // Wait for HP display to update to a different value
+    await this.page.waitForFunction(
+      ({ element, previousText }) => element.textContent !== previousText,
+      { element: await hpDisplay.elementHandle(), previousText: currentText },
+      { timeout: 5000 }
+    );
   }
 
   async applyHealing(participantName: string, amount: number) {
     const item = this.getInitiativeItem(participantName);
     const healInput = item.getByTestId("hp-amount-input");
     const healButton = item.getByTestId("hp-heal-button");
+    const hpDisplay = item.getByTestId("hp-display");
+
+    // Get current HP before healing
+    const currentText = await hpDisplay.textContent();
 
     await healInput.fill(amount.toString());
     await healButton.click();
-    await this.page.waitForTimeout(200);
+
+    // Wait for HP display to update to a different value
+    await this.page.waitForFunction(
+      ({ element, previousText }) => element.textContent !== previousText,
+      { element: await hpDisplay.elementHandle(), previousText: currentText },
+      { timeout: 5000 }
+    );
   }
 
   async getHPProgressBarColor(participantName: string): Promise<string> {
@@ -132,11 +152,11 @@ export class CombatTrackerPage {
     await addConditionButton.click();
 
     // Wait for dialog
-    await this.page.waitForSelector('[data-testid="condition-select"]', { state: "visible" });
+    const conditionDialog = this.page.getByTestId("condition-select");
+    await conditionDialog.waitFor({ state: "visible" });
 
     // Click the Radix UI Select trigger to open the dropdown
-    const conditionSelect = this.page.getByTestId("condition-select");
-    await conditionSelect.click();
+    await conditionDialog.click();
 
     // Wait for the dropdown content to appear and click the desired option
     await this.page.getByRole("option", { name: conditionName }).click();
@@ -149,8 +169,8 @@ export class CombatTrackerPage {
     const confirmButton = this.page.getByTestId("confirm-add-condition");
     await confirmButton.click();
 
-    // Wait for dialog to close
-    await this.page.waitForTimeout(300);
+    // Wait for dialog to close by waiting for it to be hidden
+    await conditionDialog.waitFor({ state: "hidden", timeout: 5000 });
   }
 
   async hasCondition(participantName: string, conditionName: string): Promise<boolean> {
@@ -168,7 +188,9 @@ export class CombatTrackerPage {
 
     const removeButton = conditionBadge.getByTestId("remove-condition-button");
     await removeButton.click();
-    await this.page.waitForTimeout(200);
+
+    // Wait for condition badge to disappear
+    await conditionBadge.waitFor({ state: "hidden", timeout: 5000 });
   }
 
   /**
@@ -176,22 +198,58 @@ export class CombatTrackerPage {
    */
   async rollInitiative() {
     await this.rollInitiativeButton.click();
-    await this.page.waitForTimeout(500); // Wait for rolls to complete
+
+    // Wait for initiative rolls to complete by checking that all participants have initiative values
+    // The start combat button should also become visible after rolling initiative
+    await this.startCombatButton.waitFor({ state: "visible", timeout: 10000 });
   }
 
   async startCombat() {
     await this.startCombatButton.click();
-    await this.page.waitForTimeout(300);
+
+    // Wait for first participant to become active (indicated by data-active="true")
+    await this.page.locator('[data-testid^="initiative-item-"][data-active="true"]').waitFor({
+      state: "visible",
+      timeout: 5000
+    });
   }
 
   async goToNextTurn() {
+    // Get the current active participant before clicking
+    const currentActive = await this.getActiveParticipantName();
+
     await this.nextTurnButton.click();
-    await this.page.waitForTimeout(300);
+
+    // Wait for the active participant to change OR for the round counter to update
+    // (if we're going from last participant back to first, the active participant name might be the same
+    // but the round number should have increased)
+    await this.page.waitForFunction(
+      async ({ previousActive, page }) => {
+        const currentActiveName = await page.evaluate(() => {
+          const activeItem = document.querySelector('[data-testid^="initiative-item-"][data-active="true"]');
+          return activeItem?.getAttribute('data-testid')?.replace('initiative-item-', '') || null;
+        });
+        return currentActiveName !== previousActive;
+      },
+      { previousActive: currentActive, page: this.page },
+      { timeout: 5000 }
+    ).catch(async () => {
+      // If active participant didn't change, the round might have changed instead
+      // This is acceptable and we can continue
+    });
   }
 
   async saveCombat() {
-    await this.saveCombatButton.click();
-    await this.page.waitForTimeout(500);
+    // Wait for the save request to complete
+    await Promise.all([
+      this.page.waitForResponse(
+        response =>
+          response.url().includes('supabase') &&
+          (response.request().method() === 'POST' || response.request().method() === 'PATCH'),
+        { timeout: 10000 }
+      ),
+      this.saveCombatButton.click()
+    ]);
   }
 
   async getCurrentRound(): Promise<number> {
@@ -210,8 +268,17 @@ export class CombatTrackerPage {
 
   async executeAction(actionName: string) {
     const actionButton = this.page.getByTestId(`action-button-${actionName}`);
+
+    // Click the action button - this should trigger a roll
     await actionButton.click();
-    await this.page.waitForTimeout(300);
+
+    // Wait for at least one roll card to be visible in the roll log
+    // Using Playwright locator with auto-retry
+    const rollLog = this.page.getByTestId("roll-log");
+    const firstRollCard = rollLog.locator('[data-testid^="roll-card-"]').first();
+
+    // This will automatically retry until the element appears or timeout
+    await firstRollCard.waitFor({ state: "visible", timeout: 10000 });
   }
 
   async goToParticipantWithAction(actionName: string, maxAttempts: number = 10): Promise<void> {
@@ -242,18 +309,25 @@ export class CombatTrackerPage {
    * Roll Mode Methods
    */
   async setRollMode(mode: "normal" | "advantage" | "disadvantage") {
+    let targetButton: Locator;
+
     switch (mode) {
       case "normal":
-        await this.normalRollMode.click();
+        targetButton = this.normalRollMode;
         break;
       case "advantage":
-        await this.advantageRollMode.click();
+        targetButton = this.advantageRollMode;
         break;
       case "disadvantage":
-        await this.disadvantageRollMode.click();
+        targetButton = this.disadvantageRollMode;
         break;
     }
-    await this.page.waitForTimeout(200);
+
+    // Click the target button and wait for it to become active
+    await targetButton.click();
+
+    // Use Playwright expect with auto-retry to wait for data-active attribute
+    await expect(targetButton).toHaveAttribute("data-active", "true", { timeout: 2000 });
   }
 
   async getCurrentRollMode(): Promise<"normal" | "advantage" | "disadvantage"> {

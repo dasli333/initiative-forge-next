@@ -88,17 +88,12 @@ export class CombatWizardPage {
    */
   async searchMonster(searchTerm: string) {
     await this.monsterSearchInput.fill(searchTerm);
-    // Wait for search results - either monster card appears or "no results" message
-    await this.page.waitForTimeout(300); // Initial debounce wait
 
     // Wait for either search results or no results message
     await Promise.race([
-      this.page.waitForSelector('[data-testid^="monster-card-"]', { state: "visible", timeout: 3000 }).catch(() => null),
-      this.page.waitForSelector('text=No monsters found', { state: "visible", timeout: 3000 }).catch(() => null)
+      this.page.waitForSelector('[data-testid^="monster-card-"]', { state: "visible", timeout: 5000 }),
+      this.page.waitForSelector('text=No monsters found', { state: "visible", timeout: 5000 })
     ]);
-
-    // Additional small wait for UI to stabilize
-    await this.page.waitForTimeout(200);
   }
 
   async addMonster(monsterName: string, count: number = 1) {
@@ -123,8 +118,12 @@ export class CombatWizardPage {
       const countBadge = this.monsterCountInput(monsterName);
       await countBadge.click();
 
-      // Wait a bit for the input to appear and be ready
-      await this.page.waitForTimeout(200);
+      // Wait for the input to be enabled
+      await this.page.waitForFunction(
+        ({ badge }) => !badge.hasAttribute('disabled') && !badge.hasAttribute('readonly'),
+        { badge: await countBadge.elementHandle() },
+        { timeout: 5000 }
+      );
 
       // Now fill the input
       await countBadge.fill(count.toString());
@@ -139,12 +138,17 @@ export class CombatWizardPage {
    */
   async goToNextStep() {
     await this.nextButton.click();
-    await this.page.waitForTimeout(300); // Wait for step transition
+
+    // Wait for the next button to disappear or create button to appear
+    // This indicates the step transition is complete
+    await this.page.waitForLoadState("domcontentloaded");
   }
 
   async goToPreviousStep() {
     await this.backButton.click();
-    await this.page.waitForTimeout(300);
+
+    // Wait for the step transition to complete
+    await this.page.waitForLoadState("domcontentloaded");
   }
 
   async finishWizard() {

@@ -32,7 +32,10 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-3 px-4 py-3 hover:bg-slate-800 transition-colors w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+        <button
+          data-testid="user-menu-trigger"
+          className="flex items-center gap-3 px-4 py-3 hover:bg-slate-800 transition-colors w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+        >
           <Avatar className="h-8 w-8">
             {user.avatar && <AvatarImage src={user.avatar} alt={user.email} />}
             <AvatarFallback className="bg-emerald-500/10 text-emerald-500">{getInitials(user.email)}</AvatarFallback>
@@ -43,7 +46,11 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
       <DropdownMenuContent align="start" className="w-56">
         <DropdownMenuLabel className="text-slate-200">{user.email}</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={onLogout} className="text-destructive focus:text-destructive cursor-pointer">
+        <DropdownMenuItem
+          data-testid="logout-button"
+          onClick={onLogout}
+          className="text-destructive focus:text-destructive cursor-pointer"
+        >
           <LogOut className="mr-2 h-4 w-4" />
           <span>Logout</span>
         </DropdownMenuItem>

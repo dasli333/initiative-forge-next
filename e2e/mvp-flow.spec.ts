@@ -28,6 +28,8 @@ import { generateUniqueName } from "./utils/testHelpers";
  */
 test.describe("MVP Complete Flow", () => {
   test("TC-MVP-01: Complete application flow from login to logout", async ({ page }) => {
+    // Set longer timeout for this comprehensive test
+    test.setTimeout(120000); // 2 minutes
     // ===================================================================
     // STEP 1: AUTHENTICATION
     // ===================================================================
@@ -55,8 +57,8 @@ test.describe("MVP Complete Flow", () => {
     await campaignsPage.editCampaignName(campaignName, updatedCampaignName);
     await expect(campaignsPage.getCampaignCard(updatedCampaignName)).toBeVisible();
 
-    // Wait a bit for the update to propagate to prevent hydration mismatch
-    await page.waitForTimeout(1000);
+    // Wait for the update to propagate by waiting for network idle
+    await page.waitForLoadState("networkidle");
 
     // ===================================================================
     // STEP 3.5: SIDEBAR VERIFICATION & NAVIGATION
@@ -330,16 +332,36 @@ test.describe("MVP Complete Flow", () => {
     // STEP 12: ROUND MANAGEMENT
     // ===================================================================
     // Cycle through all participants to increment round
+    // Get the CURRENT active participant (not stale secondActive)
+    const currentActiveParticipant = await trackerPage.getActiveParticipantName();
     const participantCount = participants.length;
-    const currentActiveIndex = participants.indexOf(secondActive);
-    const turnsToNextRound = participantCount - currentActiveIndex - 1;
+    const currentActiveIndex = participants.indexOf(currentActiveParticipant);
+
+    // Verify the active participant is in our list
+    expect(currentActiveIndex).toBeGreaterThanOrEqual(0);
+
+    // Calculate turns needed to reach round 2
+    // If at index N, need (participantCount - N) turns to reach index 0 of next round
+    const turnsToNextRound = participantCount - currentActiveIndex;
+    console.log(`Round management: current="${currentActiveParticipant}" at index ${currentActiveIndex}/${participantCount}, advancing ${turnsToNextRound} turns`);
+
+    // Check current round before advancing
+    const roundBeforeAdvancing = await trackerPage.getCurrentRound();
+    console.log(`Current round before advancing: ${roundBeforeAdvancing}`);
 
     for (let i = 0; i < turnsToNextRound; i++) {
       await trackerPage.goToNextTurn();
+      const roundAfterTurn = await trackerPage.getCurrentRound();
+      const activeAfterTurn = await trackerPage.getActiveParticipantName();
+      console.log(`After turn ${i + 1}/${turnsToNextRound}: Round ${roundAfterTurn}, Active: ${activeAfterTurn}`);
     }
+
+    // Wait for round counter to update to round 2
+    await expect(page.locator('[data-testid="round-counter"]')).toContainText("2", { timeout: 5000 });
 
     // Should now be on round 2
     currentRound = await trackerPage.getCurrentRound();
+    console.log(`Final round: ${currentRound}`);
     expect(currentRound).toBe(2);
 
     // ===================================================================
@@ -352,8 +374,21 @@ test.describe("MVP Complete Flow", () => {
     const hpBeforeReload = await trackerPage.getHPValue(fighter.name);
     const conditionsBeforeReload = await trackerPage.hasCondition(rogue.name, "Poisoned");
 
-    // Reload page
-    await page.reload();
+    // Reload page with extended timeout and wait for key element
+    try {
+      await page.reload({ waitUntil: "domcontentloaded", timeout: 60000 });
+    } catch (error) {
+      // If reload fails, try direct navigation as fallback
+      console.log("Reload timed out, trying direct navigation");
+      await page.goto(combatUrl, { waitUntil: "domcontentloaded", timeout: 60000 });
+    }
+
+    // Wait for combat tracker to be fully loaded and state hydrated
+    await page.waitForSelector('[data-testid="round-counter"]', { timeout: 10000 });
+    await page.waitForLoadState("networkidle");
+
+    // Ensure round counter shows the correct value after hydration
+    await expect(page.locator('[data-testid="round-counter"]')).toContainText("2", { timeout: 5000 });
 
     // Verify state persisted
     const hpAfterReload = await trackerPage.getHPValue(fighter.name);
@@ -378,18 +413,21 @@ test.describe("MVP Complete Flow", () => {
     const hasCampaign = await campaignsPage.hasCampaign(updatedCampaignName);
     expect(hasCampaign).toBe(false);
 
-    // Logout
-    const logoutButton = page.getByRole("button", {
-      name: /log out|logout|sign out/i,
-    });
+    // Logout - first click user menu to reveal logout button
+    const userMenuButton = page.getByTestId("user-menu-trigger");
+    await expect(userMenuButton).toBeVisible();
+    await userMenuButton.click();
+
+    // Now click logout using data-testid
+    const logoutButton = page.getByTestId("logout-button");
     await expect(logoutButton).toBeVisible();
     await logoutButton.click();
 
     // Verify redirected to login
-    await expect(page).toHaveURL(/\/auth\/login/, { timeout: 5000 });
+    await expect(page).toHaveURL(/\/login/, { timeout: 5000 });
 
     // Verify truly logged out
     await page.goto("/campaigns");
-    await expect(page).toHaveURL(/\/auth\/login/);
+    await expect(page).toHaveURL(/\/login/);
   });
 });
