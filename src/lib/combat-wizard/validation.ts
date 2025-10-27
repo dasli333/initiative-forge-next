@@ -19,7 +19,7 @@ export function validateStep1(combatName: string): {
   if (!result.success) {
     return {
       valid: false,
-      error: result.error.errors[0]?.message || "Invalid combat name",
+      error: result.error.issues[0]?.message || "Invalid combat name",
     };
   }
 
@@ -41,7 +41,7 @@ export function validateStep2(selectedIds: string[]): {
   if (!result.success) {
     return {
       valid: false,
-      error: result.error.errors[0]?.message || "Invalid player character selection",
+      error: result.error.issues[0]?.message || "Invalid player character selection",
     };
   }
 
@@ -84,7 +84,7 @@ export function validateSimpleNPCForm(form: SimpleNPCFormData): {
 
   if (!result.success) {
     const errors: Partial<Record<keyof SimpleNPCFormData, string>> = {};
-    result.error.errors.forEach((err) => {
+    result.error.issues.forEach((err) => {
       const path = err.path[0] as keyof SimpleNPCFormData;
       if (path) {
         errors[path] = err.message;
@@ -109,7 +109,7 @@ export function validateAdvancedNPCForm(form: AdvancedNPCFormData): {
 
   if (!result.success) {
     const errors: Partial<Record<string, string>> = {};
-    result.error.errors.forEach((err) => {
+    result.error.issues.forEach((err) => {
       const path = err.path.join(".");
       if (path) {
         errors[path] = err.message;

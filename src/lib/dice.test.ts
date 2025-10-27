@@ -19,7 +19,7 @@ import {
 // ============================================================================
 
 // Mock Math.random for deterministic tests
-let randomMock: ReturnType<typeof vi.spyOn>;
+let randomMock: any;
 
 // Mock crypto.randomUUID for predictable IDs
 const mockUUIDs = [
@@ -62,14 +62,14 @@ afterEach(() => {
 function createTestAction(options: {
   name: string;
   attackBonus?: number;
-  damage?: Array<{ formula: string; type: string }>;
+  damage?: Array<{ average: number; formula: string; type: string }>;
 }): ActionDTO {
   return {
-    id: "test-action-id",
     name: options.name,
+    type: "weapon_attack",
     description: "Test action description",
     attackRoll: options.attackBonus !== undefined
-      ? { bonus: options.attackBonus }
+      ? { type: "melee", bonus: options.attackBonus }
       : undefined,
     damage: options.damage,
   };
@@ -530,7 +530,7 @@ describe("executeAttack", () => {
       const action = createTestAction({
         name: "Longsword",
         attackBonus: 5,
-        damage: [{ formula: "1d8+3", type: "slashing" }],
+        damage: [{ average: 7, formula: "1d8+3", type: "slashing" }],
       });
 
       const result = executeAttack(action, "normal");
@@ -558,9 +558,9 @@ describe("executeAttack", () => {
         name: "Flaming Frostbrand",
         attackBonus: 3,
         damage: [
-          { formula: "1d8+3", type: "slashing" },
-          { formula: "1d6", type: "fire" },
-          { formula: "1d6", type: "cold" },
+          { average: 10, formula: "1d8+3", type: "slashing" },
+          { average: 10, formula: "1d6", type: "fire" },
+          { average: 10, formula: "1d6", type: "cold" },
         ],
       });
 
@@ -602,7 +602,7 @@ describe("executeAttack", () => {
 
       const action = createTestAction({
         name: "Magic Missile",
-        damage: [{ formula: "2d4+2", type: "force" }],
+        damage: [{ average: 7, formula: "2d4+2", type: "force" }],
       });
 
       const result = executeAttack(action, "normal");
@@ -621,7 +621,7 @@ describe("executeAttack", () => {
       const action = createTestAction({
         name: "Greatsword",
         attackBonus: 5,
-        damage: [{ formula: "2d6+4", type: "slashing" }],
+        damage: [{ average: 10, formula: "2d6+4", type: "slashing" }],
       });
 
       const result = executeAttack(action, "normal");
@@ -641,8 +641,8 @@ describe("executeAttack", () => {
         name: "Flametongue",
         attackBonus: 5,
         damage: [
-          { formula: "1d8+3", type: "slashing" },
-          { formula: "1d6", type: "fire" },
+          { average: 10, formula: "1d8+3", type: "slashing" },
+          { average: 10, formula: "1d6", type: "fire" },
         ],
       });
 
@@ -658,7 +658,7 @@ describe("executeAttack", () => {
 
       const action = createTestAction({
         name: "Fireball",
-        damage: [{ formula: "8d6", type: "fire" }],
+        damage: [{ average: 10, formula: "8d6", type: "fire" }],
       });
 
       const result = executeAttack(action, "normal");
@@ -675,7 +675,7 @@ describe("executeAttack", () => {
       const action = createTestAction({
         name: "Sword",
         attackBonus: 3,
-        damage: [{ formula: "1d8+2", type: "slashing" }],
+        damage: [{ average: 10, formula: "1d8+2", type: "slashing" }],
       });
 
       const result = executeAttack(action, "advantage");
@@ -690,7 +690,7 @@ describe("executeAttack", () => {
       const action = createTestAction({
         name: "Sword",
         attackBonus: 3,
-        damage: [{ formula: "1d8+2", type: "slashing" }],
+        damage: [{ average: 10, formula: "1d8+2", type: "slashing" }],
       });
 
       const result = executeAttack(action, "disadvantage");
@@ -757,7 +757,7 @@ describe("createRollResults", () => {
     const action = createTestAction({
       name: "Longsword",
       attackBonus: 5,
-      damage: [{ formula: "1d8+3", type: "slashing" }],
+      damage: [{ average: 10, formula: "1d8+3", type: "slashing" }],
     });
 
     const attackResult = {
@@ -813,8 +813,8 @@ describe("createRollResults", () => {
       name: "Flametongue",
       attackBonus: 5,
       damage: [
-        { formula: "1d8+3", type: "slashing" },
-        { formula: "2d6", type: "fire" },
+        { average: 10, formula: "1d8+3", type: "slashing" },
+        { average: 10, formula: "2d6", type: "fire" },
       ],
     });
 
@@ -844,7 +844,7 @@ describe("createRollResults", () => {
   it("should create only damage results when no attack roll", () => {
     const action = createTestAction({
       name: "Magic Missile",
-      damage: [{ formula: "1d4+1", type: "force" }],
+      damage: [{ average: 10, formula: "1d4+1", type: "force" }],
     });
 
     const damageResults = [
@@ -882,7 +882,7 @@ describe("createRollResults", () => {
     const action = createTestAction({
       name: "Crit Test",
       attackBonus: 3,
-      damage: [{ formula: "1d6", type: "slashing" }],
+      damage: [{ average: 10, formula: "1d6", type: "slashing" }],
     });
 
     const attackResult = {
@@ -906,7 +906,7 @@ describe("createRollResults", () => {
     const action = createTestAction({
       name: "Fail Test",
       attackBonus: 5,
-      damage: [{ formula: "1d8", type: "bludgeoning" }],
+      damage: [{ average: 10, formula: "1d8", type: "bludgeoning" }],
     });
 
     const attackResult = {
@@ -929,7 +929,7 @@ describe("createRollResults", () => {
   it("should extract modifier from damage formula with spaces", () => {
     const action = createTestAction({
       name: "Test",
-      damage: [{ formula: "1d8 + 5", type: "piercing" }],
+      damage: [{ average: 10, formula: "1d8 + 5", type: "piercing" }],
     });
 
     const damageResults = [
@@ -944,7 +944,7 @@ describe("createRollResults", () => {
   it("should extract negative modifier from damage formula", () => {
     const action = createTestAction({
       name: "Test",
-      damage: [{ formula: "1d6-2", type: "slashing" }],
+      damage: [{ average: 10, formula: "1d6-2", type: "slashing" }],
     });
 
     const damageResults = [
@@ -960,7 +960,7 @@ describe("createRollResults", () => {
     const action = createTestAction({
       name: "Weak Attack",
       attackBonus: -2,
-      damage: [{ formula: "1d4", type: "slashing" }],
+      damage: [{ average: 10, formula: "1d4", type: "slashing" }],
     });
 
     const attackResult = {
@@ -996,7 +996,7 @@ describe("Integration: Full Attack Flow", () => {
     const action = createTestAction({
       name: "Longsword",
       attackBonus: 5,
-      damage: [{ formula: "1d8+3", type: "slashing" }],
+      damage: [{ average: 10, formula: "1d8+3", type: "slashing" }],
     });
 
     // Execute attack
@@ -1036,8 +1036,8 @@ describe("Integration: Full Attack Flow", () => {
       name: "Flametongue",
       attackBonus: 5,
       damage: [
-        { formula: "1d8+3", type: "slashing" },
-        { formula: "1d6", type: "fire" },
+        { average: 10, formula: "1d8+3", type: "slashing" },
+        { average: 10, formula: "1d6", type: "fire" },
       ],
     });
 
@@ -1068,7 +1068,7 @@ describe("Integration: Full Attack Flow", () => {
 
     const action = createTestAction({
       name: "Fireball",
-      damage: [{ formula: "8d6", type: "fire" }],
+      damage: [{ average: 10, formula: "8d6", type: "fire" }],
     });
 
     const attackExecution = executeAttack(action, "normal");
@@ -1095,7 +1095,7 @@ describe("Integration: Full Attack Flow", () => {
     const action = createTestAction({
       name: "Greatsword",
       attackBonus: 4,
-      damage: [{ formula: "2d6+3", type: "slashing" }],
+      damage: [{ average: 10, formula: "2d6+3", type: "slashing" }],
     });
 
     const attackExecution = executeAttack(action, "advantage");
@@ -1123,7 +1123,7 @@ describe("Integration: Full Attack Flow", () => {
     const action = createTestAction({
       name: "Dagger",
       attackBonus: 2,
-      damage: [{ formula: "1d4+2", type: "piercing" }],
+      damage: [{ average: 10, formula: "1d4+2", type: "piercing" }],
     });
 
     const attackExecution = executeAttack(action, "disadvantage");

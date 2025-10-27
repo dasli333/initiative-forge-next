@@ -5,7 +5,7 @@ import type {
   CombatStats,
   SimpleNPCFormData,
 } from "@/lib/schemas";
-import type { CreateCombatCommand, InitialParticipant } from "@/types";
+import type { CreateCombatCommand, InitialParticipantCommand } from "@/types";
 
 /**
  * Converts Simple NPC form data to AdHocNPC
@@ -53,7 +53,7 @@ export function mapWizardStateToCommand(wizardState: {
   addedMonsters: Map<string, AddedMonster>;
   addedNPCs: AdHocNPC[];
 }): CreateCombatCommand {
-  const initial_participants: InitialParticipant[] = [];
+  const initial_participants: InitialParticipantCommand[] = [];
 
   // 1. Add selected player characters
   wizardState.selectedPlayerCharacterIds.forEach((pcId) => {
