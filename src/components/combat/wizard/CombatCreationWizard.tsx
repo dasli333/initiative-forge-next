@@ -23,27 +23,19 @@ import { useMonsters } from "@/components/hooks/useMonsters";
 import { useCombatCreation } from "./hooks/useCombatCreation";
 import { useDebouncedValue } from "@/components/hooks/useDebouncedValue";
 import { useLanguageStore } from "@/stores/languageStore";
+import { useWizardState } from "@/hooks/useWizardState";
 
 import {
   validateStep1,
   validateStep2,
-  defaultSimpleNPCFormData,
-  defaultAdvancedNPCFormData,
   mapWizardStateToCommand,
   simpleFormToAdHocNPC,
   advancedFormToAdHocNPC,
   validateSimpleNPCForm,
   validateAdvancedNPCForm,
-} from "./utils";
+} from "@/lib/combat-wizard";
 
-import type {
-  WizardState,
-  SimpleNPCFormData,
-  AdvancedNPCFormData,
-  AddedMonsterViewModel,
-  MonsterViewModel,
-  PlayerCharacterViewModel,
-} from "./types";
+import type { PlayerCharacterViewModel, MonsterViewModel } from "./types";
 
 interface CombatCreationWizardProps {
   campaignId: string;
@@ -53,34 +45,17 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
   // ==================== ROUTER ====================
   const router = useRouter();
 
-  // ==================== STATE ====================
-  const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4 | 5>(1);
-  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
-  const [combatName, setCombatName] = useState<string>("");
-  const [selectedPlayerCharacterIds, setSelectedPlayerCharacterIds] = useState<string[]>([]);
-  const [addedMonsters, setAddedMonsters] = useState<Map<string, AddedMonsterViewModel>>(new Map());
-  const [addedNPCs, setAddedNPCs] = useState<WizardState["addedNPCs"]>([]);
-
-  // Step 3 specific state
-  const [monsterSearchTerm, setMonsterSearchTerm] = useState<string>("");
-  const [monsterTypeFilter, setMonsterTypeFilter] = useState<string | null>(null);
-
-  // Step 4 specific state
-  const [npcMode, setNPCMode] = useState<"simple" | "advanced">("simple");
-  const [npcFormData, setNPCFormData] = useState<SimpleNPCFormData | AdvancedNPCFormData>(defaultSimpleNPCFormData());
-
-  // Cancel modal state
+  // ==================== STATE (using useWizardState) ====================
+  const { state, actions } = useWizardState();
   const [showCancelModal, setShowCancelModal] = useState(false);
-
-  // ARIA announcements
   const [announcement, setAnnouncement] = useState<string>("");
 
   // ==================== QUERIES & MUTATIONS ====================
   const playerCharactersQuery = usePlayerCharacters(campaignId);
-  const debouncedSearchTerm = useDebouncedValue(monsterSearchTerm, 300);
+  const debouncedSearchTerm = useDebouncedValue(state.monsterSearchTerm, 300);
   const monstersQuery = useMonsters({
     searchQuery: debouncedSearchTerm,
-    type: monsterTypeFilter,
+    type: state.monsterTypeFilter,
     size: null,
     alignment: null,
     limit: 20,
@@ -107,64 +82,62 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
     if (!monstersQuery.data) return [];
     return monstersQuery.data.pages.flatMap((page) =>
       page.monsters
-        .filter(monster => monster.data !== null)
-        .map(
-          (monster): MonsterViewModel => {
-            const data = monster.data as any;
-            return {
-              id: monster.id,
-              name: data.name[selectedLanguage] || data.name.en,
-              cr: data.challengeRating.rating,
-              type: data.type,
-              size: data.size,
-              hp: data.hitPoints.average,
-              ac: data.armorClass,
-              actions: data.actions,
-              traits: data.traits,
-              speed: data.speed,
-              abilityScores: data.abilityScores,
-            };
-          }
-        )
+        .filter((monster) => monster.data !== null)
+        .map((monster): MonsterViewModel => {
+          const data = monster.data as any;
+          return {
+            id: monster.id,
+            name: data.name[selectedLanguage] || data.name.en,
+            cr: data.challengeRating.rating,
+            type: data.type,
+            size: data.size,
+            hp: data.hitPoints.average,
+            ac: data.armorClass,
+            actions: data.actions,
+            traits: data.traits,
+            speed: data.speed,
+            abilityScores: data.abilityScores,
+          };
+        })
     );
   }, [monstersQuery.data, selectedLanguage]);
 
   const selectedPlayerCharacters = useMemo(() => {
-    return playerCharacters.filter((pc) => selectedPlayerCharacterIds.includes(pc.id));
-  }, [playerCharacters, selectedPlayerCharacterIds]);
+    return playerCharacters.filter((pc) => state.selectedPlayerCharacterIds.includes(pc.id));
+  }, [playerCharacters, state.selectedPlayerCharacterIds]);
 
   const isNPCFormValid = useMemo(() => {
-    if (npcMode === "simple") {
-      return validateSimpleNPCForm(npcFormData as SimpleNPCFormData).valid;
+    if (state.npcMode === "simple") {
+      return validateSimpleNPCForm(state.npcFormData as any).valid;
     } else {
-      return validateAdvancedNPCForm(npcFormData as AdvancedNPCFormData).valid;
+      return validateAdvancedNPCForm(state.npcFormData as any).valid;
     }
-  }, [npcMode, npcFormData]);
+  }, [state.npcMode, state.npcFormData]);
 
   // ==================== EFFECTS ====================
   // Auto-select all player characters on load (only once)
   const [hasAutoSelected, setHasAutoSelected] = useState(false);
 
   useEffect(() => {
-    if (!hasAutoSelected && playerCharacters.length > 0 && selectedPlayerCharacterIds.length === 0) {
-      setSelectedPlayerCharacterIds(playerCharacters.map((pc) => pc.id));
+    if (!hasAutoSelected && playerCharacters.length > 0 && state.selectedPlayerCharacterIds.length === 0) {
+      actions.setSelectedCharacters(playerCharacters.map((pc) => pc.id));
       setHasAutoSelected(true);
     }
-  }, [playerCharacters, selectedPlayerCharacterIds.length, hasAutoSelected]);
+  }, [playerCharacters, state.selectedPlayerCharacterIds.length, hasAutoSelected, actions]);
 
   // Focus management on step change
   useEffect(() => {
-    const heading = document.querySelector(`#step-${currentStep}-heading`) as HTMLElement;
+    const heading = document.querySelector(`#step-${state.currentStep}-heading`) as HTMLElement;
     if (heading) {
       heading.focus();
     }
-  }, [currentStep]);
+  }, [state.currentStep]);
 
   // ARIA announcements
   useEffect(() => {
     const stepNames = ["", "Combat Name", "Select Player Characters", "Add Monsters", "Add NPCs", "Summary"];
-    setAnnouncement(`Step ${currentStep} of 5: ${stepNames[currentStep]}`);
-  }, [currentStep]);
+    setAnnouncement(`Step ${state.currentStep} of 5: ${stepNames[state.currentStep]}`);
+  }, [state.currentStep]);
 
   // Escape key handler
   useEffect(() => {
@@ -178,155 +151,56 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
     return () => window.removeEventListener("keydown", handleEscape);
   }, []);
 
-  const handleNPCModeChange = useCallback((newMode: "simple" | "advanced") => {
-    setNPCMode(newMode);
-    // Synchronously reset form data to prevent race condition
-    if (newMode === "simple") {
-      setNPCFormData(defaultSimpleNPCFormData());
-    } else {
-      setNPCFormData(defaultAdvancedNPCFormData());
-    }
-  }, []);
-
   // ==================== HANDLERS ====================
   const handleNext = useCallback(() => {
     // Validate current step
-    if (currentStep === 1) {
-      const validation = validateStep1(combatName);
+    if (state.currentStep === 1) {
+      const validation = validateStep1(state.combatName);
       if (!validation.valid) return;
-    } else if (currentStep === 2) {
-      const validation = validateStep2(selectedPlayerCharacterIds);
+    } else if (state.currentStep === 2) {
+      const validation = validateStep2(state.selectedPlayerCharacterIds);
       if (!validation.valid) return;
     }
 
     // Mark current step as completed
-    if (!completedSteps.includes(currentStep)) {
-      setCompletedSteps([...completedSteps, currentStep]);
+    if (!state.completedSteps.includes(state.currentStep)) {
+      actions.completeStep(state.currentStep);
     }
 
     // Move to next step
-    if (currentStep < 5) {
-      setCurrentStep((currentStep + 1) as 1 | 2 | 3 | 4 | 5);
+    if (state.currentStep < 5) {
+      actions.setStep((state.currentStep + 1) as 1 | 2 | 3 | 4 | 5);
     }
-  }, [currentStep, combatName, selectedPlayerCharacterIds, completedSteps]);
+  }, [state.currentStep, state.combatName, state.selectedPlayerCharacterIds, state.completedSteps, actions]);
 
   const handleBack = useCallback(() => {
-    if (currentStep > 1) {
-      setCurrentStep((currentStep - 1) as 1 | 2 | 3 | 4 | 5);
+    if (state.currentStep > 1) {
+      actions.setStep((state.currentStep - 1) as 1 | 2 | 3 | 4 | 5);
     }
-  }, [currentStep]);
-
-  const handleTogglePlayerCharacter = useCallback((characterId: string) => {
-    setSelectedPlayerCharacterIds((prev) => {
-      if (prev.includes(characterId)) {
-        return prev.filter((id) => id !== characterId);
-      } else {
-        return [...prev, characterId];
-      }
-    });
-  }, []);
-
-  const handleAddMonster = useCallback((monsterId: string, monsterName: string) => {
-    setAddedMonsters((prev) => {
-      const newMap = new Map(prev);
-      const existing = newMap.get(monsterId);
-
-      if (existing) {
-        newMap.set(monsterId, {
-          ...existing,
-          count: existing.count + 1,
-        });
-      } else {
-        newMap.set(monsterId, {
-          monster_id: monsterId,
-          name: monsterName,
-          count: 1,
-        });
-      }
-
-      return newMap;
-    });
-  }, []);
-
-  const handleUpdateMonsterCount = useCallback((monsterId: string, count: number) => {
-    if (count < 1) return;
-
-    setAddedMonsters((prev) => {
-      const newMap = new Map(prev);
-      const existing = newMap.get(monsterId);
-
-      if (existing) {
-        newMap.set(monsterId, { ...existing, count });
-      }
-
-      return newMap;
-    });
-  }, []);
-
-  const handleRemoveMonster = useCallback((monsterId: string) => {
-    setAddedMonsters((prev) => {
-      const newMap = new Map(prev);
-      newMap.delete(monsterId);
-      return newMap;
-    });
-  }, []);
-
-  const handleNPCFormChange = useCallback((updates: Partial<SimpleNPCFormData | AdvancedNPCFormData>) => {
-    setNPCFormData((prev) => ({ ...prev, ...updates }));
-  }, []);
+  }, [state.currentStep, actions]);
 
   const handleAddNPC = useCallback(() => {
     if (!isNPCFormValid) return;
 
     const npc =
-      npcMode === "simple"
-        ? simpleFormToAdHocNPC(npcFormData as SimpleNPCFormData)
-        : advancedFormToAdHocNPC(npcFormData as AdvancedNPCFormData);
+      state.npcMode === "simple"
+        ? simpleFormToAdHocNPC(state.npcFormData as any)
+        : advancedFormToAdHocNPC(state.npcFormData as any);
 
-    setAddedNPCs((prev) => [...prev, npc]);
-
-    // Reset form
-    if (npcMode === "simple") {
-      setNPCFormData(defaultSimpleNPCFormData());
-    } else {
-      setNPCFormData(defaultAdvancedNPCFormData());
-    }
-  }, [isNPCFormValid, npcMode, npcFormData]);
-
-  const handleRemoveNPC = useCallback((npcId: string) => {
-    setAddedNPCs((prev) => prev.filter((npc) => npc.id !== npcId));
-  }, []);
+    actions.addNPC(npc);
+    actions.resetNPCForm();
+  }, [isNPCFormValid, state.npcMode, state.npcFormData, actions]);
 
   const handleSubmit = useCallback(() => {
-    const wizardState: WizardState = {
-      currentStep,
-      completedSteps,
-      combatName,
-      selectedPlayerCharacterIds,
-      addedMonsters,
-      addedNPCs,
-      monsterSearchTerm,
-      monsterTypeFilter,
-      npcMode,
-      npcFormData,
-    };
-
-    const command = mapWizardStateToCommand(wizardState);
+    const command = mapWizardStateToCommand({
+      combatName: state.combatName,
+      selectedPlayerCharacterIds: state.selectedPlayerCharacterIds,
+      addedMonsters: state.addedMonsters,
+      addedNPCs: state.addedNPCs,
+    });
 
     createCombatMutation.mutate(command);
-  }, [
-    currentStep,
-    completedSteps,
-    combatName,
-    selectedPlayerCharacterIds,
-    addedMonsters,
-    addedNPCs,
-    monsterSearchTerm,
-    monsterTypeFilter,
-    npcMode,
-    npcFormData,
-    createCombatMutation,
-  ]);
+  }, [state.combatName, state.selectedPlayerCharacterIds, state.addedMonsters, state.addedNPCs, createCombatMutation]);
 
   const handleCancel = useCallback(() => {
     router.push(`/campaigns/${campaignId}/combats`);
@@ -341,19 +215,19 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
       </div>
 
       {/* Progress Indicator */}
-      <ProgressIndicator currentStep={currentStep} completedSteps={completedSteps} />
+      <ProgressIndicator currentStep={state.currentStep} completedSteps={state.completedSteps} />
 
       {/* Step Content */}
       <div className="mt-8">
-        {currentStep === 1 && (
-          <Step1_CombatName combatName={combatName} onNameChange={setCombatName} onNext={handleNext} />
+        {state.currentStep === 1 && (
+          <Step1_CombatName combatName={state.combatName} onNameChange={actions.setCombatName} onNext={handleNext} />
         )}
 
-        {currentStep === 2 && (
+        {state.currentStep === 2 && (
           <Step2_SelectPlayerCharacters
             playerCharacters={playerCharacters}
-            selectedIds={selectedPlayerCharacterIds}
-            onToggle={handleTogglePlayerCharacter}
+            selectedIds={state.selectedPlayerCharacterIds}
+            onToggle={actions.toggleCharacter}
             onBack={handleBack}
             onNext={handleNext}
             isLoading={playerCharactersQuery.isLoading}
@@ -361,17 +235,17 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
           />
         )}
 
-        {currentStep === 3 && (
+        {state.currentStep === 3 && (
           <Step3_AddMonsters
-            searchTerm={monsterSearchTerm}
-            typeFilter={monsterTypeFilter}
+            searchTerm={state.monsterSearchTerm}
+            typeFilter={state.monsterTypeFilter}
             monsters={monsters}
-            addedMonsters={addedMonsters}
-            onSearchChange={setMonsterSearchTerm}
-            onTypeFilterChange={setMonsterTypeFilter}
-            onAddMonster={handleAddMonster}
-            onUpdateCount={handleUpdateMonsterCount}
-            onRemoveMonster={handleRemoveMonster}
+            addedMonsters={state.addedMonsters}
+            onSearchChange={actions.setMonsterSearch}
+            onTypeFilterChange={actions.setMonsterTypeFilter}
+            onAddMonster={(id, name) => actions.addMonster({ id, name })}
+            onUpdateCount={(id, count) => actions.updateMonsterCount({ id, count })}
+            onRemoveMonster={actions.removeMonster}
             onLoadMore={() => monstersQuery.fetchNextPage()}
             hasMore={monstersQuery.hasNextPage || false}
             isLoading={monstersQuery.isFetchingNextPage}
@@ -380,27 +254,27 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
           />
         )}
 
-        {currentStep === 4 && (
+        {state.currentStep === 4 && (
           <Step4_AddNPCs
-            mode={npcMode}
-            onModeChange={handleNPCModeChange}
-            npcForm={npcFormData}
-            onFormChange={handleNPCFormChange}
+            mode={state.npcMode}
+            onModeChange={actions.setNPCMode}
+            npcForm={state.npcFormData}
+            onFormChange={actions.updateNPCForm}
             onAddNPC={handleAddNPC}
-            addedNPCs={addedNPCs}
-            onRemoveNPC={handleRemoveNPC}
+            addedNPCs={state.addedNPCs}
+            onRemoveNPC={actions.removeNPC}
             onBack={handleBack}
             onNext={handleNext}
             isFormValid={isNPCFormValid}
           />
         )}
 
-        {currentStep === 5 && (
+        {state.currentStep === 5 && (
           <Step5_Summary
-            combatName={combatName}
+            combatName={state.combatName}
             selectedPlayerCharacters={selectedPlayerCharacters}
-            addedMonsters={addedMonsters}
-            addedNPCs={addedNPCs}
+            addedMonsters={state.addedMonsters}
+            addedNPCs={state.addedNPCs}
             onBack={handleBack}
             onSubmit={handleSubmit}
             isSubmitting={createCombatMutation.isPending}

@@ -93,3 +93,33 @@ export {
 
 // Player character schemas
 export { CreatePlayerCharacterCommandSchema, type CreatePlayerCharacterCommand } from "./player-character.schema";
+
+// Combat wizard schemas
+export {
+  AdHocNPCSchema,
+  AddedMonsterSchema,
+  AdvancedNPCFormSchema,
+  CombatNameSchema,
+  PlayerCharacterSelectionSchema,
+  SimpleNPCFormSchema,
+  WizardSummarySchema,
+  type AdHocNPC,
+  type AddedMonster,
+  type AdvancedNPCFormData,
+  type CombatNameInput,
+  type PlayerCharacterSelectionInput,
+  type SimpleNPCFormData,
+  type WizardSummary,
+} from "./combat-wizard.schema";
+
+// Auth schemas
+export {
+  EmailResetSchema,
+  LoginSchema,
+  PasswordUpdateSchema,
+  RegisterSchema,
+  type EmailResetInput,
+  type LoginInput,
+  type PasswordUpdateInput,
+  type RegisterInput,
+} from "./auth.schema";

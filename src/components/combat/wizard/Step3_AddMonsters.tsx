@@ -1,15 +1,15 @@
-import { useState, useCallback, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Search, Plus, X, Loader2 } from "lucide-react";
+import { Accordion } from "@/components/ui/accordion";
+import { Search, Loader2 } from "lucide-react";
 import { TypeFilter } from "@/components/monsters/TypeFilter";
 import { useLanguageStore } from "@/stores/languageStore";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
-import type { Step3Props, MonsterViewModel, AddedMonsterViewModel } from "./types";
+import { MonsterCard } from "./step3/MonsterCard";
+import { AddedMonsterItem } from "./step3/AddedMonsterItem";
+import type { Step3Props } from "./types";
 
 export function Step3_AddMonsters({
   searchTerm,
@@ -31,7 +31,7 @@ export function Step3_AddMonsters({
   const selectedLanguage = useLanguageStore((state) => state.selectedLanguage);
   const toggleLanguage = useLanguageStore((state) => state.toggleLanguage);
 
-  // Infinite scroll hook - replaces manual Intersection Observer setup
+  // Infinite scroll hook
   const { ref: loadMoreRef } = useInfiniteScroll({
     onLoadMore,
     hasMore,
@@ -145,156 +145,6 @@ export function Step3_AddMonsters({
         </Button>
         <Button data-testid="wizard-next-button" onClick={onNext} size="lg">
           Next
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-// Monster Card Component
-function MonsterCard({
-  monster,
-  onAdd,
-}: {
-  monster: MonsterViewModel;
-  onAdd: (monsterId: string, monsterName: string) => void;
-}) {
-  return (
-    <AccordionItem data-testid={`monster-card-${monster.name}`} value={monster.id} className="border-border">
-      <div className="flex items-center justify-between pr-4 hover:bg-accent/50 transition-colors">
-        <AccordionTrigger className="flex-1 hover:no-underline px-4 py-3">
-          <div className="flex items-center gap-3 text-left flex-wrap">
-            <span className="font-medium">{monster.name}</span>
-            <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white px-2 py-0.5 text-xs shadow-sm">
-              CR {monster.cr}
-            </Badge>
-            <span className="text-sm text-muted-foreground">
-              {monster.size} {monster.type}
-            </span>
-          </div>
-        </AccordionTrigger>
-        <Button
-          data-testid={`add-monster-${monster.name}`}
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            onAdd(monster.id, monster.name);
-          }}
-          className="ml-2"
-        >
-          <Plus className="w-4 h-4" />
-        </Button>
-      </div>
-
-      <AccordionContent className="px-4 pb-4 bg-muted/30">
-        <div className="space-y-3 text-sm">
-          <div className="flex gap-4 flex-wrap">
-            <div>
-              <span className="font-medium">HP:</span> <span className="text-muted-foreground">{monster.hp}</span>
-            </div>
-            <div>
-              <span className="font-medium">AC:</span> <span className="text-muted-foreground">{monster.ac}</span>
-            </div>
-            <div>
-              <span className="font-medium">Speed:</span>{" "}
-              <span className="text-muted-foreground">{monster.speed.join(", ")}</span>
-            </div>
-          </div>
-
-          {monster.actions.length > 0 && (
-            <div>
-              <h4 className="font-semibold mb-2">Actions</h4>
-              <ul className="space-y-1">
-                {monster.actions.slice(0, 3).map((action, idx) => (
-                  <li key={idx} className="text-muted-foreground">
-                    <span className="font-medium text-foreground">{action.name}:</span> {action.description}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      </AccordionContent>
-    </AccordionItem>
-  );
-}
-
-// Added Monster Item Component
-function AddedMonsterItem({
-  monster,
-  onUpdateCount,
-  onRemove,
-}: {
-  monster: AddedMonsterViewModel;
-  onUpdateCount: (monsterId: string, count: number) => void;
-  onRemove: (monsterId: string) => void;
-}) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState(monster.count.toString());
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const handleCountClick = useCallback(() => {
-    setIsEditing(true);
-    setEditValue(monster.count.toString());
-  }, [monster.count]);
-
-  const handleCountSubmit = useCallback(() => {
-    const newCount = parseInt(editValue, 10);
-    if (!isNaN(newCount) && newCount >= 1) {
-      onUpdateCount(monster.monster_id, newCount);
-    } else {
-      setEditValue(monster.count.toString());
-    }
-    setIsEditing(false);
-  }, [editValue, monster.count, monster.monster_id, onUpdateCount]);
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter") {
-        handleCountSubmit();
-      } else if (e.key === "Escape") {
-        setIsEditing(false);
-        setEditValue(monster.count.toString());
-      }
-    },
-    [handleCountSubmit, monster.count]
-  );
-
-  useEffect(() => {
-    if (isEditing && inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, [isEditing]);
-
-  return (
-    <div className="flex items-center justify-between p-3 bg-gradient-to-r from-card via-card/80 to-emerald-500/5 rounded-lg border border-border shadow-sm">
-      <div className="flex-1">
-        <span className="font-medium">{monster.name}</span>
-      </div>
-
-      <div className="flex items-center gap-2">
-        {isEditing ? (
-          <Input
-            ref={inputRef}
-            data-testid={`monster-count-${monster.name}`}
-            type="number"
-            min="1"
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            onBlur={handleCountSubmit}
-            onKeyDown={handleKeyDown}
-            className="w-16 h-8 text-center"
-          />
-        ) : (
-          <Badge data-testid={`monster-count-${monster.name}`} variant="secondary" className="cursor-pointer hover:bg-accent" onClick={handleCountClick}>
-            x{monster.count}
-          </Badge>
-        )}
-
-        <Button size="sm" variant="ghost" onClick={() => onRemove(monster.monster_id)} className="h-8 w-8 p-0">
-          <X className="w-4 h-4" />
-          <span className="sr-only">Remove {monster.name}</span>
         </Button>
       </div>
     </div>
