@@ -30,7 +30,7 @@ export function useCombat(combatId: string | null | undefined) {
         if (error) throw error;
         if (!data) throw new Error('Combat not found');
 
-        return data as CombatDTO;
+        return data as unknown as CombatDTO;
       } catch (error) {
         // Check for auth errors
         if (error instanceof Error && error.message.includes('auth')) {

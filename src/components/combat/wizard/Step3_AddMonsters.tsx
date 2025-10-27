@@ -8,6 +8,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Search, Plus, X, Loader2 } from "lucide-react";
 import { TypeFilter } from "@/components/monsters/TypeFilter";
 import { useLanguageStore } from "@/stores/languageStore";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import type { Step3Props, MonsterViewModel, AddedMonsterViewModel } from "./types";
 
 export function Step3_AddMonsters({
@@ -29,32 +30,14 @@ export function Step3_AddMonsters({
   // Language store for monster names
   const selectedLanguage = useLanguageStore((state) => state.selectedLanguage);
   const toggleLanguage = useLanguageStore((state) => state.toggleLanguage);
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
-  // Setup intersection observer for infinite scroll
-  useEffect(() => {
-    if (observerRef.current) observerRef.current.disconnect();
-
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !isLoading) {
-          onLoadMore();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (loadMoreRef.current) {
-      observerRef.current.observe(loadMoreRef.current);
-    }
-
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
-    };
-  }, [hasMore, isLoading, onLoadMore]);
+  // Infinite scroll hook - replaces manual Intersection Observer setup
+  const { ref: loadMoreRef } = useInfiniteScroll({
+    onLoadMore,
+    hasMore,
+    isLoading,
+    threshold: 0.1,
+  });
 
   return (
     <div className="max-w-7xl mx-auto">

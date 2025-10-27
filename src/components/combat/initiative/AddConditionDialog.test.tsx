@@ -6,6 +6,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AddConditionDialog } from "./AddConditionDialog";
 import type { ConditionDTO } from "@/types";
+import { useLanguageStore } from "@/stores/languageStore";
 
 // ============================================================================
 // Test Data
@@ -55,6 +56,8 @@ describe("AddConditionDialog", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Reset language store to Polish (tests expect Polish names like "Oślepiony")
+    useLanguageStore.setState({ selectedLanguage: "pl" });
   });
 
   // ============================================================================

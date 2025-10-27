@@ -43,7 +43,7 @@ export default async function CombatPage({ params, searchParams }: CombatPagePro
           throw error;
         }
 
-        return data as CombatDTO;
+        return data as unknown as CombatDTO;
       },
       staleTime: 0, // Always fetch fresh data
     });

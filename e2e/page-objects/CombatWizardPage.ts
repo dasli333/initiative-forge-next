@@ -120,7 +120,7 @@ export class CombatWizardPage {
 
       // Wait for the input to be enabled
       await this.page.waitForFunction(
-        ({ badge }) => !badge.hasAttribute('disabled') && !badge.hasAttribute('readonly'),
+        ({ badge }) => !badge?.hasAttribute('disabled') && !badge?.hasAttribute('readonly'),
         { badge: await countBadge.elementHandle() },
         { timeout: 5000 }
       );

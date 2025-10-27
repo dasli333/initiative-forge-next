@@ -40,10 +40,10 @@ vi.mock("./CombatsGrid", () => ({
       {combats.map((combat: any) => (
         <div key={combat.id} data-testid={`combat-card-${combat.id}`}>
           <span>{combat.name}</span>
-          <button onClick={() => onResume(combat.id)} data-testid={`resume-${combat.id}`}>
+          <button onClick={() => onResume(combat)} data-testid={`resume-${combat.id}`}>
             Resume
           </button>
-          <button onClick={() => onView(combat.id)} data-testid={`view-${combat.id}`}>
+          <button onClick={() => onView(combat)} data-testid={`view-${combat.id}`}>
             View
           </button>
           <button onClick={() => onDelete(combat)} data-testid={`delete-${combat.id}`}>
@@ -248,7 +248,7 @@ describe("CombatsListView", () => {
       await user.click(resumeButton);
 
       expect(mockPush).toHaveBeenCalledTimes(1);
-      expect(mockPush).toHaveBeenCalledWith("/combats/combat-1");
+      expect(mockPush).toHaveBeenCalledWith(`/combats/combat-1?campaignId=${mockCampaignId}`);
     });
 
     it("should navigate to combat page when handleView is called", async () => {
@@ -258,7 +258,7 @@ describe("CombatsListView", () => {
       await user.click(viewButton);
 
       expect(mockPush).toHaveBeenCalledTimes(1);
-      expect(mockPush).toHaveBeenCalledWith("/combats/combat-1");
+      expect(mockPush).toHaveBeenCalledWith(`/combats/combat-1?campaignId=${mockCampaignId}`);
     });
 
     it("should call navigate with different combat IDs for different combats", async () => {
@@ -268,10 +268,10 @@ describe("CombatsListView", () => {
       const resumeButton2 = screen.getByTestId("resume-combat-2");
 
       await user.click(resumeButton1);
-      expect(mockPush).toHaveBeenLastCalledWith("/combats/combat-1");
+      expect(mockPush).toHaveBeenLastCalledWith(`/combats/combat-1?campaignId=${mockCampaignId}`);
 
       await user.click(resumeButton2);
-      expect(mockPush).toHaveBeenLastCalledWith("/combats/combat-2");
+      expect(mockPush).toHaveBeenLastCalledWith(`/combats/combat-2?campaignId=${mockCampaignId}`);
 
       expect(mockPush).toHaveBeenCalledTimes(2);
     });

@@ -27,9 +27,8 @@ export function createMockCombatsList(
   return {
     combats,
     total: combats.length,
-    page: 1,
-    pageSize: 10,
-    totalPages: Math.ceil(combats.length / 10),
+    limit: 10,
+    offset: 0,
     ...overrides,
   };
 }

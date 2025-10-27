@@ -106,7 +106,7 @@ export class CombatTrackerPage {
 
     // Wait for HP display to update to a different value
     await this.page.waitForFunction(
-      ({ element, previousText }) => element.textContent !== previousText,
+      ({ element, previousText }) => element?.textContent !== previousText,
       { element: await hpDisplay.elementHandle(), previousText: currentText },
       { timeout: 5000 }
     );
@@ -126,7 +126,7 @@ export class CombatTrackerPage {
 
     // Wait for HP display to update to a different value
     await this.page.waitForFunction(
-      ({ element, previousText }) => element.textContent !== previousText,
+      ({ element, previousText }) => element?.textContent !== previousText,
       { element: await hpDisplay.elementHandle(), previousText: currentText },
       { timeout: 5000 }
     );

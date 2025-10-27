@@ -6,10 +6,9 @@ import {
   SectionHeader,
   SurfaceContainer,
   PillGroup,
-  DamageBadge,
-  AttackBadge,
 } from "@/components/library";
 import { formatModifier } from "@/lib/utils/library";
+import { ActionSection } from "./ActionSection";
 import type { MonsterDataDTO } from "@/types";
 
 /**
@@ -200,101 +199,10 @@ export function MonsterDetails({ data }: MonsterDetailsProps) {
         </>
       )}
 
-      {/* Actions Accordion */}
-      {data.actions.length > 0 && (
-        <>
-          <GradientSeparator />
-          <section>
-            <SectionHeader icon={Swords} title="Actions" />
-            <Accordion type="multiple">
-              {data.actions.map((action, index) => (
-                <AccordionItem key={`action-${index}`} value={`action-${index}`}>
-                  <AccordionTrigger className="text-base font-semibold text-foreground">{action.name}</AccordionTrigger>
-                  <AccordionContent className="space-y-3">
-                    <p className="text-sm text-muted-foreground leading-relaxed">{action.description}</p>
-                    {action.attackRoll && (
-                      <div className="flex items-center gap-2">
-                        <AttackBadge bonus={action.attackRoll.bonus} />
-                      </div>
-                    )}
-                    {action.damage && action.damage.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {action.damage.map((dmg, dmgIndex) => (
-                          <DamageBadge key={dmgIndex} average={dmg.average} formula={dmg.formula} type={dmg.type} />
-                        ))}
-                      </div>
-                    )}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </section>
-        </>
-      )}
-
-      {/* Bonus Actions Accordion (conditional) */}
-      {data.bonusActions.length > 0 && (
-        <>
-          <GradientSeparator />
-          <section>
-            <SectionHeader icon={Zap} title="Bonus Actions" />
-            <Accordion type="multiple">
-              {data.bonusActions.map((action, index) => (
-                <AccordionItem key={`bonus-${index}`} value={`bonus-${index}`}>
-                  <AccordionTrigger className="text-base font-semibold text-foreground">{action.name}</AccordionTrigger>
-                  <AccordionContent className="space-y-3">
-                    <p className="text-sm text-muted-foreground leading-relaxed">{action.description}</p>
-                    {action.attackRoll && (
-                      <div className="flex items-center gap-2">
-                        <AttackBadge bonus={action.attackRoll.bonus} />
-                      </div>
-                    )}
-                    {action.damage && action.damage.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {action.damage.map((dmg, dmgIndex) => (
-                          <DamageBadge key={dmgIndex} average={dmg.average} formula={dmg.formula} type={dmg.type} />
-                        ))}
-                      </div>
-                    )}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </section>
-        </>
-      )}
-
-      {/* Reactions Accordion (conditional) */}
-      {data.reactions.length > 0 && (
-        <>
-          <GradientSeparator />
-          <section>
-            <SectionHeader icon={Shield} title="Reactions" />
-            <Accordion type="multiple">
-              {data.reactions.map((action, index) => (
-                <AccordionItem key={`reaction-${index}`} value={`reaction-${index}`}>
-                  <AccordionTrigger className="text-base font-semibold text-foreground">{action.name}</AccordionTrigger>
-                  <AccordionContent className="space-y-3">
-                    <p className="text-sm text-muted-foreground leading-relaxed">{action.description}</p>
-                    {action.attackRoll && (
-                      <div className="flex items-center gap-2">
-                        <AttackBadge bonus={action.attackRoll.bonus} />
-                      </div>
-                    )}
-                    {action.damage && action.damage.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {action.damage.map((dmg, dmgIndex) => (
-                          <DamageBadge key={dmgIndex} average={dmg.average} formula={dmg.formula} type={dmg.type} />
-                        ))}
-                      </div>
-                    )}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </section>
-        </>
-      )}
+      {/* Actions, Bonus Actions, and Reactions - using reusable ActionSection */}
+      <ActionSection title="Actions" icon={Swords} actions={data.actions} keyPrefix="action" />
+      <ActionSection title="Bonus Actions" icon={Zap} actions={data.bonusActions} keyPrefix="bonus" />
+      <ActionSection title="Reactions" icon={Shield} actions={data.reactions} keyPrefix="reaction" />
     </div>
   );
 }
