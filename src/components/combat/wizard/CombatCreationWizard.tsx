@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   AlertDialog,
@@ -49,7 +49,6 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
   // ==================== STATE (using useWizardState) ====================
   const { state, actions } = useWizardState();
   const [showCancelModal, setShowCancelModal] = useState(false);
-  const [announcement, setAnnouncement] = useState<string>("");
 
   // ==================== QUERIES & MUTATIONS ====================
   const playerCharactersQuery = usePlayerCharacters(campaignId);
@@ -115,16 +114,22 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
     }
   }, [state.npcMode, state.npcFormData]);
 
+  // ARIA announcement derived from current step
+  const announcement = useMemo(() => {
+    const stepNames = ["", "Combat Name", "Select Player Characters", "Add Monsters", "Add NPCs", "Summary"];
+    return `Step ${state.currentStep} of 5: ${stepNames[state.currentStep]}`;
+  }, [state.currentStep]);
+
   // ==================== EFFECTS ====================
   // Auto-select all player characters on load (only once)
-  const [hasAutoSelected, setHasAutoSelected] = useState(false);
+  const hasAutoSelectedRef = useRef(false);
 
   useEffect(() => {
-    if (!hasAutoSelected && playerCharacters.length > 0 && state.selectedPlayerCharacterIds.length === 0) {
+    if (!hasAutoSelectedRef.current && playerCharacters.length > 0 && state.selectedPlayerCharacterIds.length === 0) {
       actions.setSelectedCharacters(playerCharacters.map((pc) => pc.id));
-      setHasAutoSelected(true);
+      hasAutoSelectedRef.current = true;
     }
-  }, [playerCharacters, state.selectedPlayerCharacterIds.length, hasAutoSelected, actions]);
+  }, [playerCharacters, state.selectedPlayerCharacterIds.length, actions]);
 
   // Focus management on step change
   useEffect(() => {
@@ -132,12 +137,6 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
     if (heading) {
       heading.focus();
     }
-  }, [state.currentStep]);
-
-  // ARIA announcements
-  useEffect(() => {
-    const stepNames = ["", "Combat Name", "Select Player Characters", "Add Monsters", "Add NPCs", "Summary"];
-    setAnnouncement(`Step ${state.currentStep} of 5: ${stepNames[state.currentStep]}`);
   }, [state.currentStep]);
 
   // Escape key handler
