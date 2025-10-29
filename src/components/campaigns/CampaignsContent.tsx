@@ -37,7 +37,7 @@ export function CampaignsContent() {
     // Find the campaign and set it in the store before navigation
     const campaign = campaigns.find((c) => c.id === id);
     if (campaign) {
-      setSelectedCampaign(campaign as any); // CampaignViewModel is compatible with Campaign
+      setSelectedCampaign(campaign); // CampaignViewModel extends Campaign
     }
     // Navigate to campaign details page
     router.push(`/campaigns/${id}`);

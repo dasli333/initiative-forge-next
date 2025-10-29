@@ -32,7 +32,7 @@ export function convertMonsterActionToActionDTO(action: MonsterAction, actionTyp
     name: action.name,
     type: actionType || action.type || "action",
     attack_bonus: action.attackRoll?.bonus,
-    range: (action as any).range, // MonsterAction schema doesn't include range, but it may exist in data
+    range: (action as unknown as { range?: string }).range, // MonsterAction schema doesn't include range, but it may exist in data
     damage_dice: action.damage?.[0]?.formula,
     damage_type: action.damage?.[0]?.type,
     description: action.description,

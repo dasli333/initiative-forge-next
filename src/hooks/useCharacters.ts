@@ -10,7 +10,7 @@ import {
   deleteCharacter,
 } from '@/lib/api/characters';
 import type {
-  PlayerCharacter,
+  PlayerCharacterDTO,
   CreatePlayerCharacterCommand,
   UpdatePlayerCharacterCommand,
 } from '@/types';
@@ -23,7 +23,7 @@ export function useCharactersQuery(campaignId: string | null | undefined) {
 
   return useQuery({
     queryKey: ['campaigns', campaignId, 'characters'],
-    queryFn: async (): Promise<PlayerCharacter[]> => {
+    queryFn: async (): Promise<PlayerCharacterDTO[]> => {
       if (!campaignId) throw new Error('Campaign ID is required');
 
       try {

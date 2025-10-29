@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { getSupabaseClient } from '@/lib/supabase';
-import type { ListCombatsResponseDTO, CombatSummaryDTO } from '@/types';
+import type { ListCombatsResponseDTO, CombatSummaryDTO, CombatSnapshotDTO } from '@/types';
 
 /**
  * Get all combats for a campaign (Direct Supabase)
@@ -26,7 +26,7 @@ async function getCombats(campaignId: string): Promise<ListCombatsResponseDTO> {
 
   // Transform to CombatSummaryDTO
   const combats: CombatSummaryDTO[] = (data || []).map((combat) => {
-    const snapshot = combat.state_snapshot as any;
+    const snapshot = combat.state_snapshot as unknown as CombatSnapshotDTO;
     const participantCount = snapshot?.participants?.length || 0;
 
     return {

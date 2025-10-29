@@ -1,15 +1,15 @@
 'use client';
 
-import type { PlayerCharacter } from '@/types';
+import type { PlayerCharacterDTO } from '@/types';
 import { CharacterListGrid } from './CharacterListGrid';
 import { CharacterListEmpty } from './CharacterListEmpty';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
 interface CharacterListProps {
-  characters: PlayerCharacter[];
+  characters: PlayerCharacterDTO[];
   isLoading: boolean;
-  onEdit: (character: PlayerCharacter) => void;
+  onEdit: (character: PlayerCharacterDTO) => void;
   onDelete: (characterId: string) => void;
   onAddCharacter: () => void;
 }

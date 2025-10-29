@@ -1,11 +1,11 @@
 import { getSupabaseClient } from '@/lib/supabase';
-import type { Condition } from '@/types';
+import type { ConditionDTO } from '@/types';
 
 /**
  * Get all conditions
  * Conditions are public reference data (no RLS needed)
  */
-export async function getConditions(): Promise<Condition[]> {
+export async function getConditions(): Promise<ConditionDTO[]> {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
@@ -18,13 +18,13 @@ export async function getConditions(): Promise<Condition[]> {
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as ConditionDTO[];
 }
 
 /**
  * Get a single condition by ID
  */
-export async function getCondition(conditionId: string): Promise<Condition> {
+export async function getCondition(conditionId: string): Promise<ConditionDTO> {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
@@ -41,5 +41,5 @@ export async function getCondition(conditionId: string): Promise<Condition> {
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as ConditionDTO;
 }

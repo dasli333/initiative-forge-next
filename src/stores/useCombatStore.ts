@@ -5,6 +5,7 @@
 import { create } from "zustand";
 import type { CombatState } from "@/types/combat-view.types";
 import type { CombatDTO, ActiveConditionDTO, ActionDTO, CombatSnapshotDTO } from "@/types";
+import type { Json } from "@/types/database";
 import { rollDice, calculateModifier, executeAttack, createRollResults } from "@/lib/dice";
 import { getSupabaseClient } from "@/lib/supabase";
 
@@ -212,7 +213,7 @@ export const useCombatStore = create<CombatState>((set, get) => ({
       const { error } = await supabase
         .from('combats')
         .update({
-          state_snapshot: snapshot as any,
+          state_snapshot: snapshot as unknown as Json,
           current_round: currentRound,
           updated_at: new Date().toISOString(),
         })

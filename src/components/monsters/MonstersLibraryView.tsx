@@ -111,7 +111,7 @@ export function MonstersLibraryView() {
         {/* Scrollable monster list */}
         <div className="flex-1 overflow-y-auto">
           <MonsterList
-            monsters={monsters as any}
+            monsters={monsters}
             selectedMonsterId={selectedMonsterId}
             isLoading={isLoading}
             isError={isError}
@@ -130,32 +130,32 @@ export function MonstersLibraryView() {
           <>
             {/* Monster header */}
             <div className="p-6 border-b border-border bg-gradient-to-r from-card via-card/80 to-emerald-500/5">
-              <h2 className="text-3xl font-bold mb-3">{((selectedMonster.data) as any).name[selectedLanguage]}</h2>
-              {selectedLanguage === "en" && ((selectedMonster.data) as any).name.pl !== ((selectedMonster.data) as any).name.en && (
-                <p className="text-sm text-muted-foreground italic mb-3">{((selectedMonster.data) as any).name.pl}</p>
+              <h2 className="text-3xl font-bold mb-3">{selectedMonster.data.name[selectedLanguage]}</h2>
+              {selectedLanguage === "en" && selectedMonster.data.name.pl !== selectedMonster.data.name.en && (
+                <p className="text-sm text-muted-foreground italic mb-3">{selectedMonster.data.name.pl}</p>
               )}
-              {selectedLanguage === "pl" && ((selectedMonster.data) as any).name.en !== ((selectedMonster.data) as any).name.pl && (
-                <p className="text-sm text-muted-foreground italic mb-3">{((selectedMonster.data) as any).name.en}</p>
+              {selectedLanguage === "pl" && selectedMonster.data.name.en !== selectedMonster.data.name.pl && (
+                <p className="text-sm text-muted-foreground italic mb-3">{selectedMonster.data.name.en}</p>
               )}
               <div className="flex flex-wrap gap-2 mt-3">
                 <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1 text-sm shadow-sm">
-                  CR {((selectedMonster.data) as any).challengeRating.rating}
+                  CR {selectedMonster.data.challengeRating.rating}
                 </Badge>
                 <Badge variant="secondary" className="px-3 py-1 text-sm">
-                  {((selectedMonster.data) as any).type}
+                  {selectedMonster.data.type}
                 </Badge>
                 <Badge variant="secondary" className="px-3 py-1 text-sm">
-                  {((selectedMonster.data) as any).size}
+                  {selectedMonster.data.size}
                 </Badge>
                 <Badge variant="secondary" className="px-3 py-1 text-sm">
-                  {((selectedMonster.data) as any).alignment}
+                  {selectedMonster.data.alignment}
                 </Badge>
               </div>
             </div>
 
             {/* Scrollable monster details */}
             <ScrollArea className="flex-1 p-6">
-              <MonsterDetails data={selectedMonster.data as any} />
+              <MonsterDetails data={selectedMonster.data} />
             </ScrollArea>
           </>
         ) : (

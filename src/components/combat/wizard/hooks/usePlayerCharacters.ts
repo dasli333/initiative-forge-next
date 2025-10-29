@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getSupabaseClient } from "@/lib/supabase";
-import type { PlayerCharacter } from "@/types";
+import type { PlayerCharacterDTO } from "@/types";
 
 /**
  * Hook for fetching player characters for a campaign
@@ -23,7 +23,7 @@ export function usePlayerCharacters(campaignId: string) {
         throw new Error("Failed to fetch player characters");
       }
 
-      return data as PlayerCharacter[];
+      return data as unknown as PlayerCharacterDTO[];
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });

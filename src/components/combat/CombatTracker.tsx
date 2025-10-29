@@ -4,7 +4,7 @@ import { useEffect, useCallback, useState } from "react";
 import { useCombatStore } from "@/stores/useCombatStore";
 import { useConditions } from "@/hooks/useConditions";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
-import type { CombatDTO, ActiveConditionDTO, ActionDTO, CombatParticipantDTO } from "@/types";
+import type { CombatDTO, ActiveConditionDTO, ActionDTO, CombatParticipantDTO, ConditionDTO } from "@/types";
 import { InitiativeList } from "./initiative/InitiativeList";
 import { ActiveCharacterSheet } from "./character-sheet/ActiveCharacterSheet";
 import { ReferencePanel } from "./reference/ReferencePanel";
@@ -40,7 +40,7 @@ export function CombatTracker({ initialData, campaignId }: CombatTrackerProps) {
 
   // React Query
   const { data: conditions = [] } = useConditions();
-  const typedConditions = conditions as any as import("@/types").ConditionDTO[];
+  const typedConditions = conditions as unknown as ConditionDTO[];
 
   // Initialize combat state
   useEffect(() => {

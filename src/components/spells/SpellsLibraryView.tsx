@@ -114,7 +114,7 @@ export function SpellsLibraryView() {
         {/* Scrollable spell list */}
         <div className="flex-1 overflow-y-auto">
           <SpellList
-            spells={spells as any}
+            spells={spells}
             selectedSpellId={selectedSpellId}
             isLoading={isLoading}
             isError={isError}
@@ -133,24 +133,24 @@ export function SpellsLibraryView() {
           <>
             {/* Spell header */}
             <div className="p-6 border-b border-border bg-gradient-to-r from-card via-card/80 to-emerald-500/5">
-              <h2 className="text-3xl font-bold mb-3">{((selectedSpell.data) as any).name[selectedLanguage]}</h2>
-              {selectedLanguage === "en" && ((selectedSpell.data) as any).name.pl !== ((selectedSpell.data) as any).name.en && (
-                <p className="text-sm text-muted-foreground italic mb-3">{((selectedSpell.data) as any).name.pl}</p>
+              <h2 className="text-3xl font-bold mb-3">{selectedSpell.data.name[selectedLanguage]}</h2>
+              {selectedLanguage === "en" && selectedSpell.data.name.pl !== selectedSpell.data.name.en && (
+                <p className="text-sm text-muted-foreground italic mb-3">{selectedSpell.data.name.pl}</p>
               )}
-              {selectedLanguage === "pl" && ((selectedSpell.data) as any).name.en !== ((selectedSpell.data) as any).name.pl && (
-                <p className="text-sm text-muted-foreground italic mb-3">{((selectedSpell.data) as any).name.en}</p>
+              {selectedLanguage === "pl" && selectedSpell.data.name.en !== selectedSpell.data.name.pl && (
+                <p className="text-sm text-muted-foreground italic mb-3">{selectedSpell.data.name.en}</p>
               )}
               <div className="flex flex-wrap gap-2 mt-3">
                 <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1 text-sm shadow-sm">
-                  {formatSpellLevel(((selectedSpell.data) as any).level, ((selectedSpell.data) as any).isCantrip)}
+                  {formatSpellLevel(selectedSpell.data.level, selectedSpell.data.isCantrip)}
                 </Badge>
                 <Badge variant="secondary" className="px-3 py-1 text-sm">
-                  {((selectedSpell.data) as any).school}
+                  {selectedSpell.data.school}
                 </Badge>
                 <Badge variant="secondary" className="px-3 py-1 text-sm">
-                  {((selectedSpell.data) as any).castingTime.time}
+                  {selectedSpell.data.castingTime.time}
                 </Badge>
-                {((selectedSpell.data) as any).duration.concentration && (
+                {selectedSpell.data.duration.concentration && (
                   <Badge variant="secondary" className="px-3 py-1 text-sm">
                     Concentration
                   </Badge>
@@ -160,7 +160,7 @@ export function SpellsLibraryView() {
 
             {/* Scrollable spell details */}
             <ScrollArea className="flex-1 p-6">
-              <SpellDetails data={selectedSpell.data as any} />
+              <SpellDetails data={selectedSpell.data} />
             </ScrollArea>
           </>
         ) : (

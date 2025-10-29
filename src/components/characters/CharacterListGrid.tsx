@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { Pencil, Trash2, MoreVertical, Heart, Shield, Zap, Eye } from 'lucide-react';
-import type { PlayerCharacter } from '@/types';
+import type { PlayerCharacterDTO } from '@/types';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
   DropdownMenu,
@@ -36,15 +36,15 @@ interface CharacterCardData {
 }
 
 interface CharacterListGridProps {
-  characters: PlayerCharacter[];
-  onEdit: (character: PlayerCharacter) => void;
+  characters: PlayerCharacterDTO[];
+  onEdit: (character: PlayerCharacterDTO) => void;
   onDelete: (characterId: string) => void;
 }
 
 /**
  * Transforms a PlayerCharacter to card data with calculated fields
  */
-const toCardData = (char: PlayerCharacter): CharacterCardData => {
+const toCardData = (char: PlayerCharacterDTO): CharacterCardData => {
   const createAbilityScore = (raw: number): AbilityScore => ({
     raw,
     modifier: Math.floor((raw - 10) / 2),
@@ -95,7 +95,7 @@ const CharacterCard = ({
   onEdit,
   onDelete,
 }: {
-  character: PlayerCharacter;
+  character: PlayerCharacterDTO;
   cardData: CharacterCardData;
   onEdit: () => void;
   onDelete: () => void;

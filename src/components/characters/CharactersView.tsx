@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { PlayerCharacter, CreatePlayerCharacterCommand } from '@/types';
+import type { PlayerCharacterDTO, CreatePlayerCharacterCommand } from '@/types';
 import { CharacterListHeader } from './CharacterListHeader';
 import { CharacterList } from './CharacterList';
 import { CharacterFormModal } from './CharacterFormModal';
@@ -30,7 +30,7 @@ interface CharactersViewProps {
 interface CharacterModalState {
   isOpen: boolean;
   mode: 'create' | 'edit';
-  editingCharacter: PlayerCharacter | null;
+  editingCharacter: PlayerCharacterDTO | null;
 }
 
 /**
@@ -45,7 +45,7 @@ export function CharactersView({ campaignId, campaignName }: CharactersViewProps
 
   const [deleteConfirmation, setDeleteConfirmation] = useState<{
     isOpen: boolean;
-    character: PlayerCharacter | null;
+    character: PlayerCharacterDTO | null;
   }>({
     isOpen: false,
     character: null,
@@ -64,7 +64,7 @@ export function CharactersView({ campaignId, campaignName }: CharactersViewProps
     });
   };
 
-  const handleEditCharacter = (character: PlayerCharacter) => {
+  const handleEditCharacter = (character: PlayerCharacterDTO) => {
     setModalState({
       isOpen: true,
       mode: 'edit',

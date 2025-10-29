@@ -1,5 +1,5 @@
 import { getSupabaseClient } from '@/lib/supabase';
-import type { Monster } from '@/types';
+import type { MonsterDTO } from '@/types';
 
 export interface FetchMonstersParams {
   searchQuery?: string;
@@ -11,7 +11,7 @@ export interface FetchMonstersParams {
 }
 
 export interface ListMonstersResponse {
-  monsters: Monster[];
+  monsters: MonsterDTO[];
   total: number;
   limit: number;
   offset: number;
@@ -32,33 +32,32 @@ export async function getMonsters(params: FetchMonstersParams = {}): Promise<Lis
     offset = 0,
   } = params;
 
-  // Build query - TypeScript has issues with deep query chain typing in Supabase
-  // Using pragmatic approach: dynamic query building with runtime type safety
+  // Using `any` here is necessary due to TypeScript limitation with Supabase query builder
+  // When chaining multiple conditional .eq()/.ilike() calls with reassignment,
+  // TypeScript's type inference becomes "excessively deep and possibly infinite"
+  // Type safety is maintained through the Promise<ListMonstersResponse> return type
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let query: any = supabase.from('monsters').select('*', { count: 'exact' });
+  let queryBuilder: any = supabase.from('monsters').select('*', { count: 'exact' });
 
   // Apply filters
   if (searchQuery && searchQuery.trim()) {
-    query = query.ilike('name', `%${searchQuery.trim()}%`);
+    queryBuilder = queryBuilder.ilike('name', `%${searchQuery.trim()}%`);
   }
 
   if (type && type.trim()) {
-    query = query.eq('type', type.trim());
+    queryBuilder = queryBuilder.eq('type', type.trim());
   }
 
   if (size && size.trim()) {
-    query = query.eq('size', size.trim());
+    queryBuilder = queryBuilder.eq('size', size.trim());
   }
 
   if (alignment && alignment.trim()) {
-    query = query.eq('alignment', alignment.trim());
+    queryBuilder = queryBuilder.eq('alignment', alignment.trim());
   }
 
-  // Apply pagination
-  query = query.range(offset, offset + limit - 1);
-
-  // Execute query - return type is properly typed through Promise<ListMonstersResponse>
-  const { data, error, count } = await query;
+  // Apply pagination and execute query
+  const { data, error, count } = await queryBuilder.range(offset, offset + limit - 1);
 
   if (error) {
     console.error('Failed to fetch monsters:', error);
@@ -76,7 +75,7 @@ export async function getMonsters(params: FetchMonstersParams = {}): Promise<Lis
 /**
  * Get a single monster by ID
  */
-export async function getMonster(monsterId: string): Promise<Monster> {
+export async function getMonster(monsterId: string): Promise<MonsterDTO> {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
@@ -93,5 +92,5 @@ export async function getMonster(monsterId: string): Promise<Monster> {
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as MonsterDTO;
 }

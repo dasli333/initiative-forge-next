@@ -3,7 +3,7 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useRouter } from 'next/navigation';
 import { getSupabaseClient } from '@/lib/supabase';
-import type { Spell } from '@/types';
+import type { SpellDTO } from '@/types';
 
 /**
  * Parameters for the useSpells hook
@@ -19,7 +19,7 @@ export interface UseSpellsParams {
  * Response structure for list spells
  */
 export interface ListSpellsResponseDTO {
-  spells: Spell[];
+  spells: SpellDTO[];
   total: number;
 }
 
@@ -72,7 +72,7 @@ export function useSpells(params: UseSpellsParams) {
         if (error) throw error;
 
         return {
-          spells: (data as Spell[]) || [],
+          spells: (data as unknown as SpellDTO[]) || [],
           total: count || 0,
         };
       } catch (error) {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import type { PlayerCharacter, CreatePlayerCharacterCommand } from '@/types';
+import type { PlayerCharacterDTO, CreatePlayerCharacterCommand } from '@/types';
 import {
   Dialog,
   DialogContent,
@@ -26,7 +26,7 @@ import { CharacterForm } from './CharacterForm';
 interface CharacterFormModalProps {
   isOpen: boolean;
   mode: 'create' | 'edit';
-  character: PlayerCharacter | null;
+  character: PlayerCharacterDTO | null;
   campaignId: string;
   onClose: () => void;
   onSubmit: (data: CreatePlayerCharacterCommand) => Promise<void>;

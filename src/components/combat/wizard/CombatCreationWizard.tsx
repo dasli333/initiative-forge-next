@@ -36,6 +36,7 @@ import {
 } from "@/lib/combat-wizard";
 
 import type { PlayerCharacterViewModel, MonsterViewModel } from "./types";
+import type { SimpleNPCFormData, AdvancedNPCFormData } from "@/lib/schemas";
 
 interface CombatCreationWizardProps {
   campaignId: string;
@@ -84,7 +85,7 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
       page.monsters
         .filter((monster) => monster.data !== null)
         .map((monster): MonsterViewModel => {
-          const data = monster.data as any;
+          const data = monster.data;
           return {
             id: monster.id,
             name: data.name[selectedLanguage] || data.name.en,
@@ -108,9 +109,9 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
 
   const isNPCFormValid = useMemo(() => {
     if (state.npcMode === "simple") {
-      return validateSimpleNPCForm(state.npcFormData as any).valid;
+      return validateSimpleNPCForm(state.npcFormData as SimpleNPCFormData).valid;
     } else {
-      return validateAdvancedNPCForm(state.npcFormData as any).valid;
+      return validateAdvancedNPCForm(state.npcFormData as AdvancedNPCFormData).valid;
     }
   }, [state.npcMode, state.npcFormData]);
 
@@ -184,8 +185,8 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
 
     const npc =
       state.npcMode === "simple"
-        ? simpleFormToAdHocNPC(state.npcFormData as any)
-        : advancedFormToAdHocNPC(state.npcFormData as any);
+        ? simpleFormToAdHocNPC(state.npcFormData as SimpleNPCFormData)
+        : advancedFormToAdHocNPC(state.npcFormData as AdvancedNPCFormData);
 
     actions.addNPC(npc);
     actions.resetNPCForm();

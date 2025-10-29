@@ -138,7 +138,7 @@ async function resolvePlayerCharacter(
       wis: pc.wisdom,
       cha: pc.charisma,
     },
-    actions: (pc.actions as any as ActionDTO[]) || [],
+    actions: (pc.actions as unknown as ActionDTO[]) || [],
     is_active_turn: false,
     active_conditions: [],
   };
@@ -229,7 +229,7 @@ function mapMonsterActions(monsterActions: MonsterDataDTO["actions"]): ActionDTO
     name: action.name,
     type: action.type || "action",
     attack_bonus: action.attackRoll?.bonus,
-    range: (action as any).range,
+    range: (action as unknown as { range?: string }).range,
     damage_dice: action.damage?.[0]?.formula,
     damage_type: action.damage?.[0]?.type,
     description: action.description,

@@ -1,11 +1,12 @@
 import { getSupabaseClient } from '@/lib/supabase';
-import type { PlayerCharacter, CreatePlayerCharacterCommand, UpdatePlayerCharacterCommand } from '@/types';
+import type { PlayerCharacterDTO, CreatePlayerCharacterCommand, UpdatePlayerCharacterCommand } from '@/types';
+import type { Json } from '@/types/database';
 
 /**
  * Get all characters in a campaign
  * RLS will ensure user can only access characters from their campaigns
  */
-export async function getCharacters(campaignId: string): Promise<PlayerCharacter[]> {
+export async function getCharacters(campaignId: string): Promise<PlayerCharacterDTO[]> {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
@@ -19,14 +20,14 @@ export async function getCharacters(campaignId: string): Promise<PlayerCharacter
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as PlayerCharacterDTO[];
 }
 
 /**
  * Get a single character by ID
  * RLS will ensure user can only access characters from their campaigns
  */
-export async function getCharacter(characterId: string): Promise<PlayerCharacter> {
+export async function getCharacter(characterId: string): Promise<PlayerCharacterDTO> {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
@@ -43,7 +44,7 @@ export async function getCharacter(characterId: string): Promise<PlayerCharacter
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as PlayerCharacterDTO;
 }
 
 /**
@@ -53,7 +54,7 @@ export async function getCharacter(characterId: string): Promise<PlayerCharacter
 export async function createCharacter(
   campaignId: string,
   command: CreatePlayerCharacterCommand
-): Promise<PlayerCharacter> {
+): Promise<PlayerCharacterDTO> {
   const supabase = getSupabaseClient();
 
   // Check if character name already exists in campaign
@@ -82,7 +83,7 @@ export async function createCharacter(
       intelligence: command.intelligence,
       wisdom: command.wisdom,
       charisma: command.charisma,
-      actions: (command.actions || null) as any,
+      actions: (command.actions || null) as unknown as Json,
     })
     .select()
     .single();
@@ -92,7 +93,7 @@ export async function createCharacter(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as PlayerCharacterDTO;
 }
 
 /**
@@ -102,7 +103,7 @@ export async function createCharacter(
 export async function updateCharacter(
   characterId: string,
   command: UpdatePlayerCharacterCommand
-): Promise<PlayerCharacter> {
+): Promise<PlayerCharacterDTO> {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
@@ -118,7 +119,7 @@ export async function updateCharacter(
       intelligence: command.intelligence,
       wisdom: command.wisdom,
       charisma: command.charisma,
-      actions: command.actions as any,
+      actions: command.actions as unknown as Json,
     })
     .eq('id', characterId)
     .select()
@@ -132,7 +133,7 @@ export async function updateCharacter(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as PlayerCharacterDTO;
 }
 
 /**

@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { getSupabaseClient } from '@/lib/supabase';
-import type { Condition } from '@/types';
+import type { ConditionDTO } from '@/types';
 
 /**
  * Fetch all D&D 5e conditions using Direct Supabase
@@ -15,7 +15,7 @@ export function useConditions() {
 
   return useQuery({
     queryKey: ['conditions'],
-    queryFn: async (): Promise<Condition[]> => {
+    queryFn: async (): Promise<ConditionDTO[]> => {
       const supabase = getSupabaseClient();
 
       try {
@@ -26,7 +26,7 @@ export function useConditions() {
 
         if (error) throw error;
 
-        return data as Condition[];
+        return data as unknown as ConditionDTO[];
       } catch (error) {
         // Check for auth errors
         if (error instanceof Error && error.message.includes('auth')) {

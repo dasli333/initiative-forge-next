@@ -4,7 +4,7 @@ import { forwardRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CreatePlayerCharacterCommandSchema, type CreatePlayerCharacterCommand } from '@/lib/schemas/player-character.schema';
-import type { PlayerCharacter } from '@/types';
+import type { PlayerCharacterDTO, ActionDTO } from '@/types';
 import { Form } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import { BasicInfoSection } from './BasicInfoSection';
@@ -14,7 +14,7 @@ import { ActionsSection } from './ActionsSection';
 
 interface CharacterFormProps {
   mode: 'create' | 'edit';
-  defaultValues?: PlayerCharacter;
+  defaultValues?: PlayerCharacterDTO;
   onSubmit: (data: CreatePlayerCharacterCommand) => Promise<void>;
   onDirtyChange?: (isDirty: boolean) => void;
 }
@@ -39,7 +39,7 @@ export const CharacterForm = forwardRef<HTMLFormElement, CharacterFormProps>(
             intelligence: defaultValues.intelligence,
             wisdom: defaultValues.wisdom,
             charisma: defaultValues.charisma,
-            actions: (defaultValues.actions as any) || [],
+            actions: (defaultValues.actions as unknown as ActionDTO[]) || [],
           }
         : {
             name: '',

@@ -3,7 +3,7 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useRouter } from 'next/navigation';
 import { getSupabaseClient } from '@/lib/supabase';
-import type { Monster } from '@/types';
+import type { MonsterDTO } from '@/types';
 
 /**
  * Parameters for the useMonsters hook
@@ -20,7 +20,7 @@ export interface UseMonstersParams {
  * Response structure for list monsters
  */
 export interface ListMonstersResponseDTO {
-  monsters: Monster[];
+  monsters: MonsterDTO[];
   total: number;
 }
 
@@ -74,7 +74,7 @@ export function useMonsters(params: UseMonstersParams) {
         if (error) throw error;
 
         return {
-          monsters: (data as Monster[]) || [],
+          monsters: (data as unknown as MonsterDTO[]) || [],
           total: count || 0,
         };
       } catch (error) {

@@ -1,5 +1,5 @@
 import { getSupabaseClient } from '@/lib/supabase';
-import type { Spell } from '@/types';
+import type { SpellDTO } from '@/types';
 
 export interface FetchSpellsParams {
   searchQuery?: string;
@@ -10,7 +10,7 @@ export interface FetchSpellsParams {
 }
 
 export interface ListSpellsResponse {
-  spells: Spell[];
+  spells: SpellDTO[];
   total: number;
   limit: number;
   offset: number;
@@ -30,29 +30,28 @@ export async function getSpells(params: FetchSpellsParams = {}): Promise<ListSpe
     offset = 0,
   } = params;
 
-  // Build query - TypeScript has issues with deep query chain typing in Supabase
-  // Using pragmatic approach: dynamic query building with runtime type safety
+  // Using `any` here is necessary due to TypeScript limitation with Supabase query builder
+  // When chaining multiple conditional .eq()/.ilike() calls with reassignment,
+  // TypeScript's type inference becomes "excessively deep and possibly infinite"
+  // Type safety is maintained through the Promise<ListSpellsResponse> return type
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let query: any = supabase.from('spells').select('*', { count: 'exact' });
+  let queryBuilder: any = supabase.from('spells').select('*', { count: 'exact' });
 
   // Apply filters
   if (searchQuery && searchQuery.trim()) {
-    query = query.ilike('name', `%${searchQuery.trim()}%`);
+    queryBuilder = queryBuilder.ilike('name', `%${searchQuery.trim()}%`);
   }
 
   if (level !== null && level !== undefined) {
-    query = query.eq('level', level);
+    queryBuilder = queryBuilder.eq('level', level);
   }
 
   if (className && className.trim()) {
-    query = query.contains('classes', [className.trim()]);
+    queryBuilder = queryBuilder.contains('classes', [className.trim()]);
   }
 
-  // Apply pagination
-  query = query.range(offset, offset + limit - 1);
-
-  // Execute query - return type is properly typed through Promise<ListSpellsResponse>
-  const { data, error, count } = await query;
+  // Apply pagination and execute query
+  const { data, error, count } = await queryBuilder.range(offset, offset + limit - 1);
 
   if (error) {
     console.error('Failed to fetch spells:', error);
@@ -70,7 +69,7 @@ export async function getSpells(params: FetchSpellsParams = {}): Promise<ListSpe
 /**
  * Get a single spell by ID
  */
-export async function getSpell(spellId: string): Promise<Spell> {
+export async function getSpell(spellId: string): Promise<SpellDTO> {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
@@ -87,5 +86,5 @@ export async function getSpell(spellId: string): Promise<Spell> {
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as SpellDTO;
 }
