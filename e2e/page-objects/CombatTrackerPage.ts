@@ -253,8 +253,18 @@ export class CombatTrackerPage {
   }
 
   async getCurrentRound(): Promise<number> {
+    // Wait for the round counter to be visible to handle React hydration timing
+    await this.roundCounter.waitFor({ state: "visible", timeout: 5000 });
+
+    // Try reading from data attribute first (most reliable)
+    const roundAttr = await this.roundCounter.getAttribute("data-round");
+    if (roundAttr !== null) {
+      return parseInt(roundAttr);
+    }
+
+    // Fallback to text parsing with improved regex
     const text = await this.roundCounter.textContent();
-    const match = text?.match(/Round\s+(\d+)/i);
+    const match = text?.match(/Round:?\s*(\d+)/i);
     return match ? parseInt(match[1]) : 0;
   }
 
