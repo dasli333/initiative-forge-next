@@ -24,7 +24,7 @@ interface CharacterFormProps {
  * Uses React Hook Form with Zod validation
  */
 export const CharacterForm = forwardRef<HTMLFormElement, CharacterFormProps>(
-  ({ mode, defaultValues, onSubmit, onDirtyChange }, ref) => {
+  ({ defaultValues, onSubmit, onDirtyChange }, ref) => {
     const form = useForm<CreatePlayerCharacterCommand>({
       resolver: zodResolver(CreatePlayerCharacterCommandSchema),
       defaultValues: defaultValues

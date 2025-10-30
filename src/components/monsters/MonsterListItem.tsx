@@ -60,7 +60,7 @@ export function MonsterListItem({ monster, isSelected, onClick }: MonsterListIte
       tabIndex={0}
       role="button"
       aria-label={`View details for ${displayName}`}
-      aria-selected={isSelected}
+      aria-pressed={isSelected}
     >
       <div className="flex flex-col gap-1">
         <h3 className="text-sm font-medium truncate">{displayName}</h3>

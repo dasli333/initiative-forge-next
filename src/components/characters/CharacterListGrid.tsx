@@ -90,7 +90,6 @@ const getInitials = (name: string): string => {
  * Character card component with Material Design 3 / Fluent 2 inspired design
  */
 const CharacterCard = ({
-  character,
   cardData,
   onEdit,
   onDelete,
@@ -221,7 +220,6 @@ export const CharacterListGrid = ({ characters, onEdit, onDelete }: CharacterLis
         return (
           <CharacterCard
             key={data.id}
-            character={character}
             cardData={data}
             onEdit={() => onEdit(character)}
             onDelete={() => onDelete(character.id)}

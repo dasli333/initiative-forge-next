@@ -1,5 +1,5 @@
 import { useReducer, useCallback } from "react";
-import type { WizardState, AddedMonsterViewModel } from "@/components/combat/wizard/types";
+import type { WizardState } from "@/components/combat/wizard/types";
 import type { AdHocNPC, SimpleNPCFormData, AdvancedNPCFormData } from "@/lib/schemas";
 import { defaultSimpleNPCFormData, defaultAdvancedNPCFormData } from "@/lib/combat-wizard";
 

@@ -41,7 +41,6 @@ export const CharacterFormModal = ({
   isOpen,
   mode,
   character,
-  campaignId,
   onClose,
   onSubmit,
   isSubmitting,

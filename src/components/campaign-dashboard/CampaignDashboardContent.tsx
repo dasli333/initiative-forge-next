@@ -16,7 +16,6 @@ import { QuickActionsSection } from './QuickActionsSection';
 import { useCampaignQuery, useCampaignCharactersQuery } from '@/hooks/useCampaign';
 import { useUpdateCampaignMutation } from '@/hooks/useCampaigns';
 import { useCampaignStore } from '@/stores/campaignStore';
-import type { Campaign } from '@/types';
 
 interface CampaignDashboardContentProps {
   campaignId: string;

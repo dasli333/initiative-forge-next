@@ -3,7 +3,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Sword, Heart, Shield } from "lucide-react";
 import type { RollResult } from "@/types/combat-view.types";
-import { formatDistanceToNow } from "date-fns";
 import { DamageBadge } from "@/components/library";
 
 interface RollCardProps {

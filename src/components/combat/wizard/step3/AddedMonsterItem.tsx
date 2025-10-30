@@ -33,6 +33,7 @@ export function AddedMonsterItem({ monster, onUpdateCount, onRemove }: AddedMons
       </div>
 
       <div className="flex items-center gap-2">
+        {/* eslint-disable react-hooks/refs -- False positive: countEdit values are state/callbacks, not ref.current values */}
         {countEdit.isEditing ? (
           <Input
             ref={countEdit.inputRef}
@@ -55,6 +56,7 @@ export function AddedMonsterItem({ monster, onUpdateCount, onRemove }: AddedMons
             x{monster.count}
           </Badge>
         )}
+        {/* eslint-enable react-hooks/refs */}
 
         <Button size="sm" variant="ghost" onClick={() => onRemove(monster.monster_id)} className="h-8 w-8 p-0">
           <X className="w-4 h-4" />

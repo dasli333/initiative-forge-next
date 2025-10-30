@@ -48,9 +48,8 @@ export function HPControls({ currentHP, maxHP, onHPChange }: HPControlsProps) {
 
   const isValid = !error && value !== "";
 
-  // Calculate HP percentage and color
+  // Calculate HP percentage
   const hpPercentage = maxHP > 0 ? (currentHP / maxHP) * 100 : 0;
-  const hpColor = hpPercentage > 50 ? "bg-emerald-600" : hpPercentage > 25 ? "bg-yellow-600" : "bg-red-600";
 
   return (
     <div className="space-y-1">
