@@ -94,7 +94,6 @@ const CharacterCard = ({
   onEdit,
   onDelete,
 }: {
-  character: PlayerCharacterDTO;
   cardData: CharacterCardData;
   onEdit: () => void;
   onDelete: () => void;
