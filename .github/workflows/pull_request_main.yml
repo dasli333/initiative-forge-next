@@ -131,15 +131,20 @@ jobs:
             const unitJob = jobs.jobs.find(job => job.name === 'Unit Tests');
             const e2eJob = jobs.jobs.find(job => job.name === 'E2E Tests');
 
-            const statusIcon = (status) => {
-              if (status === 'completed') return '✅';
-              if (status === 'failure') return '❌';
-              if (status === 'cancelled') return '⚠️';
-              return '⏳';
+            const statusIcon = (job) => {
+              if (!job) return '⚪';
+              const conclusion = job.conclusion;
+              if (conclusion === 'success') return '✅';
+              if (conclusion === 'failure') return '❌';
+              if (conclusion === 'cancelled') return '⚠️';
+              if (conclusion === 'skipped') return '⏭️';
+              if (job.status === 'in_progress') return '⏳';
+              if (job.status === 'queued') return '🕐';
+              return '⚪';
             };
 
             const conclusion = (job) => {
-              if (!job) return 'skipped';
+              if (!job) return 'not run';
               return job.conclusion || job.status;
             };
 
@@ -147,10 +152,10 @@ jobs:
 
             | Check | Status | Conclusion |
             |-------|--------|------------|
-            | Lint | ${statusIcon(lintJob?.status)} | ${conclusion(lintJob)} |
-            | Build | ${statusIcon(buildJob?.status)} | ${conclusion(buildJob)} |
-            | Unit Tests | ${statusIcon(unitJob?.status)} | ${conclusion(unitJob)} |
-            | E2E Tests | ${statusIcon(e2eJob?.status)} | ${conclusion(e2eJob)} |
+            | Lint | ${statusIcon(lintJob)} | ${conclusion(lintJob)} |
+            | Build | ${statusIcon(buildJob)} | ${conclusion(buildJob)} |
+            | Unit Tests | ${statusIcon(unitJob)} | ${conclusion(unitJob)} |
+            | E2E Tests | ${statusIcon(e2eJob)} | ${conclusion(e2eJob)} |
 
             **Workflow Run:** [#${context.runNumber}](${context.payload.repository.html_url}/actions/runs/${context.runId})
             `;
