@@ -50,9 +50,9 @@
 - **[React Testing Library](https://testing-library.com/react)** - Component testing utilities
 - **[Playwright](https://playwright.dev/)** - End-to-end browser testing
 
-### CI/CD
+### CI/CD & Hosting
 - **GitHub Actions** - Automated testing and deployment pipelines
-- **Vercel / Cloudflare** - Production hosting options
+- **Vercel** - Production hosting with zero-config Next.js deployment
 
 ---
 
@@ -112,6 +112,23 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
+
+### 6. Deploy to Vercel (Optional)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/initiative-forge-next)
+
+**Manual Deployment:**
+
+1. Push your code to GitHub
+2. Sign up at [vercel.com](https://vercel.com) and connect your GitHub account
+3. Import your repository
+4. Add environment variables:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `NEXT_PUBLIC_APP_URL` (your Vercel domain)
+5. Deploy
+
+Vercel will automatically detect Next.js configuration and deploy with optimal settings. Preview deployments are created for every pull request.
 
 ---
 

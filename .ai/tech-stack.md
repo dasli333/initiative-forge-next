@@ -24,5 +24,9 @@ Backend - Supabase jako kompleksowe rozwiązanie backendowe:
 
 CI/CD i Hosting:
 
-- Github Actions do tworzenia pipeline’ów CI/CD
-- Hostowanie w Vercel lub Cloudlflare
+- Github Actions do tworzenia pipeline'ów CI/CD
+- Vercel (Hobby plan dla projektów niekomercyjnych, Pro plan przy komercjalizacji)
+  - Idealne wsparcie dla Next.js (ten sam twórca)
+  - Zero-config deployment z GitHub
+  - Obsługa server-side features (force-dynamic, cookies, auth)
+  - Darmowy plan umożliwia 100GB bandwidth/miesiąc oraz unlimited preview deployments
