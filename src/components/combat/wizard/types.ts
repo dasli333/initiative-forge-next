@@ -125,11 +125,13 @@ export interface Step1Props {
  * Props dla Step 2
  */
 export interface Step2Props {
+  campaignId: string;
   playerCharacters: PlayerCharacterViewModel[];
   selectedIds: string[];
   onToggle: (id: string) => void;
   onBack: () => void;
   onNext: () => void;
+  onSkip?: () => void; // Optional skip handler for when there are no characters
   isLoading: boolean;
   error: Error | null;
 }

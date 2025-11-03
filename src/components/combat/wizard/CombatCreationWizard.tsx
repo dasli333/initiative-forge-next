@@ -179,6 +179,15 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
     }
   }, [state.currentStep, actions]);
 
+  const handleSkipStep2 = useCallback(() => {
+    // Skip validation for Step 2 when there are no player characters
+    // Mark step as completed and move to Step 3
+    if (!state.completedSteps.includes(2)) {
+      actions.completeStep(2);
+    }
+    actions.setStep(3);
+  }, [state.completedSteps, actions]);
+
   const handleAddNPC = useCallback(() => {
     if (!isNPCFormValid) return;
 
@@ -225,11 +234,13 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
 
         {state.currentStep === 2 && (
           <Step2_SelectPlayerCharacters
+            campaignId={campaignId}
             playerCharacters={playerCharacters}
             selectedIds={state.selectedPlayerCharacterIds}
             onToggle={actions.toggleCharacter}
             onBack={handleBack}
             onNext={handleNext}
+            onSkip={handleSkipStep2}
             isLoading={playerCharactersQuery.isLoading}
             error={playerCharactersQuery.error}
           />
