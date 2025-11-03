@@ -10,11 +10,13 @@ import { validateStep2 } from "./utils";
 import type { Step2Props } from "./types";
 
 export function Step2_SelectPlayerCharacters({
+  campaignId,
   playerCharacters,
   selectedIds,
   onToggle,
   onBack,
   onNext,
+  onSkip,
   isLoading,
   error,
 }: Step2Props) {
@@ -86,19 +88,18 @@ export function Step2_SelectPlayerCharacters({
           <AlertDescription>
             No player characters in this campaign. You can still create a combat with only monsters and NPCs, or{" "}
             <a
-              href={`/campaigns/${playerCharacters[0]?.id || ""}/characters/new`}
+              href={`/campaigns/${campaignId}/characters`}
               className="underline font-medium hover:underline"
             >
               create a character first
             </a>
-            .
           </AlertDescription>
         </Alert>
         <div className="flex justify-between pt-6">
           <Button onClick={onBack} variant="outline" size="lg">
             Back
           </Button>
-          <Button onClick={onNext} size="lg">
+          <Button onClick={onSkip || onNext} size="lg">
             Skip to Monsters
           </Button>
         </div>
