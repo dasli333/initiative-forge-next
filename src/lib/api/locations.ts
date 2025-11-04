@@ -112,7 +112,7 @@ export async function updateLocation(
 ): Promise<Location> {
   const supabase = getSupabaseClient();
 
-  const updateData: any = {};
+  const updateData: Record<string, unknown> = {};
 
   if (command.name !== undefined) updateData.name = command.name;
   if (command.location_type !== undefined) updateData.location_type = command.location_type;

@@ -55,7 +55,7 @@ export async function updateNPCRelationship(
 ): Promise<NPCRelationship> {
   const supabase = getSupabaseClient();
 
-  const updateData: any = {};
+  const updateData: Record<string, unknown> = {};
   if (command.relationship_type !== undefined) updateData.relationship_type = command.relationship_type;
   if (command.description !== undefined) updateData.description = command.description;
   if (command.strength !== undefined) updateData.strength = command.strength;

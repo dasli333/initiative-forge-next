@@ -103,7 +103,7 @@ export async function updateStoryArc(
 ): Promise<StoryArc> {
   const supabase = getSupabaseClient();
 
-  const updateData: any = {};
+  const updateData: Record<string, unknown> = {};
 
   if (command.title !== undefined) updateData.title = command.title;
   if (command.description_json !== undefined) updateData.description_json = command.description_json;

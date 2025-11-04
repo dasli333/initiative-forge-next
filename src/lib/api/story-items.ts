@@ -107,7 +107,7 @@ export async function updateStoryItem(
     .eq('id', storyItemId)
     .single();
 
-  const updateData: any = {};
+  const updateData: Record<string, unknown> = {};
   if (command.name !== undefined) updateData.name = command.name;
   if (command.description_json !== undefined) updateData.description_json = command.description_json;
   if (command.image_url !== undefined) updateData.image_url = command.image_url;
@@ -122,11 +122,11 @@ export async function updateStoryItem(
 
   if (ownerChanged && currentItem) {
     const now = new Date().toISOString();
-    const history = currentItem.ownership_history_json || [];
+    const history = (currentItem.ownership_history_json as unknown[] | null) || [];
 
     // Close current owner's entry
-    const updatedHistory = history.map((entry: any) =>
-      entry.to === null ? { ...entry, to: now } : entry
+    const updatedHistory = history.map((entry: unknown) =>
+      (entry as { to: string | null }).to === null ? { ...(entry as Record<string, unknown>), to: now } : entry
     );
 
     // Add new owner entry

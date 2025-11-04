@@ -1,5 +1,7 @@
 import { getSupabaseClient } from '@/lib/supabase';
 import type { MonsterDTO } from '@/types';
+import type { PostgrestFilterBuilder } from '@supabase/postgrest-js';
+import type { Database } from '@/types/database';
 
 export interface FetchMonstersParams {
   searchQuery?: string;
@@ -32,12 +34,9 @@ export async function getMonsters(params: FetchMonstersParams = {}): Promise<Lis
     offset = 0,
   } = params;
 
-  // Using `any` here is necessary due to TypeScript limitation with Supabase query builder
-  // When chaining multiple conditional .eq()/.ilike() calls with reassignment,
-  // TypeScript's type inference becomes "excessively deep and possibly infinite"
-  // Type safety is maintained through the Promise<ListMonstersResponse> return type
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let queryBuilder: any = supabase.from('monsters').select('*', { count: 'exact' });
+  type MonsterQueryBuilder = PostgrestFilterBuilder<Database['public'], Database['public']['Tables']['monsters']['Row'], unknown[], 'monsters', unknown[]>;
+
+  let queryBuilder: MonsterQueryBuilder = supabase.from('monsters').select('*', { count: 'exact' });
 
   // Apply filters
   if (searchQuery && searchQuery.trim()) {

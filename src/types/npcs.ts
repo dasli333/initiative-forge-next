@@ -1,4 +1,4 @@
-import type { Tables } from '@/types/database';
+import type { Json, Tables } from '@/types/database';
 
 // ============================================================================
 // ENTITY TYPES
@@ -17,8 +17,8 @@ export type NPC = Tables<'npcs'>;
 export interface CreateNPCCommand {
   name: string;
   role?: string | null;
-  biography_json?: any; // Rich text with @mentions
-  personality_json?: any; // Rich text
+  biography_json?: Json | null; // Rich text with @mentions
+  personality_json?: Json | null; // Rich text
   image_url?: string | null;
   faction_id?: string | null;
   current_location_id?: string | null;
@@ -32,8 +32,8 @@ export interface CreateNPCCommand {
 export interface UpdateNPCCommand {
   name?: string;
   role?: string | null;
-  biography_json?: any;
-  personality_json?: any;
+  biography_json?: Json | null;
+  personality_json?: Json | null;
   image_url?: string | null;
   faction_id?: string | null;
   current_location_id?: string | null;

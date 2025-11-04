@@ -1,4 +1,4 @@
-import type { Tables } from '@/types/database';
+import type { Json, Tables } from '@/types/database';
 
 // ============================================================================
 // ENTITY TYPES
@@ -24,5 +24,5 @@ export interface UpsertNPCCombatStatsCommand {
   intelligence: number;
   wisdom: number;
   charisma: number;
-  actions_json?: any; // Array of actions (same format as player_characters.actions)
+  actions_json?: Json | null; // Array of actions (same format as player_characters.actions)
 }

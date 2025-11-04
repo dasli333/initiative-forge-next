@@ -1,4 +1,4 @@
-import type { Tables } from '@/types/database';
+import type { Json, Tables } from '@/types/database';
 
 // ============================================================================
 // ENTITY TYPES
@@ -17,9 +17,9 @@ export type Quest = Tables<'quests'>;
 export interface CreateQuestCommand {
   story_arc_id?: string | null;
   title: string;
-  description_json?: any; // Rich text with @mentions
-  objectives_json?: any; // List of objectives
-  rewards_json?: any; // Structured rewards: {gold, items, xp, other}
+  description_json?: Json | null; // Rich text with @mentions
+  objectives_json?: Json | null; // List of objectives
+  rewards_json?: Json | null; // Structured rewards: {gold, items, xp, other}
   status?: 'not_started' | 'active' | 'completed' | 'failed';
 }
 
@@ -30,9 +30,9 @@ export interface CreateQuestCommand {
 export interface UpdateQuestCommand {
   story_arc_id?: string | null;
   title?: string;
-  description_json?: any;
-  objectives_json?: any;
-  rewards_json?: any;
+  description_json?: Json | null;
+  objectives_json?: Json | null;
+  rewards_json?: Json | null;
   status?: 'not_started' | 'active' | 'completed' | 'failed';
 }
 

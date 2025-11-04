@@ -1,17 +1,17 @@
-import type { Tables } from '@/types/database';
+import type { Json, Tables } from '@/types/database';
 
 export type LoreNote = Tables<'lore_notes'>;
 
 export interface CreateLoreNoteCommand {
   title: string;
-  content_json?: any;
+  content_json?: Json | null;
   category: string;
   tags?: string[];
 }
 
 export interface UpdateLoreNoteCommand {
   title?: string;
-  content_json?: any;
+  content_json?: Json | null;
   category?: string;
   tags?: string[];
 }

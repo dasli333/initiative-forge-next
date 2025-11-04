@@ -87,7 +87,7 @@ export async function updateLoreNote(
 ): Promise<LoreNote> {
   const supabase = getSupabaseClient();
 
-  const updateData: any = {};
+  const updateData: Record<string, unknown> = {};
   if (command.title !== undefined) updateData.title = command.title;
   if (command.content_json !== undefined) updateData.content_json = command.content_json;
   if (command.category !== undefined) updateData.category = command.category;

@@ -1,4 +1,4 @@
-import type { Tables } from '@/types/database';
+import type { Json, Tables } from '@/types/database';
 
 // ============================================================================
 // ENTITY TYPES
@@ -16,7 +16,7 @@ export type StoryArc = Tables<'story_arcs'>;
  */
 export interface CreateStoryArcCommand {
   title: string;
-  description_json?: any; // Rich text with @mentions
+  description_json?: Json | null; // Rich text with @mentions
   status?: 'planning' | 'active' | 'completed' | 'abandoned';
   start_date?: string | null; // In-game fantasy calendar date
   end_date?: string | null;
@@ -28,7 +28,7 @@ export interface CreateStoryArcCommand {
  */
 export interface UpdateStoryArcCommand {
   title?: string;
-  description_json?: any;
+  description_json?: Json | null;
   status?: 'planning' | 'active' | 'completed' | 'abandoned';
   start_date?: string | null;
   end_date?: string | null;

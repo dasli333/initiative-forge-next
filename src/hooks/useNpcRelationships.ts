@@ -90,7 +90,7 @@ export function useDeleteNPCRelationshipMutation() {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async ({ id, npc_id_1, npc_id_2 }: { id: string; npc_id_1: string; npc_id_2: string }): Promise<void> => {
+    mutationFn: async ({ id, npc_id_1: _npc_id_1, npc_id_2: _npc_id_2 }: { id: string; npc_id_1: string; npc_id_2: string }): Promise<void> => {
       try {
         await deleteNPCRelationship(id);
       } catch (error) {

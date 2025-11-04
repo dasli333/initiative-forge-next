@@ -88,7 +88,7 @@ export async function updateSession(
 ): Promise<Session> {
   const supabase = getSupabaseClient();
 
-  const updateData: any = {};
+  const updateData: Record<string, unknown> = {};
   if (command.session_number !== undefined) updateData.session_number = command.session_number;
   if (command.session_date !== undefined) updateData.session_date = command.session_date;
   if (command.in_game_date !== undefined) updateData.in_game_date = command.in_game_date;

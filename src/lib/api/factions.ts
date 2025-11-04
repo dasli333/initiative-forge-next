@@ -93,7 +93,7 @@ export async function updateFaction(
 ): Promise<Faction> {
   const supabase = getSupabaseClient();
 
-  const updateData: any = {};
+  const updateData: Record<string, unknown> = {};
 
   if (command.name !== undefined) updateData.name = command.name;
   if (command.description_json !== undefined) updateData.description_json = command.description_json;

@@ -1,4 +1,4 @@
-import type { Tables, TablesInsert, TablesUpdate } from '@/types/database';
+import type { Json, Tables } from '@/types/database';
 
 // ============================================================================
 // ENTITY TYPES
@@ -17,10 +17,10 @@ export type Location = Tables<'locations'>;
 export interface CreateLocationCommand {
   name: string;
   location_type: string;
-  description_json?: any; // Rich text with @mentions
+  description_json?: Json | null; // Rich text with @mentions
   parent_location_id?: string | null;
   image_url?: string | null;
-  coordinates_json?: any; // {lat: number, lng: number}
+  coordinates_json?: Json | null; // {lat: number, lng: number}
 }
 
 /**
@@ -30,10 +30,10 @@ export interface CreateLocationCommand {
 export interface UpdateLocationCommand {
   name?: string;
   location_type?: string;
-  description_json?: any;
+  description_json?: Json | null;
   parent_location_id?: string | null;
   image_url?: string | null;
-  coordinates_json?: any;
+  coordinates_json?: Json | null;
 }
 
 // ============================================================================

@@ -89,7 +89,7 @@ export async function updateTimelineEvent(
 ): Promise<TimelineEvent> {
   const supabase = getSupabaseClient();
 
-  const updateData: any = {};
+  const updateData: Record<string, unknown> = {};
   if (command.title !== undefined) updateData.title = command.title;
   if (command.description_json !== undefined) updateData.description_json = command.description_json;
   if (command.event_date !== undefined) updateData.event_date = command.event_date;

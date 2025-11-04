@@ -112,7 +112,7 @@ export async function updateQuest(
 ): Promise<Quest> {
   const supabase = getSupabaseClient();
 
-  const updateData: any = {};
+  const updateData: Record<string, unknown> = {};
 
   if (command.story_arc_id !== undefined) updateData.story_arc_id = command.story_arc_id;
   if (command.title !== undefined) updateData.title = command.title;

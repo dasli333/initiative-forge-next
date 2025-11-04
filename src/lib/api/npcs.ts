@@ -122,7 +122,7 @@ export async function updateNPC(
 ): Promise<NPC> {
   const supabase = getSupabaseClient();
 
-  const updateData: any = {};
+  const updateData: Record<string, unknown> = {};
 
   if (command.name !== undefined) updateData.name = command.name;
   if (command.role !== undefined) updateData.role = command.role;

@@ -1,4 +1,4 @@
-import type { Tables } from '@/types/database';
+import type { Json, Tables } from '@/types/database';
 
 // ============================================================================
 // ENTITY TYPES
@@ -16,9 +16,9 @@ export type Faction = Tables<'factions'>;
  */
 export interface CreateFactionCommand {
   name: string;
-  description_json?: any; // Rich text with @mentions
-  goals_json?: any; // Rich text
-  resources_json?: any; // Future use
+  description_json?: Json | null; // Rich text with @mentions
+  goals_json?: Json | null; // Rich text
+  resources_json?: Json | null; // Future use
   image_url?: string | null;
 }
 
@@ -28,8 +28,8 @@ export interface CreateFactionCommand {
  */
 export interface UpdateFactionCommand {
   name?: string;
-  description_json?: any;
-  goals_json?: any;
-  resources_json?: any;
+  description_json?: Json | null;
+  goals_json?: Json | null;
+  resources_json?: Json | null;
   image_url?: string | null;
 }

@@ -90,7 +90,7 @@ export function useDeleteFactionRelationshipMutation() {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async ({ id, faction_id_1, faction_id_2 }: { id: string; faction_id_1: string; faction_id_2: string }): Promise<void> => {
+    mutationFn: async ({ id, faction_id_1: _faction_id_1, faction_id_2: _faction_id_2 }: { id: string; faction_id_1: string; faction_id_2: string }): Promise<void> => {
       try {
         await deleteFactionRelationship(id);
       } catch (error) {

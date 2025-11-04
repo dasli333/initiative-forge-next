@@ -93,7 +93,7 @@ export async function updateQuestEntity(
 ): Promise<QuestEntity> {
   const supabase = getSupabaseClient();
 
-  const updateData: any = {};
+  const updateData: Record<string, unknown> = {};
   if (command.role !== undefined) updateData.role = command.role;
 
   const { data, error } = await supabase

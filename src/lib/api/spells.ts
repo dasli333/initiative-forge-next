@@ -1,5 +1,7 @@
 import { getSupabaseClient } from '@/lib/supabase';
 import type { SpellDTO } from '@/types';
+import type { PostgrestFilterBuilder } from '@supabase/postgrest-js';
+import type { Database } from '@/types/database';
 
 export interface FetchSpellsParams {
   searchQuery?: string;
@@ -30,12 +32,9 @@ export async function getSpells(params: FetchSpellsParams = {}): Promise<ListSpe
     offset = 0,
   } = params;
 
-  // Using `any` here is necessary due to TypeScript limitation with Supabase query builder
-  // When chaining multiple conditional .eq()/.ilike() calls with reassignment,
-  // TypeScript's type inference becomes "excessively deep and possibly infinite"
-  // Type safety is maintained through the Promise<ListSpellsResponse> return type
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let queryBuilder: any = supabase.from('spells').select('*', { count: 'exact' });
+  type SpellQueryBuilder = PostgrestFilterBuilder<Database['public'], Database['public']['Tables']['spells']['Row'], unknown[], 'spells', unknown[]>;
+
+  let queryBuilder: SpellQueryBuilder = supabase.from('spells').select('*', { count: 'exact' });
 
   // Apply filters
   if (searchQuery && searchQuery.trim()) {
