@@ -167,6 +167,13 @@ src/
 - **DTO Pattern**: Separate request/response types from domain types
 - **Path Alias**: `@/` → `./src/`
 
+**CRITICAL - Frontend Type Rules:**
+- **ALWAYS use DTO types on frontend**, NEVER raw database types (e.g., `LocationDTO` not `Location`)
+- Raw types have `Json` fields that need parsing; DTOs have typed fields (e.g., `JSONContent`, `LocationCoordinates`)
+- **AVOID `as any` casts** - only use if absolutely necessary with clear comment explaining why
+- Prefer generic types or proper type narrowing over `any`
+- API layer converts raw → DTO, components receive only DTOs
+
 ### Form Handling
 ```typescript
 // React Hook Form + Zod validation pattern
