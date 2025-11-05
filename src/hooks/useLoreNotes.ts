@@ -10,14 +10,14 @@ import {
   updateLoreNote,
   deleteLoreNote,
 } from '@/lib/api/lore-notes';
-import type { LoreNote, CreateLoreNoteCommand, UpdateLoreNoteCommand, LoreNoteFilters } from '@/types/lore-notes';
+import type { LoreNoteDTO, CreateLoreNoteCommand, UpdateLoreNoteCommand, LoreNoteFilters } from '@/types/lore-notes';
 
 export function useLoreNotesQuery(campaignId: string, filters?: LoreNoteFilters) {
   const router = useRouter();
 
   return useQuery({
     queryKey: ['lore-notes', campaignId, filters],
-    queryFn: async (): Promise<LoreNote[]> => {
+    queryFn: async (): Promise<LoreNoteDTO[]> => {
       try {
         return await getLoreNotes(campaignId, filters);
       } catch (error) {
@@ -36,7 +36,7 @@ export function useLoreNoteQuery(loreNoteId: string | undefined) {
 
   return useQuery({
     queryKey: ['lore-note', loreNoteId],
-    queryFn: async (): Promise<LoreNote> => {
+    queryFn: async (): Promise<LoreNoteDTO> => {
       if (!loreNoteId) throw new Error('Lore note ID is required');
 
       try {
@@ -57,7 +57,7 @@ export function useCreateLoreNoteMutation(campaignId: string) {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async (command: CreateLoreNoteCommand): Promise<LoreNote> => {
+    mutationFn: async (command: CreateLoreNoteCommand): Promise<LoreNoteDTO> => {
       try {
         return await createLoreNote(campaignId, command);
       } catch (error) {
@@ -82,7 +82,7 @@ export function useUpdateLoreNoteMutation(campaignId: string) {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async ({ id, command }: { id: string; command: UpdateLoreNoteCommand }): Promise<LoreNote> => {
+    mutationFn: async ({ id, command }: { id: string; command: UpdateLoreNoteCommand }): Promise<LoreNoteDTO> => {
       try {
         return await updateLoreNote(id, command);
       } catch (error) {

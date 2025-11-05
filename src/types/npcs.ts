@@ -1,10 +1,19 @@
 import type { Json, Tables } from '@/types/database';
+import type { JSONContent } from '@tiptap/react';
 
 // ============================================================================
 // ENTITY TYPES
 // ============================================================================
 
 export type NPC = Tables<'npcs'>;
+
+/**
+ * NPC DTO with typed Json fields
+ */
+export interface NPCSDTO extends Omit<NPC, 'biography_json' | 'personality_json'> {
+  biography_json: JSONContent | null;
+  personality_json: JSONContent | null;
+}
 
 // ============================================================================
 // COMMAND MODELS
@@ -17,8 +26,8 @@ export type NPC = Tables<'npcs'>;
 export interface CreateNPCCommand {
   name: string;
   role?: string | null;
-  biography_json?: Json | null; // Rich text with @mentions
-  personality_json?: Json | null; // Rich text
+  biography_json?: JSONContent | null; // Rich text with @mentions
+  personality_json?: JSONContent | null; // Rich text
   image_url?: string | null;
   faction_id?: string | null;
   current_location_id?: string | null;
@@ -32,8 +41,8 @@ export interface CreateNPCCommand {
 export interface UpdateNPCCommand {
   name?: string;
   role?: string | null;
-  biography_json?: Json | null;
-  personality_json?: Json | null;
+  biography_json?: JSONContent | null;
+  personality_json?: JSONContent | null;
   image_url?: string | null;
   faction_id?: string | null;
   current_location_id?: string | null;

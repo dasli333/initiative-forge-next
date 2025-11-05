@@ -32,9 +32,8 @@ export async function getSpells(params: FetchSpellsParams = {}): Promise<ListSpe
     offset = 0,
   } = params;
 
-  type SpellQueryBuilder = PostgrestFilterBuilder<Database['public'], Database['public']['Tables']['spells']['Row'], unknown[], 'spells', unknown[]>;
-
-  let queryBuilder: SpellQueryBuilder = supabase.from('spells').select('*', { count: 'exact' });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let queryBuilder = supabase.from('spells').select('*', { count: 'exact' }) as any;
 
   // Apply filters
   if (searchQuery && searchQuery.trim()) {
@@ -58,7 +57,7 @@ export async function getSpells(params: FetchSpellsParams = {}): Promise<ListSpe
   }
 
   return {
-    spells: data || [],
+    spells: (data as unknown as SpellDTO[]) || [],
     total: count || 0,
     limit,
     offset,

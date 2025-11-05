@@ -10,14 +10,14 @@ import {
   updateSession,
   deleteSession,
 } from '@/lib/api/sessions';
-import type { Session, CreateSessionCommand, UpdateSessionCommand, SessionFilters } from '@/types/sessions';
+import type { SessionDTO, CreateSessionCommand, UpdateSessionCommand, SessionFilters } from '@/types/sessions';
 
 export function useSessionsQuery(campaignId: string, filters?: SessionFilters) {
   const router = useRouter();
 
   return useQuery({
     queryKey: ['sessions', campaignId, filters],
-    queryFn: async (): Promise<Session[]> => {
+    queryFn: async (): Promise<SessionDTO[]> => {
       try {
         return await getSessions(campaignId, filters);
       } catch (error) {
@@ -36,7 +36,7 @@ export function useSessionQuery(sessionId: string | undefined) {
 
   return useQuery({
     queryKey: ['session', sessionId],
-    queryFn: async (): Promise<Session> => {
+    queryFn: async (): Promise<SessionDTO> => {
       if (!sessionId) throw new Error('Session ID is required');
 
       try {
@@ -57,7 +57,7 @@ export function useCreateSessionMutation(campaignId: string) {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async (command: CreateSessionCommand): Promise<Session> => {
+    mutationFn: async (command: CreateSessionCommand): Promise<SessionDTO> => {
       try {
         return await createSession(campaignId, command);
       } catch (error) {
@@ -82,7 +82,7 @@ export function useUpdateSessionMutation(campaignId: string) {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async ({ id, command }: { id: string; command: UpdateSessionCommand }): Promise<Session> => {
+    mutationFn: async ({ id, command }: { id: string; command: UpdateSessionCommand }): Promise<SessionDTO> => {
       try {
         return await updateSession(id, command);
       } catch (error) {

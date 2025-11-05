@@ -1,10 +1,11 @@
 import { getSupabaseClient } from '@/lib/supabase';
-import type { LoreNote, CreateLoreNoteCommand, UpdateLoreNoteCommand, LoreNoteFilters } from '@/types/lore-notes';
+import type { LoreNoteDTO, CreateLoreNoteCommand, UpdateLoreNoteCommand, LoreNoteFilters } from '@/types/lore-notes';
+import type { Json } from '@/types/database';
 
 export async function getLoreNotes(
   campaignId: string,
   filters?: LoreNoteFilters
-): Promise<LoreNote[]> {
+): Promise<LoreNoteDTO[]> {
   const supabase = getSupabaseClient();
 
   let query = supabase
@@ -29,10 +30,10 @@ export async function getLoreNotes(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as LoreNoteDTO[];
 }
 
-export async function getLoreNote(loreNoteId: string): Promise<LoreNote> {
+export async function getLoreNote(loreNoteId: string): Promise<LoreNoteDTO> {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
@@ -49,13 +50,13 @@ export async function getLoreNote(loreNoteId: string): Promise<LoreNote> {
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as LoreNoteDTO;
 }
 
 export async function createLoreNote(
   campaignId: string,
   command: CreateLoreNoteCommand
-): Promise<LoreNote> {
+): Promise<LoreNoteDTO> {
   const supabase = getSupabaseClient();
 
   const { data: { user } } = await supabase.auth.getUser();
@@ -66,7 +67,7 @@ export async function createLoreNote(
     .insert({
       campaign_id: campaignId,
       title: command.title,
-      content_json: command.content_json || null,
+      content_json: (command.content_json as unknown as Json) || null,
       category: command.category,
       tags: command.tags || null,
     })
@@ -78,13 +79,13 @@ export async function createLoreNote(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as LoreNoteDTO;
 }
 
 export async function updateLoreNote(
   loreNoteId: string,
   command: UpdateLoreNoteCommand
-): Promise<LoreNote> {
+): Promise<LoreNoteDTO> {
   const supabase = getSupabaseClient();
 
   const updateData: Record<string, unknown> = {};
@@ -108,7 +109,7 @@ export async function updateLoreNote(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as LoreNoteDTO;
 }
 
 export async function deleteLoreNote(loreNoteId: string): Promise<void> {

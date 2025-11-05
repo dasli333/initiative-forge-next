@@ -34,9 +34,8 @@ export async function getMonsters(params: FetchMonstersParams = {}): Promise<Lis
     offset = 0,
   } = params;
 
-  type MonsterQueryBuilder = PostgrestFilterBuilder<Database['public'], Database['public']['Tables']['monsters']['Row'], unknown[], 'monsters', unknown[]>;
-
-  let queryBuilder: MonsterQueryBuilder = supabase.from('monsters').select('*', { count: 'exact' });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let queryBuilder = supabase.from('monsters').select('type', { count: 'exact' }) as any;
 
   // Apply filters
   if (searchQuery && searchQuery.trim()) {
@@ -64,7 +63,7 @@ export async function getMonsters(params: FetchMonstersParams = {}): Promise<Lis
   }
 
   return {
-    monsters: data || [],
+    monsters: (data as unknown as MonsterDTO[]) || [],
     total: count || 0,
     limit,
     offset,

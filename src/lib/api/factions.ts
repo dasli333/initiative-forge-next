@@ -1,11 +1,12 @@
 import { getSupabaseClient } from '@/lib/supabase';
-import type { Faction, CreateFactionCommand, UpdateFactionCommand } from '@/types/factions';
+import type { FactionDTO, CreateFactionCommand, UpdateFactionCommand } from '@/types/factions';
+import type { Json } from '@/types/database';
 
 /**
  * Get all factions for a campaign
  * Sorted by created_at descending (newest first)
  */
-export async function getFactions(campaignId: string): Promise<Faction[]> {
+export async function getFactions(campaignId: string): Promise<FactionDTO[]> {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
@@ -19,14 +20,14 @@ export async function getFactions(campaignId: string): Promise<Faction[]> {
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as FactionDTO[];
 }
 
 /**
  * Get a single faction by ID
  * RLS will ensure user can only access factions from their campaigns
  */
-export async function getFaction(factionId: string): Promise<Faction> {
+export async function getFaction(factionId: string): Promise<FactionDTO> {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
@@ -43,7 +44,7 @@ export async function getFaction(factionId: string): Promise<Faction> {
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as FactionDTO;
 }
 
 /**
@@ -53,7 +54,7 @@ export async function getFaction(factionId: string): Promise<Faction> {
 export async function createFaction(
   campaignId: string,
   command: CreateFactionCommand
-): Promise<Faction> {
+): Promise<FactionDTO> {
   const supabase = getSupabaseClient();
 
   // Get current user for auth check
@@ -67,9 +68,9 @@ export async function createFaction(
     .insert({
       campaign_id: campaignId,
       name: command.name,
-      description_json: command.description_json || null,
-      goals_json: command.goals_json || null,
-      resources_json: command.resources_json || null,
+      description_json: (command.description_json as unknown as Json) || null,
+      goals_json: (command.goals_json as unknown as Json) || null,
+      resources_json: (command.resources_json as unknown as Json) || null,
       image_url: command.image_url || null,
     })
     .select()
@@ -80,7 +81,7 @@ export async function createFaction(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as FactionDTO;
 }
 
 /**
@@ -90,7 +91,7 @@ export async function createFaction(
 export async function updateFaction(
   factionId: string,
   command: UpdateFactionCommand
-): Promise<Faction> {
+): Promise<FactionDTO> {
   const supabase = getSupabaseClient();
 
   const updateData: Record<string, unknown> = {};
@@ -116,7 +117,7 @@ export async function updateFaction(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as FactionDTO;
 }
 
 /**

@@ -10,7 +10,7 @@ import {
   updateStoryArc,
   deleteStoryArc,
 } from '@/lib/api/story-arcs';
-import type { StoryArc, CreateStoryArcCommand, UpdateStoryArcCommand, StoryArcFilters } from '@/types/story-arcs';
+import type { StoryArcDTO, CreateStoryArcCommand, UpdateStoryArcCommand, StoryArcFilters } from '@/types/story-arcs';
 
 /**
  * React Query hook for fetching story arcs for a campaign
@@ -20,7 +20,7 @@ export function useStoryArcsQuery(campaignId: string, filters?: StoryArcFilters)
 
   return useQuery({
     queryKey: ['story-arcs', campaignId, filters],
-    queryFn: async (): Promise<StoryArc[]> => {
+    queryFn: async (): Promise<StoryArcDTO[]> => {
       try {
         return await getStoryArcs(campaignId, filters);
       } catch (error) {
@@ -42,7 +42,7 @@ export function useStoryArcQuery(storyArcId: string | undefined) {
 
   return useQuery({
     queryKey: ['story-arc', storyArcId],
-    queryFn: async (): Promise<StoryArc> => {
+    queryFn: async (): Promise<StoryArcDTO> => {
       if (!storyArcId) throw new Error('Story arc ID is required');
 
       try {
@@ -66,7 +66,7 @@ export function useCreateStoryArcMutation(campaignId: string) {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async (command: CreateStoryArcCommand): Promise<StoryArc> => {
+    mutationFn: async (command: CreateStoryArcCommand): Promise<StoryArcDTO> => {
       try {
         return await createStoryArc(campaignId, command);
       } catch (error) {
@@ -79,10 +79,10 @@ export function useCreateStoryArcMutation(campaignId: string) {
     onMutate: async (command) => {
       await queryClient.cancelQueries({ queryKey: ['story-arcs', campaignId] });
 
-      const previousArcs = queryClient.getQueryData<StoryArc[]>(['story-arcs', campaignId]);
+      const previousArcs = queryClient.getQueryData<StoryArcDTO[]>(['story-arcs', campaignId]);
 
       if (previousArcs) {
-        const tempArc: StoryArc = {
+        const tempArc: StoryArcDTO = {
           id: `temp-${Date.now()}`,
           campaign_id: campaignId,
           title: command.title,
@@ -94,7 +94,7 @@ export function useCreateStoryArcMutation(campaignId: string) {
           updated_at: new Date().toISOString(),
         };
 
-        queryClient.setQueryData<StoryArc[]>(['story-arcs', campaignId], [...previousArcs, tempArc]);
+        queryClient.setQueryData<StoryArcDTO[]>(['story-arcs', campaignId], [...previousArcs, tempArc]);
       }
 
       return { previousArcs };
@@ -134,7 +134,7 @@ export function useUpdateStoryArcMutation(campaignId: string) {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async ({ id, command }: { id: string; command: UpdateStoryArcCommand }): Promise<StoryArc> => {
+    mutationFn: async ({ id, command }: { id: string; command: UpdateStoryArcCommand }): Promise<StoryArcDTO> => {
       try {
         return await updateStoryArc(id, command);
       } catch (error) {
@@ -148,21 +148,21 @@ export function useUpdateStoryArcMutation(campaignId: string) {
       await queryClient.cancelQueries({ queryKey: ['story-arcs', campaignId] });
       await queryClient.cancelQueries({ queryKey: ['story-arc', id] });
 
-      const previousArcs = queryClient.getQueryData<StoryArc[]>(['story-arcs', campaignId]);
-      const previousArc = queryClient.getQueryData<StoryArc>(['story-arc', id]);
+      const previousArcs = queryClient.getQueryData<StoryArcDTO[]>(['story-arcs', campaignId]);
+      const previousArc = queryClient.getQueryData<StoryArcDTO>(['story-arc', id]);
 
       if (previousArcs) {
-        queryClient.setQueryData<StoryArc[]>(
+        queryClient.setQueryData<StoryArcDTO[]>(
           ['story-arcs', campaignId],
-          previousArcs.map((arc) => (arc.id === id ? { ...arc, ...command } : arc))
+          previousArcs.map((arc) => (arc.id === id ? { ...arc, ...command } as StoryArcDTO : arc))
         );
       }
 
       if (previousArc) {
-        queryClient.setQueryData<StoryArc>(['story-arc', id], {
+        queryClient.setQueryData<StoryArcDTO>(['story-arc', id], {
           ...previousArc,
           ...command,
-        });
+        } as StoryArcDTO);
       }
 
       return { previousArcs, previousArc };
@@ -219,10 +219,10 @@ export function useDeleteStoryArcMutation(campaignId: string) {
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ['story-arcs', campaignId] });
 
-      const previousArcs = queryClient.getQueryData<StoryArc[]>(['story-arcs', campaignId]);
+      const previousArcs = queryClient.getQueryData<StoryArcDTO[]>(['story-arcs', campaignId]);
 
       if (previousArcs) {
-        queryClient.setQueryData<StoryArc[]>(
+        queryClient.setQueryData<StoryArcDTO[]>(
           ['story-arcs', campaignId],
           previousArcs.filter((arc) => arc.id !== id)
         );

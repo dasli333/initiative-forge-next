@@ -1,10 +1,11 @@
 import { getSupabaseClient } from '@/lib/supabase';
-import type { StoryItem, CreateStoryItemCommand, UpdateStoryItemCommand, StoryItemFilters } from '@/types/story-items';
+import type { StoryItemDTO, CreateStoryItemCommand, UpdateStoryItemCommand, StoryItemFilters } from '@/types/story-items';
+import type { Json } from '@/types/database';
 
 export async function getStoryItems(
   campaignId: string,
   filters?: StoryItemFilters
-): Promise<StoryItem[]> {
+): Promise<StoryItemDTO[]> {
   const supabase = getSupabaseClient();
 
   let query = supabase
@@ -28,10 +29,10 @@ export async function getStoryItems(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as StoryItemDTO[];
 }
 
-export async function getStoryItem(storyItemId: string): Promise<StoryItem> {
+export async function getStoryItem(storyItemId: string): Promise<StoryItemDTO> {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
@@ -48,13 +49,13 @@ export async function getStoryItem(storyItemId: string): Promise<StoryItem> {
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as StoryItemDTO;
 }
 
 export async function createStoryItem(
   campaignId: string,
   command: CreateStoryItemCommand
-): Promise<StoryItem> {
+): Promise<StoryItemDTO> {
   const supabase = getSupabaseClient();
 
   const { data: { user } } = await supabase.auth.getUser();
@@ -77,11 +78,11 @@ export async function createStoryItem(
     .insert({
       campaign_id: campaignId,
       name: command.name,
-      description_json: command.description_json || null,
+      description_json: (command.description_json as unknown as Json) || null,
       image_url: command.image_url || null,
       current_owner_type: command.current_owner_type || null,
       current_owner_id: command.current_owner_id || null,
-      ownership_history_json: ownershipHistory,
+      ownership_history_json: ownershipHistory as unknown as Json,
     })
     .select()
     .single();
@@ -91,13 +92,13 @@ export async function createStoryItem(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as StoryItemDTO;
 }
 
 export async function updateStoryItem(
   storyItemId: string,
   command: UpdateStoryItemCommand
-): Promise<StoryItem> {
+): Promise<StoryItemDTO> {
   const supabase = getSupabaseClient();
 
   // Fetch current item to track ownership changes
@@ -140,7 +141,7 @@ export async function updateStoryItem(
       });
     }
 
-    updateData.ownership_history_json = updatedHistory;
+    updateData.ownership_history_json = updatedHistory as unknown as Json;
     updateData.current_owner_type = command.current_owner_type;
     updateData.current_owner_id = command.current_owner_id;
   } else {
@@ -163,7 +164,7 @@ export async function updateStoryItem(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as StoryItemDTO;
 }
 
 export async function deleteStoryItem(storyItemId: string): Promise<void> {

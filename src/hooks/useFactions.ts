@@ -10,7 +10,7 @@ import {
   updateFaction,
   deleteFaction,
 } from '@/lib/api/factions';
-import type { Faction, CreateFactionCommand, UpdateFactionCommand } from '@/types/factions';
+import type { FactionDTO, CreateFactionCommand, UpdateFactionCommand } from '@/types/factions';
 
 /**
  * React Query hook for fetching factions for a campaign
@@ -20,7 +20,7 @@ export function useFactionsQuery(campaignId: string) {
 
   return useQuery({
     queryKey: ['factions', campaignId],
-    queryFn: async (): Promise<Faction[]> => {
+    queryFn: async (): Promise<FactionDTO[]> => {
       try {
         return await getFactions(campaignId);
       } catch (error) {
@@ -42,7 +42,7 @@ export function useFactionQuery(factionId: string | undefined) {
 
   return useQuery({
     queryKey: ['faction', factionId],
-    queryFn: async (): Promise<Faction> => {
+    queryFn: async (): Promise<FactionDTO> => {
       if (!factionId) throw new Error('Faction ID is required');
 
       try {
@@ -66,7 +66,7 @@ export function useCreateFactionMutation(campaignId: string) {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async (command: CreateFactionCommand): Promise<Faction> => {
+    mutationFn: async (command: CreateFactionCommand): Promise<FactionDTO> => {
       try {
         return await createFaction(campaignId, command);
       } catch (error) {
@@ -79,10 +79,10 @@ export function useCreateFactionMutation(campaignId: string) {
     onMutate: async (command) => {
       await queryClient.cancelQueries({ queryKey: ['factions', campaignId] });
 
-      const previousFactions = queryClient.getQueryData<Faction[]>(['factions', campaignId]);
+      const previousFactions = queryClient.getQueryData<FactionDTO[]>(['factions', campaignId]);
 
       if (previousFactions) {
-        const tempFaction: Faction = {
+        const tempFaction: FactionDTO = {
           id: `temp-${Date.now()}`,
           campaign_id: campaignId,
           name: command.name,
@@ -94,7 +94,7 @@ export function useCreateFactionMutation(campaignId: string) {
           updated_at: new Date().toISOString(),
         };
 
-        queryClient.setQueryData<Faction[]>(['factions', campaignId], [...previousFactions, tempFaction]);
+        queryClient.setQueryData<FactionDTO[]>(['factions', campaignId], [...previousFactions, tempFaction]);
       }
 
       return { previousFactions };
@@ -134,7 +134,7 @@ export function useUpdateFactionMutation(campaignId: string) {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async ({ id, command }: { id: string; command: UpdateFactionCommand }): Promise<Faction> => {
+    mutationFn: async ({ id, command }: { id: string; command: UpdateFactionCommand }): Promise<FactionDTO> => {
       try {
         return await updateFaction(id, command);
       } catch (error) {
@@ -148,21 +148,21 @@ export function useUpdateFactionMutation(campaignId: string) {
       await queryClient.cancelQueries({ queryKey: ['factions', campaignId] });
       await queryClient.cancelQueries({ queryKey: ['faction', id] });
 
-      const previousFactions = queryClient.getQueryData<Faction[]>(['factions', campaignId]);
-      const previousFaction = queryClient.getQueryData<Faction>(['faction', id]);
+      const previousFactions = queryClient.getQueryData<FactionDTO[]>(['factions', campaignId]);
+      const previousFaction = queryClient.getQueryData<FactionDTO>(['faction', id]);
 
       if (previousFactions) {
-        queryClient.setQueryData<Faction[]>(
+        queryClient.setQueryData<FactionDTO[]>(
           ['factions', campaignId],
-          previousFactions.map((f) => (f.id === id ? { ...f, ...command } : f))
+          previousFactions.map((f) => (f.id === id ? { ...f, ...command } as FactionDTO : f))
         );
       }
 
       if (previousFaction) {
-        queryClient.setQueryData<Faction>(['faction', id], {
+        queryClient.setQueryData<FactionDTO>(['faction', id], {
           ...previousFaction,
           ...command,
-        });
+        } as FactionDTO);
       }
 
       return { previousFactions, previousFaction };
@@ -219,10 +219,10 @@ export function useDeleteFactionMutation(campaignId: string) {
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ['factions', campaignId] });
 
-      const previousFactions = queryClient.getQueryData<Faction[]>(['factions', campaignId]);
+      const previousFactions = queryClient.getQueryData<FactionDTO[]>(['factions', campaignId]);
 
       if (previousFactions) {
-        queryClient.setQueryData<Faction[]>(
+        queryClient.setQueryData<FactionDTO[]>(
           ['factions', campaignId],
           previousFactions.filter((f) => f.id !== id)
         );

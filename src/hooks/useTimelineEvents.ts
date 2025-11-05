@@ -10,14 +10,14 @@ import {
   updateTimelineEvent,
   deleteTimelineEvent,
 } from '@/lib/api/timeline-events';
-import type { TimelineEvent, CreateTimelineEventCommand, UpdateTimelineEventCommand, TimelineEventFilters } from '@/types/timeline-events';
+import type { TimelineEventDTO, CreateTimelineEventCommand, UpdateTimelineEventCommand, TimelineEventFilters } from '@/types/timeline-events';
 
 export function useTimelineEventsQuery(campaignId: string, filters?: TimelineEventFilters) {
   const router = useRouter();
 
   return useQuery({
     queryKey: ['timeline-events', campaignId, filters],
-    queryFn: async (): Promise<TimelineEvent[]> => {
+    queryFn: async (): Promise<TimelineEventDTO[]> => {
       try {
         return await getTimelineEvents(campaignId, filters);
       } catch (error) {
@@ -36,7 +36,7 @@ export function useTimelineEventQuery(eventId: string | undefined) {
 
   return useQuery({
     queryKey: ['timeline-event', eventId],
-    queryFn: async (): Promise<TimelineEvent> => {
+    queryFn: async (): Promise<TimelineEventDTO> => {
       if (!eventId) throw new Error('Timeline event ID is required');
 
       try {
@@ -57,7 +57,7 @@ export function useCreateTimelineEventMutation(campaignId: string) {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async (command: CreateTimelineEventCommand): Promise<TimelineEvent> => {
+    mutationFn: async (command: CreateTimelineEventCommand): Promise<TimelineEventDTO> => {
       try {
         return await createTimelineEvent(campaignId, command);
       } catch (error) {
@@ -82,7 +82,7 @@ export function useUpdateTimelineEventMutation(campaignId: string) {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async ({ id, command }: { id: string; command: UpdateTimelineEventCommand }): Promise<TimelineEvent> => {
+    mutationFn: async ({ id, command }: { id: string; command: UpdateTimelineEventCommand }): Promise<TimelineEventDTO> => {
       try {
         return await updateTimelineEvent(id, command);
       } catch (error) {

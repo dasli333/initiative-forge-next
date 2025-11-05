@@ -1,10 +1,18 @@
 import type { Json, Tables } from '@/types/database';
+import type { ActionDTO } from '@/types';
 
 // ============================================================================
 // ENTITY TYPES
 // ============================================================================
 
 export type NPCCombatStats = Tables<'npc_combat_stats'>;
+
+/**
+ * NPC Combat Stats DTO with typed Json fields
+ */
+export interface NPCCombatStatsDTO extends Omit<NPCCombatStats, 'actions_json'> {
+  actions_json: ActionDTO[] | null;
+}
 
 // ============================================================================
 // COMMAND MODELS
@@ -24,5 +32,5 @@ export interface UpsertNPCCombatStatsCommand {
   intelligence: number;
   wisdom: number;
   charisma: number;
-  actions_json?: Json | null; // Array of actions (same format as player_characters.actions)
+  actions_json?: ActionDTO[] | null; // Array of actions (same format as player_characters.actions)
 }

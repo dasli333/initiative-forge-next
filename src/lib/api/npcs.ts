@@ -1,5 +1,6 @@
 import { getSupabaseClient } from '@/lib/supabase';
-import type { NPC, CreateNPCCommand, UpdateNPCCommand, NPCFilters } from '@/types/npcs';
+import type { NPCSDTO, CreateNPCCommand, UpdateNPCCommand, NPCFilters } from '@/types/npcs';
+import type { Json } from '@/types/database';
 
 /**
  * Get all NPCs for a campaign with optional filtering
@@ -8,7 +9,7 @@ import type { NPC, CreateNPCCommand, UpdateNPCCommand, NPCFilters } from '@/type
 export async function getNPCs(
   campaignId: string,
   filters?: NPCFilters
-): Promise<NPC[]> {
+): Promise<NPCSDTO[]> {
   const supabase = getSupabaseClient();
 
   let query = supabase
@@ -45,14 +46,14 @@ export async function getNPCs(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as NPCSDTO[];
 }
 
 /**
  * Get a single NPC by ID
  * RLS will ensure user can only access NPCs from their campaigns
  */
-export async function getNPC(npcId: string): Promise<NPC> {
+export async function getNPC(npcId: string): Promise<NPCSDTO> {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
@@ -69,7 +70,7 @@ export async function getNPC(npcId: string): Promise<NPC> {
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as NPCSDTO;
 }
 
 /**
@@ -79,7 +80,7 @@ export async function getNPC(npcId: string): Promise<NPC> {
 export async function createNPC(
   campaignId: string,
   command: CreateNPCCommand
-): Promise<NPC> {
+): Promise<NPCSDTO> {
   const supabase = getSupabaseClient();
 
   // Get current user for auth check
@@ -94,8 +95,8 @@ export async function createNPC(
       campaign_id: campaignId,
       name: command.name,
       role: command.role || null,
-      biography_json: command.biography_json || null,
-      personality_json: command.personality_json || null,
+      biography_json: (command.biography_json as unknown as Json) || null,
+      personality_json: (command.personality_json as unknown as Json) || null,
       image_url: command.image_url || null,
       faction_id: command.faction_id || null,
       current_location_id: command.current_location_id || null,
@@ -109,7 +110,7 @@ export async function createNPC(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as NPCSDTO;
 }
 
 /**
@@ -119,7 +120,7 @@ export async function createNPC(
 export async function updateNPC(
   npcId: string,
   command: UpdateNPCCommand
-): Promise<NPC> {
+): Promise<NPCSDTO> {
   const supabase = getSupabaseClient();
 
   const updateData: Record<string, unknown> = {};
@@ -148,7 +149,7 @@ export async function updateNPC(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as NPCSDTO;
 }
 
 /**

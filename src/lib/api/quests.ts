@@ -1,5 +1,6 @@
 import { getSupabaseClient } from '@/lib/supabase';
-import type { Quest, CreateQuestCommand, UpdateQuestCommand, QuestFilters } from '@/types/quests';
+import type { QuestDTO, CreateQuestCommand, UpdateQuestCommand, QuestFilters } from '@/types/quests';
+import type { Json } from '@/types/database';
 
 /**
  * Get all quests for a campaign with optional filtering
@@ -8,7 +9,7 @@ import type { Quest, CreateQuestCommand, UpdateQuestCommand, QuestFilters } from
 export async function getQuests(
   campaignId: string,
   filters?: QuestFilters
-): Promise<Quest[]> {
+): Promise<QuestDTO[]> {
   const supabase = getSupabaseClient();
 
   let query = supabase
@@ -37,14 +38,14 @@ export async function getQuests(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as QuestDTO[];
 }
 
 /**
  * Get a single quest by ID
  * RLS will ensure user can only access quests from their campaigns
  */
-export async function getQuest(questId: string): Promise<Quest> {
+export async function getQuest(questId: string): Promise<QuestDTO> {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
@@ -61,7 +62,7 @@ export async function getQuest(questId: string): Promise<Quest> {
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as QuestDTO;
 }
 
 /**
@@ -71,7 +72,7 @@ export async function getQuest(questId: string): Promise<Quest> {
 export async function createQuest(
   campaignId: string,
   command: CreateQuestCommand
-): Promise<Quest> {
+): Promise<QuestDTO> {
   const supabase = getSupabaseClient();
 
   // Get current user for auth check
@@ -86,9 +87,9 @@ export async function createQuest(
       campaign_id: campaignId,
       story_arc_id: command.story_arc_id || null,
       title: command.title,
-      description_json: command.description_json || null,
-      objectives_json: command.objectives_json || null,
-      rewards_json: command.rewards_json || null,
+      description_json: (command.description_json as unknown as Json) || null,
+      objectives_json: (command.objectives_json as unknown as Json) || null,
+      rewards_json: (command.rewards_json as unknown as Json) || null,
       status: command.status || 'not_started',
     })
     .select()
@@ -99,7 +100,7 @@ export async function createQuest(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as QuestDTO;
 }
 
 /**
@@ -109,7 +110,7 @@ export async function createQuest(
 export async function updateQuest(
   questId: string,
   command: UpdateQuestCommand
-): Promise<Quest> {
+): Promise<QuestDTO> {
   const supabase = getSupabaseClient();
 
   const updateData: Record<string, unknown> = {};
@@ -136,7 +137,7 @@ export async function updateQuest(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as QuestDTO;
 }
 
 /**

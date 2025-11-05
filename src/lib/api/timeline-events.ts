@@ -1,10 +1,11 @@
 import { getSupabaseClient } from '@/lib/supabase';
-import type { TimelineEvent, CreateTimelineEventCommand, UpdateTimelineEventCommand, TimelineEventFilters } from '@/types/timeline-events';
+import type { TimelineEventDTO, CreateTimelineEventCommand, UpdateTimelineEventCommand, TimelineEventFilters } from '@/types/timeline-events';
+import type { Json } from '@/types/database';
 
 export async function getTimelineEvents(
   campaignId: string,
   filters?: TimelineEventFilters
-): Promise<TimelineEvent[]> {
+): Promise<TimelineEventDTO[]> {
   const supabase = getSupabaseClient();
 
   let query = supabase
@@ -28,10 +29,10 @@ export async function getTimelineEvents(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as TimelineEventDTO[];
 }
 
-export async function getTimelineEvent(eventId: string): Promise<TimelineEvent> {
+export async function getTimelineEvent(eventId: string): Promise<TimelineEventDTO> {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
@@ -48,13 +49,13 @@ export async function getTimelineEvent(eventId: string): Promise<TimelineEvent> 
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as TimelineEventDTO;
 }
 
 export async function createTimelineEvent(
   campaignId: string,
   command: CreateTimelineEventCommand
-): Promise<TimelineEvent> {
+): Promise<TimelineEventDTO> {
   const supabase = getSupabaseClient();
 
   const { data: { user } } = await supabase.auth.getUser();
@@ -65,10 +66,10 @@ export async function createTimelineEvent(
     .insert({
       campaign_id: campaignId,
       title: command.title,
-      description_json: command.description_json || null,
+      description_json: (command.description_json as unknown as Json) || null,
       event_date: command.event_date,
       real_date: command.real_date || null,
-      related_entities_json: command.related_entities_json || null,
+      related_entities_json: (command.related_entities_json as unknown as Json) || null,
       source_type: command.source_type || null,
       source_id: command.source_id || null,
     })
@@ -80,13 +81,13 @@ export async function createTimelineEvent(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as TimelineEventDTO;
 }
 
 export async function updateTimelineEvent(
   eventId: string,
   command: UpdateTimelineEventCommand
-): Promise<TimelineEvent> {
+): Promise<TimelineEventDTO> {
   const supabase = getSupabaseClient();
 
   const updateData: Record<string, unknown> = {};
@@ -113,7 +114,7 @@ export async function updateTimelineEvent(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as TimelineEventDTO;
 }
 
 export async function deleteTimelineEvent(eventId: string): Promise<void> {

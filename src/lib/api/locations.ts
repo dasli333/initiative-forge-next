@@ -1,5 +1,6 @@
 import { getSupabaseClient } from '@/lib/supabase';
-import type { Location, CreateLocationCommand, UpdateLocationCommand, LocationFilters } from '@/types/locations';
+import type { Json } from '@/types/database';
+import type { LocationDTO, CreateLocationCommand, UpdateLocationCommand, LocationFilters } from '@/types/locations';
 
 /**
  * Get all locations for a campaign with optional filtering
@@ -8,7 +9,7 @@ import type { Location, CreateLocationCommand, UpdateLocationCommand, LocationFi
 export async function getLocations(
   campaignId: string,
   filters?: LocationFilters
-): Promise<Location[]> {
+): Promise<LocationDTO[]> {
   const supabase = getSupabaseClient();
 
   let query = supabase
@@ -37,14 +38,14 @@ export async function getLocations(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as LocationDTO[];
 }
 
 /**
  * Get a single location by ID
  * RLS will ensure user can only access locations from their campaigns
  */
-export async function getLocation(locationId: string): Promise<Location> {
+export async function getLocation(locationId: string): Promise<LocationDTO> {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
@@ -61,7 +62,7 @@ export async function getLocation(locationId: string): Promise<Location> {
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as LocationDTO;
 }
 
 /**
@@ -71,7 +72,7 @@ export async function getLocation(locationId: string): Promise<Location> {
 export async function createLocation(
   campaignId: string,
   command: CreateLocationCommand
-): Promise<Location> {
+): Promise<LocationDTO> {
   const supabase = getSupabaseClient();
 
   // Get current user for auth check
@@ -86,10 +87,10 @@ export async function createLocation(
       campaign_id: campaignId,
       name: command.name,
       location_type: command.location_type,
-      description_json: command.description_json || null,
+      description_json: (command.description_json as unknown as Json) || null,
       parent_location_id: command.parent_location_id || null,
       image_url: command.image_url || null,
-      coordinates_json: command.coordinates_json || null,
+      coordinates_json: (command.coordinates_json as unknown as Json) || null,
     })
     .select()
     .single();
@@ -99,7 +100,7 @@ export async function createLocation(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as LocationDTO;
 }
 
 /**
@@ -109,7 +110,7 @@ export async function createLocation(
 export async function updateLocation(
   locationId: string,
   command: UpdateLocationCommand
-): Promise<Location> {
+): Promise<LocationDTO> {
   const supabase = getSupabaseClient();
 
   const updateData: Record<string, unknown> = {};
@@ -136,7 +137,7 @@ export async function updateLocation(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as LocationDTO;
 }
 
 /**

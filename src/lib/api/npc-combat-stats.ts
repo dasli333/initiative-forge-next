@@ -1,11 +1,12 @@
 import { getSupabaseClient } from '@/lib/supabase';
-import type { NPCCombatStats, UpsertNPCCombatStatsCommand } from '@/types/npc-combat-stats';
+import type { NPCCombatStatsDTO, UpsertNPCCombatStatsCommand } from '@/types/npc-combat-stats';
+import type { Json } from '@/types/database';
 
 /**
  * Get NPC combat stats for a specific NPC
  * Returns null if no combat stats exist (optional 1:1 relationship)
  */
-export async function getNPCCombatStats(npcId: string): Promise<NPCCombatStats | null> {
+export async function getNPCCombatStats(npcId: string): Promise<NPCCombatStatsDTO | null> {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
@@ -19,7 +20,7 @@ export async function getNPCCombatStats(npcId: string): Promise<NPCCombatStats |
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as NPCCombatStatsDTO | null;
 }
 
 /**
@@ -30,7 +31,7 @@ export async function getNPCCombatStats(npcId: string): Promise<NPCCombatStats |
 export async function upsertNPCCombatStats(
   npcId: string,
   command: UpsertNPCCombatStatsCommand
-): Promise<NPCCombatStats> {
+): Promise<NPCCombatStatsDTO> {
   const supabase = getSupabaseClient();
 
   // Get current user for auth check
@@ -52,7 +53,7 @@ export async function upsertNPCCombatStats(
       intelligence: command.intelligence,
       wisdom: command.wisdom,
       charisma: command.charisma,
-      actions_json: command.actions_json || null,
+      actions_json: (command.actions_json as unknown as Json) || null,
     })
     .select()
     .single();
@@ -62,7 +63,7 @@ export async function upsertNPCCombatStats(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as NPCCombatStatsDTO;
 }
 
 /**

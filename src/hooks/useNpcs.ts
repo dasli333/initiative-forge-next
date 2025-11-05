@@ -10,7 +10,7 @@ import {
   updateNPC,
   deleteNPC,
 } from '@/lib/api/npcs';
-import type { NPC, CreateNPCCommand, UpdateNPCCommand, NPCFilters } from '@/types/npcs';
+import type { NPCSDTO, CreateNPCCommand, UpdateNPCCommand, NPCFilters } from '@/types/npcs';
 
 /**
  * React Query hook for fetching NPCs for a campaign
@@ -20,7 +20,7 @@ export function useNPCsQuery(campaignId: string, filters?: NPCFilters) {
 
   return useQuery({
     queryKey: ['npcs', campaignId, filters],
-    queryFn: async (): Promise<NPC[]> => {
+    queryFn: async (): Promise<NPCSDTO[]> => {
       try {
         return await getNPCs(campaignId, filters);
       } catch (error) {
@@ -42,7 +42,7 @@ export function useNPCQuery(npcId: string | undefined) {
 
   return useQuery({
     queryKey: ['npc', npcId],
-    queryFn: async (): Promise<NPC> => {
+    queryFn: async (): Promise<NPCSDTO> => {
       if (!npcId) throw new Error('NPC ID is required');
 
       try {
@@ -66,7 +66,7 @@ export function useCreateNPCMutation(campaignId: string) {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async (command: CreateNPCCommand): Promise<NPC> => {
+    mutationFn: async (command: CreateNPCCommand): Promise<NPCSDTO> => {
       try {
         return await createNPC(campaignId, command);
       } catch (error) {
@@ -79,10 +79,10 @@ export function useCreateNPCMutation(campaignId: string) {
     onMutate: async (command) => {
       await queryClient.cancelQueries({ queryKey: ['npcs', campaignId] });
 
-      const previousNPCs = queryClient.getQueryData<NPC[]>(['npcs', campaignId]);
+      const previousNPCs = queryClient.getQueryData<NPCSDTO[]>(['npcs', campaignId]);
 
       if (previousNPCs) {
-        const tempNPC: NPC = {
+        const tempNPC: NPCSDTO = {
           id: `temp-${Date.now()}`,
           campaign_id: campaignId,
           name: command.name,
@@ -97,7 +97,7 @@ export function useCreateNPCMutation(campaignId: string) {
           updated_at: new Date().toISOString(),
         };
 
-        queryClient.setQueryData<NPC[]>(['npcs', campaignId], [...previousNPCs, tempNPC]);
+        queryClient.setQueryData<NPCSDTO[]>(['npcs', campaignId], [...previousNPCs, tempNPC]);
       }
 
       return { previousNPCs };
@@ -137,7 +137,7 @@ export function useUpdateNPCMutation(campaignId: string) {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async ({ id, command }: { id: string; command: UpdateNPCCommand }): Promise<NPC> => {
+    mutationFn: async ({ id, command }: { id: string; command: UpdateNPCCommand }): Promise<NPCSDTO> => {
       try {
         return await updateNPC(id, command);
       } catch (error) {
@@ -151,21 +151,21 @@ export function useUpdateNPCMutation(campaignId: string) {
       await queryClient.cancelQueries({ queryKey: ['npcs', campaignId] });
       await queryClient.cancelQueries({ queryKey: ['npc', id] });
 
-      const previousNPCs = queryClient.getQueryData<NPC[]>(['npcs', campaignId]);
-      const previousNPC = queryClient.getQueryData<NPC>(['npc', id]);
+      const previousNPCs = queryClient.getQueryData<NPCSDTO[]>(['npcs', campaignId]);
+      const previousNPC = queryClient.getQueryData<NPCSDTO>(['npc', id]);
 
       if (previousNPCs) {
-        queryClient.setQueryData<NPC[]>(
+        queryClient.setQueryData<NPCSDTO[]>(
           ['npcs', campaignId],
-          previousNPCs.map((n) => (n.id === id ? { ...n, ...command } : n))
+          previousNPCs.map((n) => (n.id === id ? { ...n, ...command } as NPCSDTO : n))
         );
       }
 
       if (previousNPC) {
-        queryClient.setQueryData<NPC>(['npc', id], {
+        queryClient.setQueryData<NPCSDTO>(['npc', id], {
           ...previousNPC,
           ...command,
-        });
+        } as NPCSDTO);
       }
 
       return { previousNPCs, previousNPC };
@@ -222,10 +222,10 @@ export function useDeleteNPCMutation(campaignId: string) {
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ['npcs', campaignId] });
 
-      const previousNPCs = queryClient.getQueryData<NPC[]>(['npcs', campaignId]);
+      const previousNPCs = queryClient.getQueryData<NPCSDTO[]>(['npcs', campaignId]);
 
       if (previousNPCs) {
-        queryClient.setQueryData<NPC[]>(
+        queryClient.setQueryData<NPCSDTO[]>(
           ['npcs', campaignId],
           previousNPCs.filter((n) => n.id !== id)
         );

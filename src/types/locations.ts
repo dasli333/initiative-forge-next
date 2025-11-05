@@ -1,10 +1,27 @@
 import type { Json, Tables } from '@/types/database';
+import type { JSONContent } from '@tiptap/react';
 
 // ============================================================================
 // ENTITY TYPES
 // ============================================================================
 
 export type Location = Tables<'locations'>;
+
+/**
+ * Coordinates structure for locations
+ */
+export interface LocationCoordinates {
+  lat: number;
+  lng: number;
+}
+
+/**
+ * Location DTO with typed Json fields
+ */
+export interface LocationDTO extends Omit<Location, 'description_json' | 'coordinates_json'> {
+  description_json: JSONContent | null;
+  coordinates_json: LocationCoordinates | null;
+}
 
 // ============================================================================
 // COMMAND MODELS
@@ -17,10 +34,10 @@ export type Location = Tables<'locations'>;
 export interface CreateLocationCommand {
   name: string;
   location_type: string;
-  description_json?: Json | null; // Rich text with @mentions
+  description_json?: JSONContent | null; // Rich text with @mentions
   parent_location_id?: string | null;
   image_url?: string | null;
-  coordinates_json?: Json | null; // {lat: number, lng: number}
+  coordinates_json?: LocationCoordinates | null; // {lat: number, lng: number}
 }
 
 /**
@@ -30,10 +47,10 @@ export interface CreateLocationCommand {
 export interface UpdateLocationCommand {
   name?: string;
   location_type?: string;
-  description_json?: Json | null;
+  description_json?: JSONContent | null;
   parent_location_id?: string | null;
   image_url?: string | null;
-  coordinates_json?: Json | null;
+  coordinates_json?: LocationCoordinates | null;
 }
 
 // ============================================================================

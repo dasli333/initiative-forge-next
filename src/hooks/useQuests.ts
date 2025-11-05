@@ -10,7 +10,7 @@ import {
   updateQuest,
   deleteQuest,
 } from '@/lib/api/quests';
-import type { Quest, CreateQuestCommand, UpdateQuestCommand, QuestFilters } from '@/types/quests';
+import type { QuestDTO, CreateQuestCommand, UpdateQuestCommand, QuestFilters } from '@/types/quests';
 
 /**
  * React Query hook for fetching quests for a campaign
@@ -20,7 +20,7 @@ export function useQuestsQuery(campaignId: string, filters?: QuestFilters) {
 
   return useQuery({
     queryKey: ['quests', campaignId, filters],
-    queryFn: async (): Promise<Quest[]> => {
+    queryFn: async (): Promise<QuestDTO[]> => {
       try {
         return await getQuests(campaignId, filters);
       } catch (error) {
@@ -42,7 +42,7 @@ export function useQuestQuery(questId: string | undefined) {
 
   return useQuery({
     queryKey: ['quest', questId],
-    queryFn: async (): Promise<Quest> => {
+    queryFn: async (): Promise<QuestDTO> => {
       if (!questId) throw new Error('Quest ID is required');
 
       try {
@@ -66,7 +66,7 @@ export function useCreateQuestMutation(campaignId: string) {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async (command: CreateQuestCommand): Promise<Quest> => {
+    mutationFn: async (command: CreateQuestCommand): Promise<QuestDTO> => {
       try {
         return await createQuest(campaignId, command);
       } catch (error) {
@@ -79,10 +79,10 @@ export function useCreateQuestMutation(campaignId: string) {
     onMutate: async (command) => {
       await queryClient.cancelQueries({ queryKey: ['quests', campaignId] });
 
-      const previousQuests = queryClient.getQueryData<Quest[]>(['quests', campaignId]);
+      const previousQuests = queryClient.getQueryData<QuestDTO[]>(['quests', campaignId]);
 
       if (previousQuests) {
-        const tempQuest: Quest = {
+        const tempQuest: QuestDTO = {
           id: `temp-${Date.now()}`,
           campaign_id: campaignId,
           story_arc_id: command.story_arc_id || null,
@@ -95,7 +95,7 @@ export function useCreateQuestMutation(campaignId: string) {
           updated_at: new Date().toISOString(),
         };
 
-        queryClient.setQueryData<Quest[]>(['quests', campaignId], [...previousQuests, tempQuest]);
+        queryClient.setQueryData<QuestDTO[]>(['quests', campaignId], [...previousQuests, tempQuest]);
       }
 
       return { previousQuests };
@@ -135,7 +135,7 @@ export function useUpdateQuestMutation(campaignId: string) {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async ({ id, command }: { id: string; command: UpdateQuestCommand }): Promise<Quest> => {
+    mutationFn: async ({ id, command }: { id: string; command: UpdateQuestCommand }): Promise<QuestDTO> => {
       try {
         return await updateQuest(id, command);
       } catch (error) {
@@ -149,21 +149,21 @@ export function useUpdateQuestMutation(campaignId: string) {
       await queryClient.cancelQueries({ queryKey: ['quests', campaignId] });
       await queryClient.cancelQueries({ queryKey: ['quest', id] });
 
-      const previousQuests = queryClient.getQueryData<Quest[]>(['quests', campaignId]);
-      const previousQuest = queryClient.getQueryData<Quest>(['quest', id]);
+      const previousQuests = queryClient.getQueryData<QuestDTO[]>(['quests', campaignId]);
+      const previousQuest = queryClient.getQueryData<QuestDTO>(['quest', id]);
 
       if (previousQuests) {
-        queryClient.setQueryData<Quest[]>(
+        queryClient.setQueryData<QuestDTO[]>(
           ['quests', campaignId],
-          previousQuests.map((q) => (q.id === id ? { ...q, ...command } : q))
+          previousQuests.map((q) => (q.id === id ? { ...q, ...command } as QuestDTO : q))
         );
       }
 
       if (previousQuest) {
-        queryClient.setQueryData<Quest>(['quest', id], {
+        queryClient.setQueryData<QuestDTO>(['quest', id], {
           ...previousQuest,
           ...command,
-        });
+        } as QuestDTO);
       }
 
       return { previousQuests, previousQuest };
@@ -220,10 +220,10 @@ export function useDeleteQuestMutation(campaignId: string) {
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ['quests', campaignId] });
 
-      const previousQuests = queryClient.getQueryData<Quest[]>(['quests', campaignId]);
+      const previousQuests = queryClient.getQueryData<QuestDTO[]>(['quests', campaignId]);
 
       if (previousQuests) {
-        queryClient.setQueryData<Quest[]>(
+        queryClient.setQueryData<QuestDTO[]>(
           ['quests', campaignId],
           previousQuests.filter((q) => q.id !== id)
         );

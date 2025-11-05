@@ -1,10 +1,11 @@
 import { getSupabaseClient } from '@/lib/supabase';
-import type { Session, CreateSessionCommand, UpdateSessionCommand, SessionFilters } from '@/types/sessions';
+import type { SessionDTO, CreateSessionCommand, UpdateSessionCommand, SessionFilters } from '@/types/sessions';
+import type { Json } from '@/types/database';
 
 export async function getSessions(
   campaignId: string,
   filters?: SessionFilters
-): Promise<Session[]> {
+): Promise<SessionDTO[]> {
   const supabase = getSupabaseClient();
 
   let query = supabase
@@ -24,10 +25,10 @@ export async function getSessions(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as SessionDTO[];
 }
 
-export async function getSession(sessionId: string): Promise<Session> {
+export async function getSession(sessionId: string): Promise<SessionDTO> {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
@@ -44,13 +45,13 @@ export async function getSession(sessionId: string): Promise<Session> {
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as SessionDTO;
 }
 
 export async function createSession(
   campaignId: string,
   command: CreateSessionCommand
-): Promise<Session> {
+): Promise<SessionDTO> {
   const supabase = getSupabaseClient();
 
   const { data: { user } } = await supabase.auth.getUser();
@@ -64,8 +65,8 @@ export async function createSession(
       session_date: command.session_date,
       in_game_date: command.in_game_date || null,
       title: command.title || null,
-      plan_json: command.plan_json || null,
-      log_json: command.log_json || null,
+      plan_json: (command.plan_json as unknown as Json) || null,
+      log_json: (command.log_json as unknown as Json) || null,
       status: command.status || 'draft',
     })
     .select()
@@ -79,13 +80,13 @@ export async function createSession(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as SessionDTO;
 }
 
 export async function updateSession(
   sessionId: string,
   command: UpdateSessionCommand
-): Promise<Session> {
+): Promise<SessionDTO> {
   const supabase = getSupabaseClient();
 
   const updateData: Record<string, unknown> = {};
@@ -115,7 +116,7 @@ export async function updateSession(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as SessionDTO;
 }
 
 export async function deleteSession(sessionId: string): Promise<void> {

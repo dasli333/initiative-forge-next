@@ -1,5 +1,6 @@
 import { getSupabaseClient } from '@/lib/supabase';
-import type { StoryArc, CreateStoryArcCommand, UpdateStoryArcCommand, StoryArcFilters } from '@/types/story-arcs';
+import type { StoryArcDTO, CreateStoryArcCommand, UpdateStoryArcCommand, StoryArcFilters } from '@/types/story-arcs';
+import type { Json } from '@/types/database';
 
 /**
  * Get all story arcs for a campaign with optional filtering
@@ -8,7 +9,7 @@ import type { StoryArc, CreateStoryArcCommand, UpdateStoryArcCommand, StoryArcFi
 export async function getStoryArcs(
   campaignId: string,
   filters?: StoryArcFilters
-): Promise<StoryArc[]> {
+): Promise<StoryArcDTO[]> {
   const supabase = getSupabaseClient();
 
   let query = supabase
@@ -29,14 +30,14 @@ export async function getStoryArcs(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as StoryArcDTO[];
 }
 
 /**
  * Get a single story arc by ID
  * RLS will ensure user can only access story arcs from their campaigns
  */
-export async function getStoryArc(storyArcId: string): Promise<StoryArc> {
+export async function getStoryArc(storyArcId: string): Promise<StoryArcDTO> {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
@@ -53,7 +54,7 @@ export async function getStoryArc(storyArcId: string): Promise<StoryArc> {
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as StoryArcDTO;
 }
 
 /**
@@ -63,7 +64,7 @@ export async function getStoryArc(storyArcId: string): Promise<StoryArc> {
 export async function createStoryArc(
   campaignId: string,
   command: CreateStoryArcCommand
-): Promise<StoryArc> {
+): Promise<StoryArcDTO> {
   const supabase = getSupabaseClient();
 
   // Get current user for auth check
@@ -77,7 +78,7 @@ export async function createStoryArc(
     .insert({
       campaign_id: campaignId,
       title: command.title,
-      description_json: command.description_json || null,
+      description_json: (command.description_json as unknown as Json) || null,
       status: command.status || 'planning',
       start_date: command.start_date || null,
       end_date: command.end_date || null,
@@ -90,7 +91,7 @@ export async function createStoryArc(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as StoryArcDTO;
 }
 
 /**
@@ -100,7 +101,7 @@ export async function createStoryArc(
 export async function updateStoryArc(
   storyArcId: string,
   command: UpdateStoryArcCommand
-): Promise<StoryArc> {
+): Promise<StoryArcDTO> {
   const supabase = getSupabaseClient();
 
   const updateData: Record<string, unknown> = {};
@@ -126,7 +127,7 @@ export async function updateStoryArc(
     throw new Error(error.message);
   }
 
-  return data;
+  return data as unknown as StoryArcDTO;
 }
 
 /**

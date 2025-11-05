@@ -10,14 +10,14 @@ import {
   updateStoryItem,
   deleteStoryItem,
 } from '@/lib/api/story-items';
-import type { StoryItem, CreateStoryItemCommand, UpdateStoryItemCommand, StoryItemFilters } from '@/types/story-items';
+import type { StoryItemDTO, CreateStoryItemCommand, UpdateStoryItemCommand, StoryItemFilters } from '@/types/story-items';
 
 export function useStoryItemsQuery(campaignId: string, filters?: StoryItemFilters) {
   const router = useRouter();
 
   return useQuery({
     queryKey: ['story-items', campaignId, filters],
-    queryFn: async (): Promise<StoryItem[]> => {
+    queryFn: async (): Promise<StoryItemDTO[]> => {
       try {
         return await getStoryItems(campaignId, filters);
       } catch (error) {
@@ -36,7 +36,7 @@ export function useStoryItemQuery(storyItemId: string | undefined) {
 
   return useQuery({
     queryKey: ['story-item', storyItemId],
-    queryFn: async (): Promise<StoryItem> => {
+    queryFn: async (): Promise<StoryItemDTO> => {
       if (!storyItemId) throw new Error('Story item ID is required');
 
       try {
@@ -57,7 +57,7 @@ export function useCreateStoryItemMutation(campaignId: string) {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async (command: CreateStoryItemCommand): Promise<StoryItem> => {
+    mutationFn: async (command: CreateStoryItemCommand): Promise<StoryItemDTO> => {
       try {
         return await createStoryItem(campaignId, command);
       } catch (error) {
@@ -82,7 +82,7 @@ export function useUpdateStoryItemMutation(campaignId: string) {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async ({ id, command }: { id: string; command: UpdateStoryItemCommand }): Promise<StoryItem> => {
+    mutationFn: async ({ id, command }: { id: string; command: UpdateStoryItemCommand }): Promise<StoryItemDTO> => {
       try {
         return await updateStoryItem(id, command);
       } catch (error) {

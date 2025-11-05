@@ -10,7 +10,7 @@ import {
   updateLocation,
   deleteLocation,
 } from '@/lib/api/locations';
-import type { Location, CreateLocationCommand, UpdateLocationCommand, LocationFilters } from '@/types/locations';
+import type { LocationDTO, CreateLocationCommand, UpdateLocationCommand, LocationFilters } from '@/types/locations';
 
 /**
  * React Query hook for fetching locations for a campaign
@@ -20,7 +20,7 @@ export function useLocationsQuery(campaignId: string, filters?: LocationFilters)
 
   return useQuery({
     queryKey: ['locations', campaignId, filters],
-    queryFn: async (): Promise<Location[]> => {
+    queryFn: async (): Promise<LocationDTO[]> => {
       try {
         return await getLocations(campaignId, filters);
       } catch (error) {
@@ -43,7 +43,7 @@ export function useLocationQuery(locationId: string | undefined) {
 
   return useQuery({
     queryKey: ['location', locationId],
-    queryFn: async (): Promise<Location> => {
+    queryFn: async (): Promise<LocationDTO> => {
       if (!locationId) throw new Error('Location ID is required');
 
       try {
@@ -68,7 +68,7 @@ export function useCreateLocationMutation(campaignId: string) {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async (command: CreateLocationCommand): Promise<Location> => {
+    mutationFn: async (command: CreateLocationCommand): Promise<LocationDTO> => {
       try {
         return await createLocation(campaignId, command);
       } catch (error) {
@@ -84,11 +84,11 @@ export function useCreateLocationMutation(campaignId: string) {
       await queryClient.cancelQueries({ queryKey: ['locations', campaignId] });
 
       // Snapshot the previous value
-      const previousLocations = queryClient.getQueryData<Location[]>(['locations', campaignId]);
+      const previousLocations = queryClient.getQueryData<LocationDTO[]>(['locations', campaignId]);
 
       // Optimistically update to the new value
       if (previousLocations) {
-        const tempLocation: Location = {
+        const tempLocation: LocationDTO = {
           id: `temp-${Date.now()}`,
           campaign_id: campaignId,
           name: command.name,
@@ -101,7 +101,7 @@ export function useCreateLocationMutation(campaignId: string) {
           updated_at: new Date().toISOString(),
         };
 
-        queryClient.setQueryData<Location[]>(['locations', campaignId], [...previousLocations, tempLocation]);
+        queryClient.setQueryData<LocationDTO[]>(['locations', campaignId], [...previousLocations, tempLocation]);
       }
 
       // Return context with the snapshot
@@ -144,7 +144,7 @@ export function useUpdateLocationMutation(campaignId: string) {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async ({ id, command }: { id: string; command: UpdateLocationCommand }): Promise<Location> => {
+    mutationFn: async ({ id, command }: { id: string; command: UpdateLocationCommand }): Promise<LocationDTO> => {
       try {
         return await updateLocation(id, command);
       } catch (error) {
@@ -161,23 +161,23 @@ export function useUpdateLocationMutation(campaignId: string) {
       await queryClient.cancelQueries({ queryKey: ['location', id] });
 
       // Snapshot the previous values
-      const previousLocations = queryClient.getQueryData<Location[]>(['locations', campaignId]);
-      const previousLocation = queryClient.getQueryData<Location>(['location', id]);
+      const previousLocations = queryClient.getQueryData<LocationDTO[]>(['locations', campaignId]);
+      const previousLocation = queryClient.getQueryData<LocationDTO>(['location', id]);
 
       // Optimistically update the locations list
       if (previousLocations) {
-        queryClient.setQueryData<Location[]>(
+        queryClient.setQueryData<LocationDTO[]>(
           ['locations', campaignId],
-          previousLocations.map((loc) => (loc.id === id ? { ...loc, ...command } : loc))
+          previousLocations.map((loc) => (loc.id === id ? { ...loc, ...command } as LocationDTO : loc))
         );
       }
 
       // Optimistically update the individual location
       if (previousLocation) {
-        queryClient.setQueryData<Location>(['location', id], {
+        queryClient.setQueryData<LocationDTO>(['location', id], {
           ...previousLocation,
           ...command,
-        });
+        } as LocationDTO);
       }
 
       // Return context with the snapshots
@@ -240,11 +240,11 @@ export function useDeleteLocationMutation(campaignId: string) {
       await queryClient.cancelQueries({ queryKey: ['locations', campaignId] });
 
       // Snapshot the previous value
-      const previousLocations = queryClient.getQueryData<Location[]>(['locations', campaignId]);
+      const previousLocations = queryClient.getQueryData<LocationDTO[]>(['locations', campaignId]);
 
       // Optimistically update by removing the location
       if (previousLocations) {
-        queryClient.setQueryData<Location[]>(
+        queryClient.setQueryData<LocationDTO[]>(
           ['locations', campaignId],
           previousLocations.filter((loc) => loc.id !== id)
         );

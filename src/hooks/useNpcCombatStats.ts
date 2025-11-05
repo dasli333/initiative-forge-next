@@ -8,7 +8,7 @@ import {
   upsertNPCCombatStats,
   deleteNPCCombatStats,
 } from '@/lib/api/npc-combat-stats';
-import type { NPCCombatStats, UpsertNPCCombatStatsCommand } from '@/types/npc-combat-stats';
+import type { NPCCombatStatsDTO, UpsertNPCCombatStatsCommand } from '@/types/npc-combat-stats';
 
 /**
  * React Query hook for fetching NPC combat stats
@@ -19,7 +19,7 @@ export function useNPCCombatStatsQuery(npcId: string | undefined) {
 
   return useQuery({
     queryKey: ['npc-combat-stats', npcId],
-    queryFn: async (): Promise<NPCCombatStats | null> => {
+    queryFn: async (): Promise<NPCCombatStatsDTO | null> => {
       if (!npcId) throw new Error('NPC ID is required');
 
       try {
@@ -44,7 +44,7 @@ export function useUpsertNPCCombatStatsMutation(npcId: string) {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async (command: UpsertNPCCombatStatsCommand): Promise<NPCCombatStats> => {
+    mutationFn: async (command: UpsertNPCCombatStatsCommand): Promise<NPCCombatStatsDTO> => {
       try {
         return await upsertNPCCombatStats(npcId, command);
       } catch (error) {
@@ -57,10 +57,10 @@ export function useUpsertNPCCombatStatsMutation(npcId: string) {
     onMutate: async (command) => {
       await queryClient.cancelQueries({ queryKey: ['npc-combat-stats', npcId] });
 
-      const previousStats = queryClient.getQueryData<NPCCombatStats | null>(['npc-combat-stats', npcId]);
+      const previousStats = queryClient.getQueryData<NPCCombatStatsDTO | null>(['npc-combat-stats', npcId]);
 
       // Optimistically update
-      const tempStats: NPCCombatStats = {
+      const tempStats: NPCCombatStatsDTO = {
         npc_id: npcId,
         hp_max: command.hp_max,
         armor_class: command.armor_class,
@@ -76,7 +76,7 @@ export function useUpsertNPCCombatStatsMutation(npcId: string) {
         updated_at: new Date().toISOString(),
       };
 
-      queryClient.setQueryData<NPCCombatStats>(['npc-combat-stats', npcId], tempStats);
+      queryClient.setQueryData<NPCCombatStatsDTO>(['npc-combat-stats', npcId], tempStats);
 
       return { previousStats };
     },
@@ -128,10 +128,10 @@ export function useDeleteNPCCombatStatsMutation(npcId: string) {
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: ['npc-combat-stats', npcId] });
 
-      const previousStats = queryClient.getQueryData<NPCCombatStats | null>(['npc-combat-stats', npcId]);
+      const previousStats = queryClient.getQueryData<NPCCombatStatsDTO | null>(['npc-combat-stats', npcId]);
 
       // Optimistically set to null
-      queryClient.setQueryData<NPCCombatStats | null>(['npc-combat-stats', npcId], null);
+      queryClient.setQueryData<NPCCombatStatsDTO | null>(['npc-combat-stats', npcId], null);
 
       return { previousStats };
     },
