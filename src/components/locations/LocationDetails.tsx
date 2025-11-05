@@ -17,6 +17,15 @@ import {
 import { RichTextEditor } from '@/components/shared/RichTextEditor';
 import { LocationTypeBadge } from './LocationTypeBadge';
 import { LocationCard } from './LocationCard';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
+import { buildBreadcrumb } from '@/lib/utils/locationTreeUtils';
 import { Trash2, Plus } from 'lucide-react';
 import type { LocationDTO } from '@/types/locations';
 import type { JSONContent } from '@tiptap/react';
@@ -109,6 +118,36 @@ export function LocationDetails({
         <LocationTypeBadge type={location.location_type} />
       </div>
 
+      {/* Breadcrumb Navigation */}
+      {(() => {
+        const breadcrumbItems = buildBreadcrumb(location.id, allLocations);
+        if (breadcrumbItems.length === 0) return null;
+
+        return (
+          <Breadcrumb>
+            <BreadcrumbList>
+              {breadcrumbItems.map((item, index) => (
+                <div key={item.id} className="flex items-center">
+                  {index > 0 && <BreadcrumbSeparator />}
+                  <BreadcrumbItem>
+                    <BreadcrumbLink
+                      className="cursor-pointer hover:text-emerald-600"
+                      onClick={() => onNavigateToLocation(item.id)}
+                    >
+                      {item.name}
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                </div>
+              ))}
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>{location.name}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        );
+      })()}
+
       {/* Description */}
       <Card>
         <CardHeader>
@@ -125,21 +164,6 @@ export function LocationDetails({
           />
         </CardContent>
       </Card>
-
-      {/* Coordinates */}
-      {location.coordinates_json && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Coordinates</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Latitude: {location.coordinates_json.lat}, Longitude:{' '}
-              {location.coordinates_json.lng}
-            </p>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Children */}
       <Card>

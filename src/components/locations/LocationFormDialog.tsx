@@ -70,7 +70,6 @@ export function LocationFormDialog({
       parent_location_id: parentLocationId || initialData?.parent_location_id || null,
       description_json: initialData?.description_json || null,
       image_url: initialData?.image_url || null,
-      coordinates_json: initialData?.coordinates_json || null,
     },
   });
 
@@ -223,56 +222,6 @@ export function LocationFormDialog({
                 </FormItem>
               )}
             />
-
-            {/* Coordinates */}
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="coordinates_json.lat"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Latitude</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.000001"
-                        placeholder="-90 to 90"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? parseFloat(e.target.value) : undefined
-                          )
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="coordinates_json.lng"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Longitude</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.000001"
-                        placeholder="-180 to 180"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? parseFloat(e.target.value) : undefined
-                          )
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={onClose}>
