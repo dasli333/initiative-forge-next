@@ -17,6 +17,7 @@ import {
 import { RichTextEditor } from '@/components/shared/RichTextEditor';
 import { LocationTypeBadge } from './LocationTypeBadge';
 import { LocationCard } from './LocationCard';
+import { BacklinksSection } from './BacklinksSection';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -34,6 +35,7 @@ interface LocationDetailsProps {
   location: LocationDTO;
   childLocations: LocationDTO[];
   allLocations: LocationDTO[];
+  campaignId: string;
   onNameUpdate: (name: string) => Promise<void>;
   onDescriptionUpdate: (descriptionJson: JSONContent) => Promise<void>;
   onDelete: () => Promise<void>;
@@ -45,6 +47,7 @@ export function LocationDetails({
   location,
   childLocations,
   allLocations,
+  campaignId,
   onNameUpdate,
   onDescriptionUpdate,
   onDelete,
@@ -199,9 +202,13 @@ export function LocationDetails({
             onChange={setEditedDescription}
             readonly={!isEditing}
             placeholder="Add a description for this location..."
+            campaignId={campaignId}
           />
         </CardContent>
       </Card>
+
+      {/* Backlinks */}
+      <BacklinksSection locationId={location.id} campaignId={campaignId} />
 
       {/* Children */}
       <Card>

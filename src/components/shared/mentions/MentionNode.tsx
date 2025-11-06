@@ -56,10 +56,10 @@ const ENTITY_ROUTE_MAP = {
 
 export function MentionNode(props: NodeViewProps) {
   const router = useRouter();
-  const { id, label, entityType } = props.node.attrs as {
+  const { id, label, entityType = 'location' } = props.node.attrs as {
     id: string;
     label: string;
-    entityType:
+    entityType?:
       | 'location'
       | 'npc'
       | 'quest'
@@ -71,17 +71,19 @@ export function MentionNode(props: NodeViewProps) {
   };
   const campaignId = props.extension.storage.campaignId as string | undefined;
 
-  const Icon = ENTITY_ICONS[entityType];
-  const colorClass = ENTITY_COLORS[entityType];
+  // Fallback to location if entityType is invalid
+  const validEntityType = entityType && entityType in ENTITY_ICONS ? entityType : 'location';
+  const Icon = ENTITY_ICONS[validEntityType];
+  const colorClass = ENTITY_COLORS[validEntityType];
 
   // Fetch entity preview for HoverCard (300ms delay handled by HoverCard)
   const { data: preview } = useQuery({
-    queryKey: ['entity-preview', entityType, id],
+    queryKey: ['entity-preview', validEntityType, id],
     queryFn: async () => {
       const supabase = getSupabaseClient();
 
       // Fetch based on entity type with specific fields
-      switch (entityType) {
+      switch (validEntityType) {
         case 'location':
           return supabase
             .from('locations')
@@ -150,7 +152,7 @@ export function MentionNode(props: NodeViewProps) {
           return null;
       }
     },
-    enabled: !!id && !!entityType,
+    enabled: !!id && !!validEntityType,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
@@ -160,7 +162,7 @@ export function MentionNode(props: NodeViewProps) {
 
     if (!campaignId) return;
 
-    const route = ENTITY_ROUTE_MAP[entityType];
+    const route = ENTITY_ROUTE_MAP[validEntityType];
     router.push(`/campaigns/${campaignId}/${route}?selectedId=${id}`);
   };
 
@@ -177,7 +179,7 @@ export function MentionNode(props: NodeViewProps) {
             )}
             data-mention
             data-id={id}
-            data-type={entityType}
+            data-type={validEntityType}
           >
             <Icon className="h-3 w-3" />
             <span>{label}</span>
@@ -192,7 +194,7 @@ export function MentionNode(props: NodeViewProps) {
               <div className="flex-1 min-w-0">
                 <h4 className="text-sm font-semibold truncate">{label}</h4>
                 <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
-                  {entityType.replace('_', ' ')}
+                  {validEntityType.replace('_', ' ')}
                 </p>
               </div>
             </div>

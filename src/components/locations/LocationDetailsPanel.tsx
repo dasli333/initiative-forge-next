@@ -9,6 +9,7 @@ import type { JSONContent } from '@tiptap/react';
 interface LocationDetailsPanelProps {
   selectedLocationId: string | null;
   locations: LocationDTO[];
+  campaignId: string;
   onLocationSelect: (locationId: string) => void;
   onNameUpdate: (locationId: string, name: string) => Promise<void>;
   onDescriptionUpdate: (locationId: string, descriptionJson: JSONContent) => Promise<void>;
@@ -19,6 +20,7 @@ interface LocationDetailsPanelProps {
 export function LocationDetailsPanel({
   selectedLocationId,
   locations,
+  campaignId,
   onLocationSelect,
   onNameUpdate,
   onDescriptionUpdate,
@@ -54,6 +56,7 @@ export function LocationDetailsPanel({
             location={selectedLocation}
             childLocations={children}
             allLocations={locations}
+            campaignId={campaignId}
             onNameUpdate={(name) => onNameUpdate(selectedLocation.id, name)}
             onDescriptionUpdate={(json) =>
               onDescriptionUpdate(selectedLocation.id, json)

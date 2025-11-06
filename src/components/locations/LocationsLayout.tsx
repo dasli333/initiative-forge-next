@@ -8,6 +8,7 @@ import type { JSONContent } from '@tiptap/react';
 interface LocationsLayoutProps {
   locations: LocationDTO[];
   selectedLocationId: string | null;
+  campaignId: string;
   onLocationSelect: (locationId: string) => void;
   onLocationMove: (locationId: string, newParentId: string | null) => void;
   onNameUpdate: (locationId: string, name: string) => Promise<void>;
@@ -19,6 +20,7 @@ interface LocationsLayoutProps {
 export function LocationsLayout({
   locations,
   selectedLocationId,
+  campaignId,
   onLocationSelect,
   onLocationMove,
   onNameUpdate,
@@ -43,6 +45,7 @@ export function LocationsLayout({
         <LocationDetailsPanel
           selectedLocationId={selectedLocationId}
           locations={locations}
+          campaignId={campaignId}
           onLocationSelect={onLocationSelect}
           onNameUpdate={onNameUpdate}
           onDescriptionUpdate={onDescriptionUpdate}

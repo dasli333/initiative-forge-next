@@ -168,7 +168,19 @@ export function useUpdateLocationMutation(campaignId: string) {
       if (previousLocations) {
         queryClient.setQueryData<LocationDTO[]>(
           ['locations', campaignId],
-          previousLocations.map((loc) => (loc.id === id ? { ...loc, ...command } as LocationDTO : loc))
+          previousLocations.map((loc) =>
+            loc.id === id
+              ? ({
+                  ...loc,
+                  ...command,
+                  // Deep clone description_json to avoid shared references
+                  description_json:
+                    command.description_json !== undefined
+                      ? structuredClone(command.description_json)
+                      : loc.description_json,
+                } as LocationDTO)
+              : loc
+          )
         );
       }
 
@@ -177,6 +189,11 @@ export function useUpdateLocationMutation(campaignId: string) {
         queryClient.setQueryData<LocationDTO>(['location', id], {
           ...previousLocation,
           ...command,
+          // Deep clone description_json to avoid shared references
+          description_json:
+            command.description_json !== undefined
+              ? structuredClone(command.description_json)
+              : previousLocation.description_json,
         } as LocationDTO);
       }
 

@@ -66,6 +66,34 @@ export function RichTextEditor({
                 return await searchCampaignEntities(campaignId, query);
               },
             }).extend({
+              addAttributes() {
+                return {
+                  id: {
+                    default: null,
+                    parseHTML: (element) => element.getAttribute('data-id'),
+                    renderHTML: (attributes) => {
+                      if (!attributes.id) return {};
+                      return { 'data-id': attributes.id };
+                    },
+                  },
+                  label: {
+                    default: null,
+                    parseHTML: (element) => element.getAttribute('data-label'),
+                    renderHTML: (attributes) => {
+                      if (!attributes.label) return {};
+                      return { 'data-label': attributes.label };
+                    },
+                  },
+                  entityType: {
+                    default: null,
+                    parseHTML: (element) => element.getAttribute('data-type'),
+                    renderHTML: (attributes) => {
+                      if (!attributes.entityType) return {};
+                      return { 'data-type': attributes.entityType };
+                    },
+                  },
+                };
+              },
               addNodeView() {
                 return ReactNodeViewRenderer(MentionNode);
               },

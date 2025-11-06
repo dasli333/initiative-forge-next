@@ -1,6 +1,8 @@
 import { getSupabaseClient } from '@/lib/supabase';
 import type { Json } from '@/types/database';
 import type { LocationDTO, CreateLocationCommand, UpdateLocationCommand, LocationFilters } from '@/types/locations';
+import { extractMentionsFromJson } from '@/lib/utils/mentionUtils';
+import { deleteMentionsBySource, batchCreateEntityMentions } from '@/lib/api/entity-mentions';
 
 /**
  * Get all locations for a campaign with optional filtering
@@ -100,7 +102,31 @@ export async function createLocation(
     throw new Error(error.message);
   }
 
-  return data as unknown as LocationDTO;
+  const location = data as unknown as LocationDTO;
+
+  // Sync mentions from description_json (non-blocking)
+  if (command.description_json) {
+    try {
+      const mentions = extractMentionsFromJson(command.description_json);
+      if (mentions.length > 0) {
+        await batchCreateEntityMentions(
+          campaignId,
+          mentions.map((m) => ({
+            source_type: 'location',
+            source_id: location.id,
+            source_field: 'description_json',
+            mentioned_type: m.entityType,
+            mentioned_id: m.id,
+          }))
+        );
+      }
+    } catch (mentionError) {
+      console.error('Failed to sync mentions on create:', mentionError);
+      // Don't fail the creation if mention sync fails
+    }
+  }
+
+  return location;
 }
 
 /**
@@ -137,7 +163,35 @@ export async function updateLocation(
     throw new Error(error.message);
   }
 
-  return data as unknown as LocationDTO;
+  const location = data as unknown as LocationDTO;
+
+  // Sync mentions if description_json was updated (non-blocking)
+  if (command.description_json !== undefined) {
+    try {
+      // Delete old mentions for this field
+      await deleteMentionsBySource('location', locationId, 'description_json');
+
+      // Extract and create new mentions
+      const mentions = extractMentionsFromJson(command.description_json);
+      if (mentions.length > 0) {
+        await batchCreateEntityMentions(
+          location.campaign_id,
+          mentions.map((m) => ({
+            source_type: 'location',
+            source_id: locationId,
+            source_field: 'description_json',
+            mentioned_type: m.entityType,
+            mentioned_id: m.id,
+          }))
+        );
+      }
+    } catch (mentionError) {
+      console.error('Failed to sync mentions on update:', mentionError);
+      // Don't fail the update if mention sync fails
+    }
+  }
+
+  return location;
 }
 
 /**

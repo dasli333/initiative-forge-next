@@ -137,6 +137,7 @@ export default function LocationsPage() {
       <LocationsLayout
         locations={locations}
         selectedLocationId={selectedLocationId}
+        campaignId={campaignId}
         onLocationSelect={setSelectedLocationId}
         onLocationMove={handleLocationMove}
         onNameUpdate={handleNameUpdate}
