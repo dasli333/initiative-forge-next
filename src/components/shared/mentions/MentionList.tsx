@@ -42,7 +42,10 @@ const ENTITY_COLORS = {
   lore_note: 'text-gray-600 bg-gray-50 dark:bg-gray-950',
 };
 
-export const MentionList = forwardRef<any, MentionListProps>((props, ref) => {
+export const MentionList = forwardRef<
+  { onKeyDown: (props: { event: KeyboardEvent }) => boolean },
+  MentionListProps
+>((props, ref) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const selectItem = (index: number) => {
@@ -64,11 +67,15 @@ export const MentionList = forwardRef<any, MentionListProps>((props, ref) => {
     setSelectedIndex((selectedIndex + 1) % props.items.length);
   };
 
+  // Reset selection when items change
+  const itemsLength = props.items.length;
+  if (selectedIndex >= itemsLength && itemsLength > 0) {
+    setSelectedIndex(0);
+  }
+
   const enterHandler = () => {
     selectItem(selectedIndex);
   };
-
-  useEffect(() => setSelectedIndex(0), [props.items]);
 
   useImperativeHandle(ref, () => ({
     onKeyDown: ({ event }: { event: KeyboardEvent }) => {

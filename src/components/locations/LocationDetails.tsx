@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -55,11 +55,22 @@ export function LocationDetails({
   onAddChild,
 }: LocationDetailsProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  // Derive state from location prop - resets automatically when location changes
   const [editedName, setEditedName] = useState(location.name);
   const [editedDescription, setEditedDescription] = useState<JSONContent | null>(
     location.description_json
   );
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  // Reset edited values when location ID changes
+  const [prevLocationId, setPrevLocationId] = useState(location.id);
+  if (prevLocationId !== location.id) {
+    setPrevLocationId(location.id);
+    setIsEditing(false);
+    setEditedName(location.name);
+    setEditedDescription(location.description_json);
+  }
 
   const handleEditClick = () => {
     setEditedName(location.name);
@@ -89,13 +100,6 @@ export function LocationDetails({
     await onDelete();
     setShowDeleteDialog(false);
   };
-
-  // Reset state when location changes
-  useEffect(() => {
-    setIsEditing(false);
-    setEditedName(location.name);
-    setEditedDescription(location.description_json);
-  }, [location.id, location.name, location.description_json]);
 
   const childrenCount = childLocations.length;
 

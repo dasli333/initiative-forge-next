@@ -1,6 +1,13 @@
 import { getSupabaseClient } from '@/lib/supabase';
 import Fuse from 'fuse.js';
 
+interface TiptapNode {
+  type?: string;
+  text?: string;
+  content?: TiptapNode[];
+  [key: string]: unknown;
+}
+
 export interface EntitySearchResult {
   id: string;
   label: string;
@@ -162,12 +169,12 @@ export async function searchCampaignEntities(
 /**
  * Extract first 100 characters of text from Tiptap JSON
  */
-function extractExcerpt(json: any): string | null {
+function extractExcerpt(json: TiptapNode | null): string | null {
   if (!json || typeof json !== 'object') return null;
 
   let text = '';
 
-  const extractText = (node: any): void => {
+  const extractText = (node: TiptapNode): void => {
     if (node.text) {
       text += node.text;
     }

@@ -23,7 +23,7 @@ export function createMentionExtension(options: MentionExtensionOptions) {
         return await options.onSearch(query);
       },
       render: () => {
-        let component: ReactRenderer<any>;
+        let component: ReactRenderer<typeof MentionList>;
         let popup: HTMLDivElement | null = null;
 
         return {
@@ -78,7 +78,7 @@ export function createMentionExtension(options: MentionExtensionOptions) {
               return true;
             }
 
-            return (component.ref as any)?.onKeyDown?.(props);
+            return (component.ref as { onKeyDown?: (props: { event: KeyboardEvent }) => boolean })?.onKeyDown?.(props);
           },
 
           onExit() {

@@ -21,6 +21,13 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { getSupabaseClient } from '@/lib/supabase';
 
+interface TiptapNode {
+  type?: string;
+  text?: string;
+  content?: TiptapNode[];
+  [key: string]: unknown;
+}
+
 const ENTITY_ICONS = {
   location: MapPin,
   npc: User,
@@ -226,12 +233,12 @@ export function MentionNode(props: NodeViewProps) {
 }
 
 // Extract plain text from Tiptap JSON
-function extractTextFromJSON(json: any): string {
+function extractTextFromJSON(json: TiptapNode): string {
   if (!json || typeof json !== 'object') return '';
 
   let text = '';
 
-  const extractText = (node: any): void => {
+  const extractText = (node: TiptapNode): void => {
     if (node.text) {
       text += node.text;
     }
