@@ -143,7 +143,7 @@ export function LocationsTree({
     >
       <SortableContext items={allLocationIds} strategy={verticalListSortingStrategy}>
         <ScrollArea className="h-full">
-          <div className="p-2">
+          <div className="p-2" role="tree" aria-label="Locations hierarchy">
             {tree.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-64 text-center">
                 <p className="text-sm text-muted-foreground mb-2">No locations yet</p>

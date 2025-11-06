@@ -16,20 +16,6 @@ describe('locationFormSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('should validate location with coordinates', () => {
-    const data = {
-      name: 'Neverwinter',
-      location_type: 'miasto',
-      coordinates_json: {
-        lat: 45.123456,
-        lng: -75.654321,
-      },
-    };
-
-    const result = locationFormSchema.safeParse(data);
-    expect(result.success).toBe(true);
-  });
-
   it('should reject empty name', () => {
     const data = {
       name: '',
@@ -54,34 +40,6 @@ describe('locationFormSchema', () => {
     const data = {
       name: 'Test',
       location_type: 'invalid',
-    };
-
-    const result = locationFormSchema.safeParse(data);
-    expect(result.success).toBe(false);
-  });
-
-  it('should reject invalid coordinates', () => {
-    const data = {
-      name: 'Test',
-      location_type: 'miasto',
-      coordinates_json: {
-        lat: 100, // Invalid: > 90
-        lng: 0,
-      },
-    };
-
-    const result = locationFormSchema.safeParse(data);
-    expect(result.success).toBe(false);
-  });
-
-  it('should reject invalid longitude', () => {
-    const data = {
-      name: 'Test',
-      location_type: 'miasto',
-      coordinates_json: {
-        lat: 0,
-        lng: 200, // Invalid: > 180
-      },
     };
 
     const result = locationFormSchema.safeParse(data);

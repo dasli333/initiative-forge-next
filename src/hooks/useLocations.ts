@@ -32,6 +32,7 @@ export function useLocationsQuery(campaignId: string, filters?: LocationFilters)
       }
     },
     enabled: !!campaignId,
+    staleTime: 60 * 1000, // 1 minute
   });
 }
 
@@ -57,6 +58,7 @@ export function useLocationQuery(locationId: string | undefined) {
       }
     },
     enabled: !!locationId,
+    staleTime: 60 * 1000, // 1 minute
   });
 }
 

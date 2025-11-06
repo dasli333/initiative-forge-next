@@ -83,6 +83,10 @@ export function LocationTreeNode<T extends { id: string; name: string; location_
           isOver && 'bg-emerald-100 dark:bg-emerald-950/50'
         )}
         onClick={() => onSelect(node.location.id)}
+        role="treeitem"
+        aria-expanded={hasChildren ? node.isExpanded : undefined}
+        aria-selected={isSelected}
+        aria-level={level + 1}
       >
         {/* Drag handle */}
         <button
@@ -138,7 +142,7 @@ export function LocationTreeNode<T extends { id: string; name: string; location_
 
       {/* Recursive children rendering */}
       {hasChildren && node.isExpanded && (
-        <div>
+        <div role="group">
           {node.children.map((childNode) => (
             <LocationTreeNode
               key={childNode.location.id}
