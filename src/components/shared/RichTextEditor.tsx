@@ -144,7 +144,10 @@ export function RichTextEditor({
       const newValue = value || undefined;
       // Only update if content actually changed (avoid cursor jump)
       if (JSON.stringify(currentContent) !== JSON.stringify(newValue)) {
-        editor.commands.setContent(newValue);
+        // Use queueMicrotask to avoid flushSync warning during render
+        queueMicrotask(() => {
+          editor.commands.setContent(newValue);
+        });
       }
     }
   }, [editor, value]);
