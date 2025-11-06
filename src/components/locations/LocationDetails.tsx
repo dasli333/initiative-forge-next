@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,7 +26,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { buildBreadcrumb } from '@/lib/utils/locationTreeUtils';
-import { Trash2, Plus } from 'lucide-react';
+import { Trash2, Plus, Pencil, Save, X } from 'lucide-react';
 import type { LocationDTO } from '@/types/locations';
 import type { JSONContent } from '@tiptap/react';
 
@@ -51,29 +51,48 @@ export function LocationDetails({
   onNavigateToLocation,
   onAddChild,
 }: LocationDetailsProps) {
-  const [isEditingName, setIsEditingName] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(location.name);
+  const [editedDescription, setEditedDescription] = useState<JSONContent | null>(
+    location.description_json
+  );
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const handleNameBlur = async () => {
-    if (editedName.trim() && editedName !== location.name) {
-      await onNameUpdate(editedName.trim());
-    } else {
-      setEditedName(location.name);
-    }
-    setIsEditingName(false);
+  const handleEditClick = () => {
+    setEditedName(location.name);
+    setEditedDescription(location.description_json);
+    setIsEditing(true);
   };
 
-  const handleDescriptionBlur = async () => {
-    if (location.description_json) {
-      await onDescriptionUpdate(location.description_json);
+  const handleSaveClick = async () => {
+    // Save name if changed
+    if (editedName.trim() && editedName !== location.name) {
+      await onNameUpdate(editedName.trim());
     }
+    // Save description if changed
+    if (editedDescription !== location.description_json) {
+      await onDescriptionUpdate(editedDescription || { type: 'doc', content: [] });
+    }
+    setIsEditing(false);
+  };
+
+  const handleCancelClick = () => {
+    setEditedName(location.name);
+    setEditedDescription(location.description_json);
+    setIsEditing(false);
   };
 
   const handleDelete = async () => {
     await onDelete();
     setShowDeleteDialog(false);
   };
+
+  // Reset state when location changes
+  useEffect(() => {
+    setIsEditing(false);
+    setEditedName(location.name);
+    setEditedDescription(location.description_json);
+  }, [location.id, location.name, location.description_json]);
 
   const childrenCount = childLocations.length;
 
@@ -92,30 +111,51 @@ export function LocationDetails({
 
       {/* Header */}
       <div className="space-y-4">
-        {isEditingName ? (
-          <Input
-            value={editedName}
-            onChange={(e) => setEditedName(e.target.value)}
-            onBlur={handleNameBlur}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') handleNameBlur();
-              if (e.key === 'Escape') {
-                setEditedName(location.name);
-                setIsEditingName(false);
-              }
-            }}
-            autoFocus
-            className="text-3xl font-bold"
-          />
-        ) : (
-          <h1
-            className="text-3xl font-bold cursor-pointer hover:text-emerald-600"
-            onClick={() => setIsEditingName(true)}
-          >
-            {location.name}
-          </h1>
-        )}
-        <LocationTypeBadge type={location.location_type} />
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 space-y-2">
+            {isEditing ? (
+              <Input
+                value={editedName}
+                onChange={(e) => setEditedName(e.target.value)}
+                className="text-3xl font-bold"
+              />
+            ) : (
+              <h1 className="text-3xl font-bold">{location.name}</h1>
+            )}
+            <LocationTypeBadge type={location.location_type} />
+          </div>
+          <div className="flex gap-2">
+            {isEditing ? (
+              <>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleCancelClick}
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  className="bg-emerald-600 hover:bg-emerald-700"
+                  onClick={handleSaveClick}
+                >
+                  <Save className="h-4 w-4 mr-1" />
+                  Save Changes
+                </Button>
+              </>
+            ) : (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleEditClick}
+              >
+                <Pencil className="h-4 w-4 mr-1" />
+                Edit Location
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Breadcrumb Navigation */}
@@ -155,11 +195,9 @@ export function LocationDetails({
         </CardHeader>
         <CardContent>
           <RichTextEditor
-            value={location.description_json}
-            onChange={(json) => {
-              // Update will happen on blur
-            }}
-            onBlur={handleDescriptionBlur}
+            value={isEditing ? editedDescription : location.description_json}
+            onChange={setEditedDescription}
+            readonly={!isEditing}
             placeholder="Add a description for this location..."
           />
         </CardContent>
@@ -175,7 +213,7 @@ export function LocationDetails({
             onClick={onAddChild}
           >
             <Plus className="h-4 w-4 mr-1" />
-            Add Location
+            Add Child Location
           </Button>
         </CardHeader>
         <CardContent>

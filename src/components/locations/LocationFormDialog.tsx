@@ -32,7 +32,7 @@ import { RichTextEditor } from '@/components/shared/RichTextEditor';
 import { locationFormSchema, type LocationFormData } from '@/lib/schemas/locations';
 import type { LocationDTO } from '@/types/locations';
 import type { CreateLocationCommand, UpdateLocationCommand } from '@/types/locations';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 
 interface LocationFormDialogProps {
   isOpen: boolean;
@@ -72,6 +72,19 @@ export function LocationFormDialog({
       image_url: initialData?.image_url || null,
     },
   });
+
+  // Reset form when dialog opens with new parentLocationId
+  useEffect(() => {
+    if (isOpen) {
+      form.reset({
+        name: initialData?.name || '',
+        location_type: (initialData?.location_type as LocationFormData['location_type']) || 'miasto',
+        parent_location_id: parentLocationId || initialData?.parent_location_id || null,
+        description_json: initialData?.description_json || null,
+        image_url: initialData?.image_url || null,
+      });
+    }
+  }, [isOpen, parentLocationId, initialData, form]);
 
   // Available parent locations (exclude self and children in edit mode)
   const availableParents = useMemo(() => {
@@ -168,7 +181,7 @@ export function LocationFormDialog({
                   <FormLabel>Parent Location</FormLabel>
                   <Select
                     onValueChange={field.onChange}
-                    defaultValue={field.value || undefined}
+                    value={field.value || undefined}
                   >
                     <FormControl>
                       <SelectTrigger>

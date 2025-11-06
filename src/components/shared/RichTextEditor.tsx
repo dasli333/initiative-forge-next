@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 
 interface RichTextEditorProps {
   value: JSONContent | null;
@@ -24,6 +24,7 @@ interface RichTextEditorProps {
   onBlur?: () => void;
   placeholder?: string;
   className?: string;
+  readonly?: boolean;
 }
 
 export function RichTextEditor({
@@ -32,9 +33,11 @@ export function RichTextEditor({
   onBlur,
   placeholder = 'Write something...',
   className,
+  readonly = false,
 }: RichTextEditorProps) {
   const editor = useEditor({
     immediatelyRender: false,
+    editable: !readonly,
     extensions: [
       StarterKit,
       Image.configure({
@@ -43,7 +46,7 @@ export function RichTextEditor({
         },
       }),
       Link.configure({
-        openOnClick: false,
+        openOnClick: !readonly,
         HTMLAttributes: {
           class: 'text-emerald-600 dark:text-emerald-400 underline',
         },
@@ -51,15 +54,20 @@ export function RichTextEditor({
     ],
     content: value || undefined,
     onUpdate: ({ editor }) => {
-      onChange(editor.getJSON());
+      if (!readonly) {
+        onChange(editor.getJSON());
+      }
     },
     onBlur: () => {
-      onBlur?.();
+      if (!readonly) {
+        onBlur?.();
+      }
     },
     editorProps: {
       attributes: {
         class: cn(
-          'prose dark:prose-invert max-w-none min-h-[200px] focus:outline-none p-4',
+          'prose dark:prose-invert max-w-none focus:outline-none',
+          readonly ? 'p-0' : 'min-h-[200px] p-4',
           'prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100',
           'prose-p:text-gray-700 dark:prose-p:text-gray-300',
           'prose-a:text-emerald-600 dark:prose-a:text-emerald-400'
@@ -67,6 +75,13 @@ export function RichTextEditor({
       },
     },
   });
+
+  // Update editor editable state when readonly prop changes
+  useEffect(() => {
+    if (editor) {
+      editor.setEditable(!readonly);
+    }
+  }, [editor, readonly]);
 
   const addImage = useCallback(() => {
     if (!editor) return;
@@ -89,9 +104,10 @@ export function RichTextEditor({
   }
 
   return (
-    <div className={cn('border rounded-lg overflow-hidden', className)}>
+    <div className={cn(readonly ? '' : 'border rounded-lg overflow-hidden', className)}>
       {/* Toolbar */}
-      <div className="flex items-center gap-1 p-2 border-b bg-gray-50 dark:bg-gray-900">
+      {!readonly && (
+        <div className="flex items-center gap-1 p-2 border-b bg-gray-50 dark:bg-gray-900">
         <Button
           type="button"
           variant="ghost"
@@ -167,12 +183,13 @@ export function RichTextEditor({
         <Button type="button" variant="ghost" size="sm" onClick={addImage}>
           <ImageIcon className="h-4 w-4" />
         </Button>
-      </div>
+        </div>
+      )}
 
       {/* Editor */}
       <EditorContent
         editor={editor}
-        className="bg-white dark:bg-gray-950"
+        className={readonly ? '' : 'bg-white dark:bg-gray-950'}
         placeholder={placeholder}
       />
     </div>
