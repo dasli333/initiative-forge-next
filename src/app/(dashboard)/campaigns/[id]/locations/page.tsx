@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { LocationsHeader } from '@/components/locations/LocationsHeader';
 import { LocationsLayout } from '@/components/locations/LocationsLayout';
@@ -20,7 +20,9 @@ import type { JSONContent } from '@tiptap/react';
 export default function LocationsPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const campaignId = params.id as string;
+  const selectedId = searchParams.get('selectedId');
 
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -34,6 +36,16 @@ export default function LocationsPage() {
   const createMutation = useCreateLocationMutation(campaignId);
   const updateMutation = useUpdateLocationMutation(campaignId);
   const deleteMutation = useDeleteLocationMutation(campaignId);
+
+  // Auto-select location from URL query param
+  useEffect(() => {
+    if (selectedId && !isLocationsLoading && locations.length > 0) {
+      const locationExists = locations.some((loc) => loc.id === selectedId);
+      if (locationExists) {
+        setSelectedLocationId(selectedId);
+      }
+    }
+  }, [selectedId, locations, isLocationsLoading]);
 
   const handleCreateLocation = async (data: CreateLocationCommand | UpdateLocationCommand) => {
     try {
@@ -112,6 +124,10 @@ export default function LocationsPage() {
     }
   };
 
+  const handleLocationSelect = (locationId: string) => {
+    router.push(`/campaigns/${campaignId}/locations?selectedId=${locationId}`);
+  };
+
   if (isCampaignLoading || isLocationsLoading) {
     return (
       <div className="flex flex-col h-full p-6 space-y-4">
@@ -138,7 +154,7 @@ export default function LocationsPage() {
         locations={locations}
         selectedLocationId={selectedLocationId}
         campaignId={campaignId}
-        onLocationSelect={setSelectedLocationId}
+        onLocationSelect={handleLocationSelect}
         onLocationMove={handleLocationMove}
         onNameUpdate={handleNameUpdate}
         onDescriptionUpdate={handleDescriptionUpdate}
