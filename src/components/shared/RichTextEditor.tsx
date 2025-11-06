@@ -137,6 +137,18 @@ export function RichTextEditor({
     }
   }, [editor, readonly]);
 
+  // Sync editor content when value prop changes
+  useEffect(() => {
+    if (editor) {
+      const currentContent = editor.getJSON();
+      const newValue = value || undefined;
+      // Only update if content actually changed (avoid cursor jump)
+      if (JSON.stringify(currentContent) !== JSON.stringify(newValue)) {
+        editor.commands.setContent(newValue);
+      }
+    }
+  }, [editor, value]);
+
   const addImage = useCallback(() => {
     if (!editor) return;
     const url = window.prompt('Enter image URL:');
