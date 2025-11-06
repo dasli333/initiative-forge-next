@@ -121,12 +121,12 @@ export function LocationDetails({
       {/* Breadcrumb Navigation */}
       {(() => {
         const breadcrumbItems = buildBreadcrumb(location.id, allLocations);
-        if (breadcrumbItems.length === 0) return null;
+        if (breadcrumbItems.length <= 1) return null;
 
         return (
           <Breadcrumb>
             <BreadcrumbList>
-              {breadcrumbItems.map((item, index) => (
+              {breadcrumbItems.slice(0, -1).map((item, index) => (
                 <div key={item.id} className="flex items-center">
                   {index > 0 && <BreadcrumbSeparator />}
                   <BreadcrumbItem>
