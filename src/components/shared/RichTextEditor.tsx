@@ -1,6 +1,6 @@
 'use client';
 
-import { useEditor, EditorContent, type JSONContent } from '@tiptap/react';
+import { useEditor, EditorContent, type JSONContent, ReactNodeViewRenderer } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
@@ -13,10 +13,14 @@ import {
   Heading3,
   LinkIcon,
   ImageIcon,
+  AtSign,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useCallback, useEffect } from 'react';
+import { createMentionExtension } from './mentions/MentionExtension';
+import { MentionNode } from './mentions/MentionNode';
+import { searchCampaignEntities } from '@/lib/api/entities';
 
 interface RichTextEditorProps {
   value: JSONContent | null;
@@ -25,6 +29,7 @@ interface RichTextEditorProps {
   placeholder?: string;
   className?: string;
   readonly?: boolean;
+  campaignId?: string; // For @mentions
 }
 
 export function RichTextEditor({
@@ -34,6 +39,7 @@ export function RichTextEditor({
   placeholder = 'Write something...',
   className,
   readonly = false,
+  campaignId,
 }: RichTextEditorProps) {
   const editor = useEditor({
     immediatelyRender: false,
@@ -51,6 +57,26 @@ export function RichTextEditor({
           class: 'text-emerald-600 dark:text-emerald-400 underline',
         },
       }),
+      // @mentions extension (only if campaignId provided)
+      ...(campaignId
+        ? [
+            createMentionExtension({
+              campaignId,
+              onSearch: async (query) => {
+                return await searchCampaignEntities(campaignId, query);
+              },
+            }).extend({
+              addNodeView() {
+                return ReactNodeViewRenderer(MentionNode);
+              },
+              addStorage() {
+                return {
+                  campaignId, // Store campaignId in extension storage
+                };
+              },
+            }),
+          ]
+        : []),
     ],
     content: value || undefined,
     onUpdate: ({ editor }) => {

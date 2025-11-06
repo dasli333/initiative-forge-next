@@ -150,6 +150,7 @@ export default function LocationsPage() {
         mode="create"
         parentLocationId={parentLocationId}
         locations={locations}
+        campaignId={campaignId}
         onClose={() => {
           setIsCreateDialogOpen(false);
           setParentLocationId(null);

@@ -40,6 +40,7 @@ interface LocationFormDialogProps {
   initialData?: LocationDTO;
   parentLocationId?: string | null;
   locations: LocationDTO[]; // For parent select
+  campaignId: string;
   onClose: () => void;
   onSubmit: (data: CreateLocationCommand | UpdateLocationCommand) => Promise<void>;
 }
@@ -59,6 +60,7 @@ export function LocationFormDialog({
   initialData,
   parentLocationId,
   locations,
+  campaignId,
   onClose,
   onSubmit,
 }: LocationFormDialogProps) {
@@ -214,6 +216,7 @@ export function LocationFormDialog({
                       value={field.value}
                       onChange={field.onChange}
                       placeholder="Describe this location..."
+                      campaignId={campaignId}
                     />
                   </FormControl>
                   <FormMessage />
@@ -229,7 +232,11 @@ export function LocationFormDialog({
                 <FormItem>
                   <FormLabel>Image</FormLabel>
                   <FormControl>
-                    <ImageUpload value={field.value} onChange={field.onChange} />
+                    <ImageUpload
+                      value={field.value}
+                      onChange={field.onChange}
+                      campaignId={campaignId}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
