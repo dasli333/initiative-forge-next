@@ -101,7 +101,7 @@ export async function uploadNPCImage(
   // 3. Get public URL
   const {
     data: { publicUrl },
-  } = supabase.storage.from('npc-images').getPublicUrl(fileName);
+  } = supabase.storage.from('npc-images').getPublicUrl(data?.path || fileName);
 
   return publicUrl;
 }

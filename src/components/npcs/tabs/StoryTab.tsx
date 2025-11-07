@@ -109,19 +109,19 @@ export function StoryTab({
 
   return (
     <div className="space-y-6">
-      {/* Image Upload */}
-      {isEditing && (
+      {/* Image */}
+      {isEditing ? (
         <div>
           <label className="text-sm font-medium mb-2 block">Image</label>
           <ImageUpload
             value={displayData.image_url}
             onChange={(url) => onEditedDataChange('image_url', url)}
             campaignId={campaignId}
+            entityType="npc"
             maxSizeMB={5}
           />
         </div>
-      )}
-      {!isEditing && displayData.image_url && (
+      ) : displayData.image_url ? (
         <div>
           <label className="text-sm font-medium mb-2 block">Image</label>
           <img
@@ -130,7 +130,7 @@ export function StoryTab({
             className="w-full h-64 object-cover rounded-lg"
           />
         </div>
-      )}
+      ) : null}
 
       {/* Role Input */}
       <div>

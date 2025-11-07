@@ -199,6 +199,7 @@ export function NPCFormDialog({
               value={imageUrl}
               onChange={(url) => setValue('image_url', url)}
               campaignId={campaignId}
+              entityType="npc"
               maxSizeMB={5}
             />
           </div>

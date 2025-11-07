@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useCallback, type ChangeEvent, type DragEvent } from 'react';
+import { useState, useEffect, useCallback, type ChangeEvent, type DragEvent } from 'react';
 import { Upload, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import { uploadLocationImage, deleteLocationImage } from '@/lib/api/storage';
+import { uploadLocationImage, deleteLocationImage, uploadNPCImage, deleteNPCImage } from '@/lib/api/storage';
+
+type EntityType = 'location' | 'npc';
 
 interface ImageUploadProps {
   value?: string | null;
@@ -13,6 +15,7 @@ interface ImageUploadProps {
   maxSizeMB?: number;
   className?: string;
   campaignId: string;
+  entityType?: EntityType;
 }
 
 interface ImageUploadState {
@@ -31,6 +34,7 @@ export function ImageUpload({
   maxSizeMB = 5,
   className,
   campaignId,
+  entityType = 'location',
 }: ImageUploadProps) {
   const [state, setState] = useState<ImageUploadState>({
     file: null,
@@ -40,6 +44,14 @@ export function ImageUpload({
     error: null,
   });
   const [isDragOver, setIsDragOver] = useState(false);
+
+  // Sync previewUrl with value prop
+  useEffect(() => {
+    setState((prev) => ({
+      ...prev,
+      previewUrl: value || null,
+    }));
+  }, [value]);
 
   const validateImage = useCallback(
     (file: File): { valid: boolean; error?: string } => {
@@ -81,7 +93,9 @@ export function ImageUpload({
           setState((prev) => ({ ...prev, progress: Math.min(prev.progress + 10, 90) }));
         }, 150);
 
-        const imageUrl = await uploadLocationImage(campaignId, file);
+        const imageUrl = entityType === 'npc'
+          ? await uploadNPCImage(campaignId, file)
+          : await uploadLocationImage(campaignId, file);
 
         clearInterval(progressInterval);
         setState((prev) => ({
@@ -104,7 +118,7 @@ export function ImageUpload({
         }));
       }
     },
-    [validateImage, onChange, campaignId]
+    [validateImage, onChange, campaignId, entityType]
   );
 
   const handleDrop = useCallback(
@@ -148,7 +162,11 @@ export function ImageUpload({
     try {
       // Only delete from storage if it's a Supabase URL (not data URL)
       if (state.previewUrl.startsWith('http')) {
-        await deleteLocationImage(state.previewUrl);
+        if (entityType === 'npc') {
+          await deleteNPCImage(state.previewUrl);
+        } else {
+          await deleteLocationImage(state.previewUrl);
+        }
       }
 
       setState({
@@ -167,7 +185,7 @@ export function ImageUpload({
         error: 'Failed to delete image. Please try again.',
       }));
     }
-  }, [state.previewUrl, onChange]);
+  }, [state.previewUrl, onChange, entityType]);
 
   return (
     <div className={cn('space-y-4', className)}>
