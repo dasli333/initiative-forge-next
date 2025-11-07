@@ -29,7 +29,7 @@ interface RelationshipItemProps {
 
 /**
  * Single relationship display/edit component
- * - Avatar, name, type input, description textarea, strength slider
+ * - Avatar, name, type input, description textarea
  * - Delete button with confirmation
  * - Auto-save on blur
  */
@@ -44,7 +44,6 @@ export function RelationshipItem({
 
   const [relationshipType, setRelationshipType] = useState(relationship.relationship_type);
   const [description, setDescription] = useState(relationship.description || '');
-  const [strength, setStrength] = useState(relationship.strength);
 
   const handleTypeBlur = () => {
     if (relationshipType !== relationship.relationship_type) {
@@ -55,16 +54,6 @@ export function RelationshipItem({
   const handleDescriptionBlur = () => {
     if (description !== (relationship.description || '')) {
       onUpdate(relationship.id, { description: description || null });
-    }
-  };
-
-  const handleStrengthChange = (value: number) => {
-    setStrength(value);
-  };
-
-  const handleStrengthBlur = () => {
-    if (strength !== relationship.strength) {
-      onUpdate(relationship.id, { strength });
     }
   };
 
@@ -119,23 +108,6 @@ export function RelationshipItem({
             onChange={(e) => setDescription(e.target.value)}
             onBlur={handleDescriptionBlur}
             placeholder="Describe their relationship..."
-            disabled={isUpdating}
-            className="h-8"
-          />
-        </div>
-
-        {/* Strength Input */}
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">
-            Strength (0-100)
-          </label>
-          <Input
-            type="number"
-            value={strength}
-            onChange={(e) => handleStrengthChange(parseInt(e.target.value) || 0)}
-            onBlur={handleStrengthBlur}
-            min={0}
-            max={100}
             disabled={isUpdating}
             className="h-8"
           />

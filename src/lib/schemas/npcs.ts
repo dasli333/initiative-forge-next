@@ -125,13 +125,6 @@ export const relationshipSchema = z
       .max(500, 'Description must be less than 500 characters')
       .nullable()
       .optional(),
-
-    strength: z
-      .number()
-      .int()
-      .min(0, 'Strength must be between 0 and 100')
-      .max(100, 'Strength must be between 0 and 100')
-      .default(50),
   })
   .refine((data) => data.npc_id_1 !== data.npc_id_2, {
     message: 'Cannot create relationship with self',
@@ -162,5 +155,4 @@ export const updateNPCFieldSchema = z.object({
 export const updateRelationshipFieldSchema = z.object({
   relationship_type: z.string().min(1).max(100).optional(),
   description: z.string().max(500).nullable().optional(),
-  strength: z.number().int().min(0).max(100).optional(),
 });

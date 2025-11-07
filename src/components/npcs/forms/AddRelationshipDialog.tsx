@@ -31,7 +31,6 @@ interface FormData {
   npc_id_2: string;
   relationship_type: string;
   description?: string;
-  strength?: number;
 }
 
 /**
@@ -39,7 +38,6 @@ interface FormData {
  * - NPC selector (autocomplete dropdown)
  * - Relationship type input (free text)
  * - Description textarea (optional)
- * - Strength slider (0-100, default 50)
  * - Validation: npc_id_1 !== npc_id_2
  */
 export function AddRelationshipDialog({
@@ -51,7 +49,6 @@ export function AddRelationshipDialog({
   isSubmitting = false,
 }: AddRelationshipDialogProps) {
   const [selectedNpcId, setSelectedNpcId] = useState<string>('');
-  const [strength, setStrength] = useState(50);
 
   const {
     register,
@@ -67,14 +64,12 @@ export function AddRelationshipDialog({
       npc_id_2: '',
       relationship_type: '',
       description: '',
-      strength: 50,
     },
   });
 
   const handleClose = () => {
     reset();
     setSelectedNpcId('');
-    setStrength(50);
     onClose();
   };
 
@@ -84,7 +79,6 @@ export function AddRelationshipDialog({
       npc_id_2: data.npc_id_2,
       relationship_type: data.relationship_type,
       description: data.description || null,
-      strength: strength,
     });
     handleClose();
   };
@@ -157,27 +151,6 @@ export function AddRelationshipDialog({
             {errors.description && (
               <p className="text-xs text-destructive mt-1">{errors.description.message}</p>
             )}
-          </div>
-
-          {/* Strength Input */}
-          <div>
-            <Label htmlFor="strength">Strength (0-100)</Label>
-            <Input
-              id="strength"
-              type="number"
-              value={strength}
-              onChange={(e) => {
-                const val = parseInt(e.target.value) || 0;
-                setStrength(Math.max(0, Math.min(100, val)));
-                setValue('strength', Math.max(0, Math.min(100, val)));
-              }}
-              min={0}
-              max={100}
-              placeholder="50"
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              Enter a value from 0 (weak) to 100 (strong)
-            </p>
           </div>
 
           {/* Footer */}
