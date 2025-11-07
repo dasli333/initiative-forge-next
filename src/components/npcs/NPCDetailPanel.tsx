@@ -3,11 +3,13 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 import { Pencil, Save, X, Users } from 'lucide-react';
 import { StoryTab } from './tabs/StoryTab';
 import { CombatTab } from './tabs/CombatTab';
 import { RelationshipsTab } from './tabs/RelationshipsTab';
 import { TagBadge } from './shared/TagBadge';
+import { cn } from '@/lib/utils';
 import type { NPCDetailsViewModel } from '@/types/npcs';
 import type { UpdateNPCRelationshipCommand } from '@/types/npc-relationships';
 import type { JSONContent } from '@tiptap/core';
@@ -132,12 +134,25 @@ export function NPCDetailPanel({
   const { npc, combatStats, relationships, backlinks, factionName, locationName, tags } = viewModel;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className={cn(
+      "flex flex-col h-full transition-all",
+      isEditing && "border-2 border-primary/30 rounded-lg m-1"
+    )}>
       {/* Header */}
-      <div className="px-6 py-4 border-b space-y-3">
+      <div className={cn(
+        "px-6 py-4 border-b space-y-3",
+        isEditing && "bg-primary/5"
+      )}>
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
-            <h2 className="text-2xl font-bold truncate">{npc.name}</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-2xl font-bold truncate">{npc.name}</h2>
+              {isEditing && (
+                <Badge variant="secondary" className="text-xs">
+                  Editing
+                </Badge>
+              )}
+            </div>
             {npc.role && (
               <p className="text-sm text-muted-foreground truncate">{npc.role}</p>
             )}
@@ -184,7 +199,7 @@ export function NPCDetailPanel({
       <div className="flex-1 overflow-hidden">
         <Tabs defaultValue="story" className="h-full flex flex-col">
           <div className="px-6 pt-4">
-            <TabsList className="w-full justify-start">
+            <TabsList className="w-full">
               <TabsTrigger value="story">Story</TabsTrigger>
               <TabsTrigger value="combat">Combat</TabsTrigger>
               <TabsTrigger value="relationships">Relationships</TabsTrigger>

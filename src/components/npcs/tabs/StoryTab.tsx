@@ -127,7 +127,7 @@ export function StoryTab({
           <img
             src={displayData.image_url}
             alt={npc.name}
-            className="w-full h-64 object-cover rounded-lg"
+            className="w-full h-64 object-contain rounded-lg bg-muted"
           />
         </div>
       ) : null}
