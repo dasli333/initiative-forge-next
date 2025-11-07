@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,15 +20,30 @@ import { Badge } from '@/components/ui/badge';
 import { Swords, Trash2, X } from 'lucide-react';
 import { NoCombatStatsState } from '../shared/NoCombatStatsState';
 import { ActionBuilder } from '@/components/characters/ActionBuilder';
-import type { NPCDetailsViewModel } from '@/types/npcs';
-import type { UpsertNPCCombatStatsCommand } from '@/types/npc-combat-stats';
+import type { NPCDTO } from '@/types/npcs';
+import type { NPCCombatStatsDTO } from '@/types/npc-combat-stats';
 import type { ActionDTO } from '@/types';
+import type { JSONContent } from '@tiptap/core';
 
 interface CombatTabProps {
-  viewModel: NPCDetailsViewModel;
+  npc: NPCDTO;
+  combatStats?: NPCCombatStatsDTO | null;
   campaignId: string;
+  isEditing: boolean;
+  editedCombatStats: {
+    hp_max: number;
+    armor_class: number;
+    speed: number;
+    strength: number;
+    dexterity: number;
+    constitution: number;
+    intelligence: number;
+    wisdom: number;
+    charisma: number;
+    actions_json: ActionDTO[] | null;
+  } | null;
+  onCombatStatsChange: (field: string, value: unknown) => void;
   onAddStats: () => void;
-  onUpdateStats: (command: UpsertNPCCombatStatsCommand) => void;
   onRemoveStats: () => void;
   isUpdating?: boolean;
 }
@@ -47,49 +61,43 @@ const MAX_ACTIONS = 20;
  *   - "Remove Combat Stats" button (destructive, confirm dialog)
  */
 export function CombatTab({
-  viewModel,
+  npc,
+  combatStats,
   campaignId,
+  isEditing,
+  editedCombatStats,
+  onCombatStatsChange,
   onAddStats,
-  onUpdateStats,
   onRemoveStats,
   isUpdating = false,
 }: CombatTabProps) {
-  const { npc, combatStats } = viewModel;
   const router = useRouter();
 
-  // Local state for form fields
-  const [hpMax, setHpMax] = useState(combatStats?.hp_max?.toString() || '');
-  const [ac, setAc] = useState(combatStats?.armor_class?.toString() || '');
-  const [speed, setSpeed] = useState(combatStats?.speed?.toString() || '');
-  const [str, setStr] = useState(combatStats?.strength?.toString() || '');
-  const [dex, setDex] = useState(combatStats?.dexterity?.toString() || '');
-  const [con, setCon] = useState(combatStats?.constitution?.toString() || '');
-  const [int, setInt] = useState(combatStats?.intelligence?.toString() || '');
-  const [wis, setWis] = useState(combatStats?.wisdom?.toString() || '');
-  const [cha, setCha] = useState(combatStats?.charisma?.toString() || '');
-  const [actions, setActions] = useState<ActionDTO[]>(
-    (combatStats?.actions_json as ActionDTO[]) || []
-  );
-
-  if (!combatStats) {
+  if (!combatStats && !editedCombatStats) {
     return <NoCombatStatsState onAddStats={onAddStats} />;
   }
 
-  const handleFieldBlur = (field: string, value: string) => {
-    const numValue = parseInt(value) || 0;
-    onUpdateStats({ [field]: numValue } as unknown as UpsertNPCCombatStatsCommand);
-  };
+  // Use editedCombatStats when editing, combatStats when viewing
+  const displayStats = isEditing && editedCombatStats ? editedCombatStats : combatStats;
+
+  if (!displayStats) {
+    return <NoCombatStatsState onAddStats={onAddStats} />;
+  }
+
+  const actions = (displayStats.actions_json as ActionDTO[]) || [];
 
   const handleAddAction = (action: ActionDTO) => {
-    const newActions = [...actions, action];
-    setActions(newActions);
-    onUpdateStats({ actions_json: newActions as any } as unknown as UpsertNPCCombatStatsCommand);
+    if (isEditing) {
+      const newActions = [...actions, action];
+      onCombatStatsChange('actions_json', newActions);
+    }
   };
 
   const handleRemoveAction = (index: number) => {
-    const newActions = actions.filter((_, i) => i !== index);
-    setActions(newActions);
-    onUpdateStats({ actions_json: newActions as any } as unknown as UpsertNPCCombatStatsCommand);
+    if (isEditing) {
+      const newActions = actions.filter((_, i) => i !== index);
+      onCombatStatsChange('actions_json', newActions);
+    }
   };
 
   const handleUseInCombat = () => {
@@ -115,10 +123,9 @@ export function CombatTab({
               <Input
                 id="hp-max"
                 type="number"
-                value={hpMax}
-                onChange={(e) => setHpMax(e.target.value)}
-                onBlur={() => handleFieldBlur('hp_max', hpMax)}
-                disabled={isUpdating}
+                value={displayStats.hp_max}
+                onChange={(e) => isEditing && onCombatStatsChange('hp_max', parseInt(e.target.value) || 0)}
+                disabled={!isEditing || isUpdating}
                 min={1}
                 max={999}
               />
@@ -128,10 +135,9 @@ export function CombatTab({
               <Input
                 id="ac"
                 type="number"
-                value={ac}
-                onChange={(e) => setAc(e.target.value)}
-                onBlur={() => handleFieldBlur('armor_class', ac)}
-                disabled={isUpdating}
+                value={displayStats.armor_class}
+                onChange={(e) => isEditing && onCombatStatsChange('armor_class', parseInt(e.target.value) || 0)}
+                disabled={!isEditing || isUpdating}
                 min={0}
                 max={30}
               />
@@ -141,10 +147,9 @@ export function CombatTab({
               <Input
                 id="speed"
                 type="number"
-                value={speed}
-                onChange={(e) => setSpeed(e.target.value)}
-                onBlur={() => handleFieldBlur('speed', speed)}
-                disabled={isUpdating}
+                value={displayStats.speed}
+                onChange={(e) => isEditing && onCombatStatsChange('speed', parseInt(e.target.value) || 0)}
+                disabled={!isEditing || isUpdating}
                 min={0}
                 max={999}
               />
@@ -166,16 +171,15 @@ export function CombatTab({
               <Input
                 id="str"
                 type="number"
-                value={str}
-                onChange={(e) => setStr(e.target.value)}
-                onBlur={() => handleFieldBlur('strength', str)}
-                disabled={isUpdating}
+                value={displayStats.strength}
+                onChange={(e) => isEditing && onCombatStatsChange('strength', parseInt(e.target.value) || 0)}
+                disabled={!isEditing || isUpdating}
                 min={1}
                 max={30}
                 className="text-center"
               />
               <div className="text-xs text-muted-foreground">
-                {getModifier(parseInt(str) || 10)}
+                {getModifier(displayStats.strength)}
               </div>
             </div>
 
@@ -185,16 +189,15 @@ export function CombatTab({
               <Input
                 id="dex"
                 type="number"
-                value={dex}
-                onChange={(e) => setDex(e.target.value)}
-                onBlur={() => handleFieldBlur('dexterity', dex)}
-                disabled={isUpdating}
+                value={displayStats.dexterity}
+                onChange={(e) => isEditing && onCombatStatsChange('dexterity', parseInt(e.target.value) || 0)}
+                disabled={!isEditing || isUpdating}
                 min={1}
                 max={30}
                 className="text-center"
               />
               <div className="text-xs text-muted-foreground">
-                {getModifier(parseInt(dex) || 10)}
+                {getModifier(displayStats.dexterity)}
               </div>
             </div>
 
@@ -204,16 +207,15 @@ export function CombatTab({
               <Input
                 id="con"
                 type="number"
-                value={con}
-                onChange={(e) => setCon(e.target.value)}
-                onBlur={() => handleFieldBlur('constitution', con)}
-                disabled={isUpdating}
+                value={displayStats.constitution}
+                onChange={(e) => isEditing && onCombatStatsChange('constitution', parseInt(e.target.value) || 0)}
+                disabled={!isEditing || isUpdating}
                 min={1}
                 max={30}
                 className="text-center"
               />
               <div className="text-xs text-muted-foreground">
-                {getModifier(parseInt(con) || 10)}
+                {getModifier(displayStats.constitution)}
               </div>
             </div>
 
@@ -223,16 +225,15 @@ export function CombatTab({
               <Input
                 id="int"
                 type="number"
-                value={int}
-                onChange={(e) => setInt(e.target.value)}
-                onBlur={() => handleFieldBlur('intelligence', int)}
-                disabled={isUpdating}
+                value={displayStats.intelligence}
+                onChange={(e) => isEditing && onCombatStatsChange('intelligence', parseInt(e.target.value) || 0)}
+                disabled={!isEditing || isUpdating}
                 min={1}
                 max={30}
                 className="text-center"
               />
               <div className="text-xs text-muted-foreground">
-                {getModifier(parseInt(int) || 10)}
+                {getModifier(displayStats.intelligence)}
               </div>
             </div>
 
@@ -242,16 +243,15 @@ export function CombatTab({
               <Input
                 id="wis"
                 type="number"
-                value={wis}
-                onChange={(e) => setWis(e.target.value)}
-                onBlur={() => handleFieldBlur('wisdom', wis)}
-                disabled={isUpdating}
+                value={displayStats.wisdom}
+                onChange={(e) => isEditing && onCombatStatsChange('wisdom', parseInt(e.target.value) || 0)}
+                disabled={!isEditing || isUpdating}
                 min={1}
                 max={30}
                 className="text-center"
               />
               <div className="text-xs text-muted-foreground">
-                {getModifier(parseInt(wis) || 10)}
+                {getModifier(displayStats.wisdom)}
               </div>
             </div>
 
@@ -261,16 +261,15 @@ export function CombatTab({
               <Input
                 id="cha"
                 type="number"
-                value={cha}
-                onChange={(e) => setCha(e.target.value)}
-                onBlur={() => handleFieldBlur('charisma', cha)}
-                disabled={isUpdating}
+                value={displayStats.charisma}
+                onChange={(e) => isEditing && onCombatStatsChange('charisma', parseInt(e.target.value) || 0)}
+                disabled={!isEditing || isUpdating}
                 min={1}
                 max={30}
                 className="text-center"
               />
               <div className="text-xs text-muted-foreground">
-                {getModifier(parseInt(cha) || 10)}
+                {getModifier(displayStats.charisma)}
               </div>
             </div>
           </div>
@@ -327,7 +326,7 @@ export function CombatTab({
                     variant="ghost"
                     size="icon"
                     onClick={() => handleRemoveAction(index)}
-                    disabled={isUpdating}
+                    disabled={!isEditing || isUpdating}
                     className="text-destructive hover:text-destructive"
                   >
                     <X className="h-4 w-4" />
@@ -338,10 +337,12 @@ export function CombatTab({
           )}
 
           {/* Action Builder */}
-          <ActionBuilder
-            onAdd={handleAddAction}
-            maxActionsReached={actions.length >= MAX_ACTIONS}
-          />
+          {isEditing && (
+            <ActionBuilder
+              onAdd={handleAddAction}
+              maxActionsReached={actions.length >= MAX_ACTIONS}
+            />
+          )}
         </CardContent>
       </Card>
 
@@ -358,7 +359,7 @@ export function CombatTab({
 
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="destructive" disabled={isUpdating}>
+            <Button variant="destructive" disabled={!isEditing || isUpdating}>
               <Trash2 className="h-4 w-4 mr-2" />
               Remove Combat Stats
             </Button>

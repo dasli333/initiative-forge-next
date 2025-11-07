@@ -343,6 +343,7 @@ export function useNPCDetailsQuery(npcId: string | null): UseQueryResult<NPCDeta
         backlinks: backlinkItems,
         factionName: undefined, // Extracted from JOINs
         locationName: undefined, // Extracted from JOINs
+        tags: [], // TODO: Fetch tags
       };
     },
     enabled: !!npcId,

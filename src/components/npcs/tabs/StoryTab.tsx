@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { ImageUpload } from '@/components/shared/ImageUpload';
 import { RichTextEditor } from '@/components/shared/RichTextEditor';
 import { Input } from '@/components/ui/input';
@@ -9,15 +8,28 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Loader2, MapPin, User, Target, Calendar, BookOpen, Package, Users, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
-import type { NPCDetailsViewModel } from '@/types/npcs';
+import type { NPCDTO, BacklinkItem } from '@/types/npcs';
 import type { JSONContent } from '@tiptap/core';
 
 interface StoryTabProps {
-  viewModel: NPCDetailsViewModel;
+  npc: NPCDTO;
+  backlinks?: BacklinkItem[];
+  factionName?: string;
+  locationName?: string;
   campaignId: string;
   factions: Array<{ id: string; name: string }>;
   locations: Array<{ id: string; name: string }>;
-  onFieldUpdate: (field: string, value: unknown) => void;
+  isEditing: boolean;
+  editedData: {
+    role: string;
+    faction_id: string | null;
+    current_location_id: string | null;
+    status: 'alive' | 'dead' | 'unknown';
+    image_url: string | null;
+    biography_json: JSONContent | null;
+    personality_json: JSONContent | null;
+  } | null;
+  onEditedDataChange: (field: string, value: unknown) => void;
   isUpdating?: boolean;
 }
 
@@ -63,62 +75,71 @@ const ENTITY_ROUTE_MAP = {
  * - BacklinksSection: list of mentions
  */
 export function StoryTab({
-  viewModel,
+  npc,
+  backlinks,
+  factionName,
+  locationName,
   campaignId,
   factions,
   locations,
-  onFieldUpdate,
+  isEditing,
+  editedData,
+  onEditedDataChange,
   isUpdating = false,
 }: StoryTabProps) {
-  const { npc, backlinks } = viewModel;
   const router = useRouter();
 
-  const [role, setRole] = useState(npc.role || '');
-
-  const handleRoleBlur = () => {
-    if (role !== (npc.role || '')) {
-      onFieldUpdate('role', role || null);
-    }
-  };
-
-
-  const handleBiographyChange = (content: JSONContent) => {
-    onFieldUpdate('biography_json', content);
-  };
-
-  const handlePersonalityChange = (content: JSONContent) => {
-    onFieldUpdate('personality_json', content);
-  };
-
-  const handleBacklinkClick = (backlink: typeof backlinks[0]) => {
+  const handleBacklinkClick = (backlink: BacklinkItem) => {
     const route = ENTITY_ROUTE_MAP[backlink.source_type as keyof typeof ENTITY_ROUTE_MAP];
     if (route) {
       router.push(`/campaigns/${campaignId}/${route}?selectedId=${backlink.source_id}`);
     }
   };
 
+  // Use editedData when editing, viewModel data when viewing
+  const displayData = isEditing && editedData ? editedData : {
+    role: npc.role || '',
+    faction_id: npc.faction_id,
+    current_location_id: npc.current_location_id,
+    status: npc.status,
+    image_url: npc.image_url,
+    biography_json: npc.biography_json,
+    personality_json: npc.personality_json,
+  };
+
   return (
     <div className="space-y-6">
       {/* Image Upload */}
-      <div>
-        <label className="text-sm font-medium mb-2 block">Image</label>
-        <ImageUpload
-          value={npc.image_url}
-          onChange={(url) => onFieldUpdate('image_url', url)}
-          campaignId={campaignId}
-          maxSizeMB={5}
-        />
-      </div>
+      {isEditing && (
+        <div>
+          <label className="text-sm font-medium mb-2 block">Image</label>
+          <ImageUpload
+            value={displayData.image_url}
+            onChange={(url) => onEditedDataChange('image_url', url)}
+            campaignId={campaignId}
+            maxSizeMB={5}
+          />
+        </div>
+      )}
+      {!isEditing && displayData.image_url && (
+        <div>
+          <label className="text-sm font-medium mb-2 block">Image</label>
+          <img
+            src={displayData.image_url}
+            alt={npc.name}
+            className="w-full h-64 object-cover rounded-lg"
+          />
+        </div>
+      )}
 
       {/* Role Input */}
       <div>
         <label className="text-sm font-medium mb-2 block">Role</label>
         <Input
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
-          onBlur={handleRoleBlur}
+          value={displayData.role}
+          onChange={(e) => isEditing && onEditedDataChange('role', e.target.value)}
           placeholder="e.g., Merchant, Guard Captain, Wizard"
-          disabled={isUpdating}
+          disabled={!isEditing || isUpdating}
         />
       </div>
 
@@ -126,9 +147,9 @@ export function StoryTab({
       <div>
         <label className="text-sm font-medium mb-2 block">Faction</label>
         <Select
-          value={npc.faction_id || 'none'}
-          onValueChange={(value) => onFieldUpdate('faction_id', value === 'none' ? null : value)}
-          disabled={isUpdating}
+          value={displayData.faction_id || 'none'}
+          onValueChange={(value) => isEditing && onEditedDataChange('faction_id', value === 'none' ? null : value)}
+          disabled={!isEditing || isUpdating}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select faction" />
@@ -148,9 +169,9 @@ export function StoryTab({
       <div>
         <label className="text-sm font-medium mb-2 block">Current Location</label>
         <Select
-          value={npc.current_location_id || 'none'}
-          onValueChange={(value) => onFieldUpdate('current_location_id', value === 'none' ? null : value)}
-          disabled={isUpdating}
+          value={displayData.current_location_id || 'none'}
+          onValueChange={(value) => isEditing && onEditedDataChange('current_location_id', value === 'none' ? null : value)}
+          disabled={!isEditing || isUpdating}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select location" />
@@ -170,9 +191,9 @@ export function StoryTab({
       <div>
         <label className="text-sm font-medium mb-2 block">Status</label>
         <Select
-          value={npc.status}
-          onValueChange={(value) => onFieldUpdate('status', value)}
-          disabled={isUpdating}
+          value={displayData.status}
+          onValueChange={(value) => isEditing && onEditedDataChange('status', value)}
+          disabled={!isEditing || isUpdating}
         >
           <SelectTrigger>
             <SelectValue />
@@ -189,11 +210,11 @@ export function StoryTab({
       <div>
         <label className="text-sm font-medium mb-2 block">Biography</label>
         <RichTextEditor
-          value={npc.biography_json}
-          onChange={handleBiographyChange}
+          value={displayData.biography_json}
+          onChange={(content) => isEditing && onEditedDataChange('biography_json', content)}
           campaignId={campaignId}
           placeholder="Write the NPC's backstory and biography..."
-          readonly={isUpdating}
+          readonly={!isEditing}
         />
       </div>
 
@@ -201,11 +222,11 @@ export function StoryTab({
       <div>
         <label className="text-sm font-medium mb-2 block">Personality</label>
         <RichTextEditor
-          value={npc.personality_json}
-          onChange={handlePersonalityChange}
+          value={displayData.personality_json}
+          onChange={(content) => isEditing && onEditedDataChange('personality_json', content)}
           campaignId={campaignId}
           placeholder="Describe personality traits, mannerisms, speech patterns..."
-          readonly={isUpdating}
+          readonly={!isEditing}
         />
       </div>
 

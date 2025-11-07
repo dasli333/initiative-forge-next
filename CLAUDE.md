@@ -160,3 +160,58 @@ src/
 4. Create React Query hooks in `src/hooks/`
 5. Build components in `src/components/[feature]/`
 6. Add route in `src/app/(dashboard)/`
+
+## Shared Feature Components (Reusable)
+
+### Rich Text & Mentions
+- **RichTextEditor** - `src/components/shared/RichTextEditor.tsx` (Tiptap with @mentions)
+- **Mention Search API** - `searchCampaignEntities(campaignId, query)` in `src/lib/api/entities.ts`
+  - Fuzzy search all entity types (fuse.js, threshold 0.3)
+  - Returns: `{ id, label, entityType, imageUrl, excerpt }`
+- **Backlinks API** - `src/lib/api/entity-mentions.ts`
+  - `getMentionsOf(type, id)` - get backlinks for entity
+  - `getMentionsBy(type, id, field?)` - get mentions from entity
+  - `batchCreateEntityMentions()` - sync mentions (non-blocking)
+
+**Entity Mention Pattern:**
+When entity has rich text with @mentions:
+1. Extract: `extractMentionsFromJson(json)` from `src/lib/utils/mentionUtils.ts`
+2. On create: `batchCreateEntityMentions()` after insert
+3. On update: `deleteMentionsBySource()` + re-create
+4. Example: `src/lib/api/locations.ts` lines 108-127, 169-191
+
+### Images & Storage
+- **ImageUpload** - `src/components/shared/ImageUpload.tsx` (drag & drop with preview)
+- **Compression** - `browser-image-compression` (5MB limit, WebP conversion)
+- **Bucket naming** - `[entity-type]-images` (e.g., `location-images`, `npc-images`)
+- **RLS pattern** - SELECT: authenticated, INSERT: authenticated, DELETE: owner via path check
+
+### Combat Integration
+- **ActionBuilder** - `src/components/characters/ActionBuilder.tsx`
+- Props: `{ onAdd: (action: ActionDTO) => void, maxActionsReached: boolean }`
+- Supports: melee/ranged/spell attacks, special actions
+- Max 20 actions per entity
+
+### Standard Patterns
+
+**DTO Conversion (API Layer):**
+- API functions MUST convert raw DB types → DTOs
+- Raw: `Json` fields (`biography_json`, `coordinates_json`)
+- DTO: Typed fields (`JSONContent`, `LocationCoordinates`)
+- Components receive only DTOs, never raw types
+
+**Entity Filters:**
+```typescript
+interface EntityFilters {
+  [foreign_key]?: string | null;  // null = "no assignment"
+  status?: 'active' | 'inactive' | ...;
+}
+```
+Apply: `query.eq(key, value)` or `query.is(key, null)`
+
+**Query Enrichment:**
+Use Supabase query expansion for foreign key names:
+```typescript
+.select('*, factions(name), locations:location_id(name)')
+```
+Flattens in DTO mapper: `{ ...entity, faction_name: data.factions?.name }`

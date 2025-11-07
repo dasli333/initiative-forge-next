@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -457,6 +457,80 @@ export type Database = {
             columns: ["npc_id_2"]
             isOneToOne: false
             referencedRelation: "npcs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      npc_tag_assignments: {
+        Row: {
+          created_at: string
+          id: string
+          npc_id: string
+          tag_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          npc_id: string
+          tag_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          npc_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "npc_tag_assignments_npc_id_fkey"
+            columns: ["npc_id"]
+            isOneToOne: false
+            referencedRelation: "npcs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "npc_tag_assignments_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "npc_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      npc_tags: {
+        Row: {
+          campaign_id: string
+          color: string
+          created_at: string
+          icon: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          campaign_id: string
+          color: string
+          created_at?: string
+          icon: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          campaign_id?: string
+          color?: string
+          created_at?: string
+          icon?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "npc_tags_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
             referencedColumns: ["id"]
           },
         ]

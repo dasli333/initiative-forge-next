@@ -1,5 +1,6 @@
 import type { Json, Tables } from '@/types/database';
 import type { JSONContent } from '@tiptap/react';
+import type { NPCTagDTO } from '@/types/npc-tags';
 
 // ============================================================================
 // ENTITY TYPES
@@ -63,6 +64,8 @@ export interface NPCFilters {
   faction_id?: string | null;
   current_location_id?: string | null;
   status?: 'alive' | 'dead' | 'unknown';
+  tag_ids?: string[]; // Filter by multiple tags (OR logic)
+  search?: string; // Search by name/role
 }
 
 // ============================================================================
@@ -70,17 +73,18 @@ export interface NPCFilters {
 // ============================================================================
 
 /**
- * Enriched NPC for grid cards
+ * Enriched NPC for list items
  */
 export interface NPCCardViewModel {
   npc: NPCDTO;
   hasCombatStats: boolean;
   factionName?: string;
   locationName?: string;
+  tags: NPCTagDTO[]; // Assigned tags for this NPC
 }
 
 /**
- * Full NPC details for slideover
+ * Full NPC details for detail panel
  */
 export interface NPCDetailsViewModel {
   npc: NPCDTO;
@@ -89,6 +93,7 @@ export interface NPCDetailsViewModel {
   backlinks: BacklinkItem[];
   factionName?: string;
   locationName?: string;
+  tags: NPCTagDTO[]; // Assigned tags for this NPC
 }
 
 /**

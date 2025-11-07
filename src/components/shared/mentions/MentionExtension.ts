@@ -23,7 +23,7 @@ export function createMentionExtension(options: MentionExtensionOptions) {
         return await options.onSearch(query);
       },
       render: () => {
-        let component: ReactRenderer<typeof MentionList>;
+        let component: ReactRenderer;
         let popup: HTMLDivElement | null = null;
 
         return {

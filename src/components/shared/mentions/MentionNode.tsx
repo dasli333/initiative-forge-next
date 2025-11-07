@@ -208,19 +208,19 @@ export function MentionNode(props: NodeViewProps) {
             {preview && (
               <div className="text-sm text-gray-600 dark:text-gray-400">
                 {/* Extract excerpt from preview data */}
-                {'description_json' in preview && preview.description_json && (
+                {'description_json' in preview && preview.description_json && typeof preview.description_json === 'object' && (
                   <p className="line-clamp-3">
-                    {extractTextFromJSON(preview.description_json)}
+                    {extractTextFromJSON(preview.description_json as TiptapNode)}
                   </p>
                 )}
-                {'biography_json' in preview && preview.biography_json && (
+                {'biography_json' in preview && preview.biography_json && typeof preview.biography_json === 'object' && (
                   <p className="line-clamp-3">
-                    {extractTextFromJSON(preview.biography_json)}
+                    {extractTextFromJSON(preview.biography_json as TiptapNode)}
                   </p>
                 )}
-                {'content_json' in preview && preview.content_json && (
+                {'content_json' in preview && preview.content_json && typeof preview.content_json === 'object' && (
                   <p className="line-clamp-3">
-                    {extractTextFromJSON(preview.content_json)}
+                    {extractTextFromJSON(preview.content_json as TiptapNode)}
                   </p>
                 )}
               </div>

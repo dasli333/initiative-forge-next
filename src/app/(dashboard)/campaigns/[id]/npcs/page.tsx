@@ -1,13 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { NPCsHeader } from '@/components/npcs/NPCsHeader';
-import { NPCGrid } from '@/components/npcs/NPCGrid';
-import { NPCsEmptyState } from '@/components/npcs/NPCsEmptyState';
-import { NPCDetailSlideover } from '@/components/npcs/NPCDetailSlideover';
+import { NPCsLayout } from '@/components/npcs/NPCsLayout';
 import { NPCFormDialog } from '@/components/npcs/forms/NPCFormDialog';
 import { AddRelationshipDialog } from '@/components/npcs/forms/AddRelationshipDialog';
+import { TagManager } from '@/components/npcs/TagManager';
 import { useCampaignStore } from '@/stores/campaignStore';
 import {
   useNPCsQuery,
@@ -20,8 +19,17 @@ import {
   useUpdateNPCRelationshipMutation,
   useDeleteNPCRelationshipMutation,
 } from '@/hooks/useNPCs';
-import type { NPCFilters, NPCCardViewModel } from '@/types/npcs';
+import {
+  useNPCTagsQuery,
+  useCreateNPCTagMutation,
+  useUpdateNPCTagMutation,
+  useDeleteNPCTagMutation,
+  useBulkAssignTagsToNPCMutation,
+} from '@/hooks/useNPCTags';
+import type { NPCCardViewModel } from '@/types/npcs';
 import type { NPCFormData } from '@/lib/schemas/npcs';
+import type { JSONContent } from '@tiptap/core';
+import type { ActionDTO } from '@/types';
 
 /**
  * Main NPCs page
@@ -40,18 +48,42 @@ export default function NPCsPage() {
   const { selectedCampaign } = useCampaignStore();
 
   // Local state
-  const [filters, setFilters] = useState<NPCFilters>({});
   const [selectedNPCId, setSelectedNPCId] = useState<string | null>(
     searchParams.get('selectedId') || null
   );
-  const [isSlideoverOpen, setIsSlideoverOpen] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isAddRelationshipOpen, setIsAddRelationshipOpen] = useState(false);
+  const [isTagManagerOpen, setIsTagManagerOpen] = useState(false);
   const [editingNPCId, setEditingNPCId] = useState<string | null>(null);
 
+  // Edit mode state for slideover
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedData, setEditedData] = useState<{
+    role: string;
+    faction_id: string | null;
+    current_location_id: string | null;
+    status: 'alive' | 'dead' | 'unknown';
+    image_url: string | null;
+    biography_json: JSONContent | null;
+    personality_json: JSONContent | null;
+    combatStats: {
+      hp_max: number;
+      armor_class: number;
+      speed: number;
+      strength: number;
+      dexterity: number;
+      constitution: number;
+      intelligence: number;
+      wisdom: number;
+      charisma: number;
+      actions_json: ActionDTO[] | null;
+    } | null;
+  } | null>(null);
+
   // Queries
-  const { data: npcs, isLoading: npcsLoading } = useNPCsQuery(campaignId, filters);
+  const { data: npcs, isLoading: npcsLoading } = useNPCsQuery(campaignId, {});
   const { data: npcDetails, isLoading: detailsLoading } = useNPCDetailsQuery(selectedNPCId);
+  const { data: tags = [], isLoading: tagsLoading } = useNPCTagsQuery(campaignId);
 
   // Mutations
   const createMutation = useCreateNPCMutation(campaignId);
@@ -61,6 +93,10 @@ export default function NPCsPage() {
   const createRelationshipMutation = useCreateNPCRelationshipMutation();
   const updateRelationshipMutation = useUpdateNPCRelationshipMutation();
   const deleteRelationshipMutation = useDeleteNPCRelationshipMutation();
+  const createTagMutation = useCreateNPCTagMutation(campaignId);
+  const updateTagMutation = useUpdateNPCTagMutation();
+  const deleteTagMutation = useDeleteNPCTagMutation(campaignId);
+  const bulkAssignTagsMutation = useBulkAssignTagsToNPCMutation();
 
   // Dummy data for factions and locations (replace with actual queries)
   const factions = []; // TODO: Replace with useFactions query
@@ -69,94 +105,134 @@ export default function NPCsPage() {
   // Handlers
   const handleCardClick = (npcId: string) => {
     setSelectedNPCId(npcId);
-    setIsSlideoverOpen(true);
     router.push(`/campaigns/${campaignId}/npcs?selectedId=${npcId}`, { scroll: false });
   };
 
-  const handleCloseSlideover = () => {
-    setIsSlideoverOpen(false);
-    setSelectedNPCId(null);
-    router.push(`/campaigns/${campaignId}/npcs`, { scroll: false });
-  };
-
   const handleEdit = () => {
-    if (selectedNPCId) {
-      setEditingNPCId(selectedNPCId);
-      setIsCreateDialogOpen(true);
+    if (npcDetails) {
+      setEditedData({
+        role: npcDetails.npc.role || '',
+        faction_id: npcDetails.npc.faction_id,
+        current_location_id: npcDetails.npc.current_location_id,
+        status: npcDetails.npc.status as 'alive' | 'dead' | 'unknown',
+        image_url: npcDetails.npc.image_url,
+        biography_json: npcDetails.npc.biography_json,
+        personality_json: npcDetails.npc.personality_json,
+        combatStats: npcDetails.combatStats ? {
+          hp_max: npcDetails.combatStats.hp_max,
+          armor_class: npcDetails.combatStats.armor_class,
+          speed: npcDetails.combatStats.speed,
+          strength: npcDetails.combatStats.strength,
+          dexterity: npcDetails.combatStats.dexterity,
+          constitution: npcDetails.combatStats.constitution,
+          intelligence: npcDetails.combatStats.intelligence,
+          wisdom: npcDetails.combatStats.wisdom,
+          charisma: npcDetails.combatStats.charisma,
+          actions_json: npcDetails.combatStats.actions_json,
+        } : null,
+      });
+      setIsEditing(true);
     }
   };
 
-  const handleAddClick = () => {
-    setEditingNPCId(null);
-    setIsCreateDialogOpen(true);
-  };
 
-  const handleFormSubmit = (data: NPCFormData) => {
-    if (editingNPCId) {
-      // Update existing NPC
-      updateMutation.mutate({
-        id: editingNPCId,
-        command: {
-          name: data.name,
-          role: data.role || null,
-          faction_id: data.faction_id || null,
-          current_location_id: data.current_location_id || null,
-          status: data.status,
-          image_url: data.image_url || null,
-          biography_json: data.biography_json,
-          personality_json: data.personality_json,
-        },
-      });
+  const handleSave = () => {
+    if (selectedNPCId && editedData && npcDetails) {
+      const changes: Record<string, unknown> = {};
 
-      // Update combat stats if provided
-      if (data.addCombatStats && data.combatStats) {
-        upsertCombatStatsMutation.mutate({
-          npcId: editingNPCId,
-          command: data.combatStats,
+      // Compare each field with original
+      if (editedData.role !== (npcDetails.npc.role || '')) {
+        changes.role = editedData.role || null;
+      }
+      if (editedData.faction_id !== npcDetails.npc.faction_id) {
+        changes.faction_id = editedData.faction_id;
+      }
+      if (editedData.current_location_id !== npcDetails.npc.current_location_id) {
+        changes.current_location_id = editedData.current_location_id;
+      }
+      if (editedData.status !== npcDetails.npc.status) {
+        changes.status = editedData.status;
+      }
+      if (editedData.image_url !== npcDetails.npc.image_url) {
+        changes.image_url = editedData.image_url;
+      }
+      if (JSON.stringify(editedData.biography_json) !== JSON.stringify(npcDetails.npc.biography_json)) {
+        changes.biography_json = editedData.biography_json;
+      }
+      if (JSON.stringify(editedData.personality_json) !== JSON.stringify(npcDetails.npc.personality_json)) {
+        changes.personality_json = editedData.personality_json;
+      }
+
+      // Update NPC if there are story changes
+      if (Object.keys(changes).length > 0) {
+        updateMutation.mutate({
+          id: selectedNPCId,
+          command: changes,
         });
       }
-    } else {
-      // Create new NPC
-      createMutation.mutate(
-        {
-          name: data.name,
-          role: data.role || null,
-          faction_id: data.faction_id || null,
-          current_location_id: data.current_location_id || null,
-          status: data.status,
-          image_url: data.image_url || null,
-          biography_json: data.biography_json,
-          personality_json: data.personality_json,
-        },
-        {
-          onSuccess: (newNPC) => {
-            // Add combat stats if provided
-            if (data.addCombatStats && data.combatStats) {
-              upsertCombatStatsMutation.mutate({
-                npcId: newNPC.id,
-                command: data.combatStats,
-              });
-            }
-          },
+
+      // Handle combat stats changes
+      if (editedData.combatStats && npcDetails.combatStats) {
+        // Check if any combat stat changed
+        const hasChanges =
+          editedData.combatStats.hp_max !== npcDetails.combatStats.hp_max ||
+          editedData.combatStats.armor_class !== npcDetails.combatStats.armor_class ||
+          editedData.combatStats.speed !== npcDetails.combatStats.speed ||
+          editedData.combatStats.strength !== npcDetails.combatStats.strength ||
+          editedData.combatStats.dexterity !== npcDetails.combatStats.dexterity ||
+          editedData.combatStats.constitution !== npcDetails.combatStats.constitution ||
+          editedData.combatStats.intelligence !== npcDetails.combatStats.intelligence ||
+          editedData.combatStats.wisdom !== npcDetails.combatStats.wisdom ||
+          editedData.combatStats.charisma !== npcDetails.combatStats.charisma ||
+          JSON.stringify(editedData.combatStats.actions_json) !== JSON.stringify(npcDetails.combatStats.actions_json);
+
+        if (hasChanges) {
+          upsertCombatStatsMutation.mutate({
+            npcId: selectedNPCId,
+            command: editedData.combatStats,
+          });
         }
-      );
+      } else if (editedData.combatStats && !npcDetails.combatStats) {
+        // Create combat stats
+        upsertCombatStatsMutation.mutate({
+          npcId: selectedNPCId,
+          command: editedData.combatStats,
+        });
+      } else if (!editedData.combatStats && npcDetails.combatStats) {
+        // Delete combat stats
+        deleteCombatStatsMutation.mutate(selectedNPCId);
+      }
+
+      setIsEditing(false);
+      setEditedData(null);
     }
   };
 
-  const handleFieldUpdate = (field: string, value: unknown) => {
-    if (selectedNPCId) {
-      updateMutation.mutate({
-        id: selectedNPCId,
-        command: { [field]: value },
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditedData(null);
+  };
+
+  const handleEditedDataChange = (field: string, value: unknown) => {
+    if (editedData) {
+      setEditedData({ ...editedData, [field]: value });
+    }
+  };
+
+  const handleCombatStatsChange = (field: string, value: unknown) => {
+    if (editedData && editedData.combatStats) {
+      setEditedData({
+        ...editedData,
+        combatStats: { ...editedData.combatStats, [field]: value },
       });
     }
   };
 
   const handleAddCombatStats = () => {
-    if (selectedNPCId) {
-      upsertCombatStatsMutation.mutate({
-        npcId: selectedNPCId,
-        command: {
+    if (editedData) {
+      setEditedData({
+        ...editedData,
+        combatStats: {
           hp_max: 10,
           armor_class: 10,
           speed: 30,
@@ -173,19 +249,84 @@ export default function NPCsPage() {
   };
 
   const handleRemoveCombatStats = () => {
-    if (selectedNPCId) {
-      deleteCombatStatsMutation.mutate(selectedNPCId);
+    if (editedData) {
+      setEditedData({
+        ...editedData,
+        combatStats: null,
+      });
     }
   };
 
-  // Convert NPCs to card view models
-  const npcCardViewModels: NPCCardViewModel[] =
-    npcs?.map((npc) => ({
-      npc,
-      hasCombatStats: false, // TODO: Check if combat stats exist
-      factionName: undefined, // TODO: Extract from JOINs
-      locationName: undefined, // TODO: Extract from JOINs
-    })) || [];
+  const handleAddClick = () => {
+    setEditingNPCId(null);
+    setIsCreateDialogOpen(true);
+  };
+
+  const handleFormSubmit = async (data: NPCFormData) => {
+    const { tag_ids, ...npcData } = data;
+
+    if (editingNPCId) {
+      // Update existing NPC
+      updateMutation.mutate({
+        id: editingNPCId,
+        command: npcData,
+      });
+
+      // Update tags if provided
+      if (tag_ids && tag_ids.length > 0) {
+        await bulkAssignTagsMutation.mutateAsync({
+          npcId: editingNPCId,
+          tagIds: tag_ids,
+        });
+      }
+    } else {
+      // Create new NPC
+      createMutation.mutate(
+        npcData,
+        {
+          onSuccess: async (newNPC) => {
+            // Assign tags if any
+            if (tag_ids && tag_ids.length > 0) {
+              await bulkAssignTagsMutation.mutateAsync({
+                npcId: newNPC.id,
+                tagIds: tag_ids,
+              });
+            }
+
+            // Auto-select newly created NPC
+            setSelectedNPCId(newNPC.id);
+          },
+        }
+      );
+    }
+  };
+
+  // Reset edit mode when selected NPC changes
+  useEffect(() => {
+    if (isEditing) {
+      setIsEditing(false);
+      setEditedData(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedNPCId]);
+
+  // Convert NPCs to card view models with tags
+  const npcsWithTags: NPCCardViewModel[] = useMemo(() => {
+    if (!npcs) return [];
+
+    return npcs.map((npc: any) => {
+      // Extract tags from JOIN result
+      const npcTags = npc.npc_tag_assignments?.map((assignment: any) => assignment.npc_tags).filter(Boolean) || [];
+
+      return {
+        npc,
+        hasCombatStats: !!npc.npc_combat_stats, // Check if combat stats exist
+        factionName: npc.factions?.name,
+        locationName: npc.locations?.name,
+        tags: npcTags,
+      };
+    });
+  }, [npcs]);
 
   if (!selectedCampaign) {
     return (
@@ -196,44 +337,34 @@ export default function NPCsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 space-y-8">
+    <div className="container mx-auto py-8 space-y-8 h-screen flex flex-col">
       {/* Header */}
       <NPCsHeader
         campaignName={selectedCampaign.name}
-        factions={factions}
-        locations={locations}
-        filters={filters}
-        onFilterChange={setFilters}
         onAddClick={handleAddClick}
+        onManageTagsClick={() => setIsTagManagerOpen(true)}
       />
 
-      {/* Grid or Empty State */}
-      {npcsLoading ? (
-        <NPCGrid viewModels={[]} onCardClick={handleCardClick} isLoading={true} />
-      ) : npcCardViewModels.length === 0 ? (
-        <NPCsEmptyState onCreateClick={handleAddClick} />
-      ) : (
-        <NPCGrid viewModels={npcCardViewModels} onCardClick={handleCardClick} />
-      )}
-
-      {/* Detail Slideover */}
-      <NPCDetailSlideover
-        npcId={selectedNPCId}
-        isOpen={isSlideoverOpen}
-        onClose={handleCloseSlideover}
-        onEdit={handleEdit}
-        viewModel={npcDetails}
+      {/* Layout: List + Detail Panel */}
+      <NPCsLayout
+        npcs={npcsWithTags}
+        selectedNPCId={selectedNPCId}
+        onNPCSelect={handleCardClick}
         campaignId={campaignId}
         factions={factions}
         locations={locations}
-        isLoading={detailsLoading}
-        onFieldUpdate={handleFieldUpdate}
+        tags={tags}
+        isLoading={npcsLoading}
+        detailViewModel={npcDetails}
+        isDetailLoading={detailsLoading}
+        isEditing={isEditing}
+        editedData={editedData}
+        onEdit={handleEdit}
+        onSave={handleSave}
+        onCancelEdit={handleCancelEdit}
+        onEditedDataChange={handleEditedDataChange}
+        onCombatStatsChange={handleCombatStatsChange}
         onAddCombatStats={handleAddCombatStats}
-        onUpdateCombatStats={(command) => {
-          if (selectedNPCId) {
-            upsertCombatStatsMutation.mutate({ npcId: selectedNPCId, command });
-          }
-        }}
         onRemoveCombatStats={handleRemoveCombatStats}
         onUpdateRelationship={(relationshipId, command) => {
           updateRelationshipMutation.mutate({ relationshipId, command });
@@ -243,6 +374,22 @@ export default function NPCsPage() {
         }}
         onAddRelationship={() => setIsAddRelationshipOpen(true)}
         isUpdating={updateMutation.isPending || upsertCombatStatsMutation.isPending}
+      />
+
+      {/* Tag Manager Dialog */}
+      <TagManager
+        isOpen={isTagManagerOpen}
+        onClose={() => setIsTagManagerOpen(false)}
+        tags={tags}
+        onCreateTag={async (data) => {
+          await createTagMutation.mutateAsync(data);
+        }}
+        onUpdateTag={async (tagId, data) => {
+          await updateTagMutation.mutateAsync({ tagId, command: data });
+        }}
+        onDeleteTag={async (tagId) => {
+          await deleteTagMutation.mutateAsync(tagId);
+        }}
       />
 
       {/* Form Dialog */}
@@ -256,6 +403,7 @@ export default function NPCsPage() {
         campaignId={campaignId}
         factions={factions}
         locations={locations}
+        tags={tags}
         mode={editingNPCId ? 'edit' : 'create'}
         initialData={
           editingNPCId && npcDetails
@@ -266,10 +414,7 @@ export default function NPCsPage() {
                 current_location_id: npcDetails.npc.current_location_id,
                 status: npcDetails.npc.status as 'alive' | 'dead' | 'unknown',
                 image_url: npcDetails.npc.image_url,
-                biography_json: npcDetails.npc.biography_json,
-                personality_json: npcDetails.npc.personality_json,
-                addCombatStats: !!npcDetails.combatStats,
-                combatStats: npcDetails.combatStats ? npcDetails.combatStats : undefined,
+                tag_ids: npcDetails.tags?.map((tag: any) => tag.id) || [],
               }
             : undefined
         }

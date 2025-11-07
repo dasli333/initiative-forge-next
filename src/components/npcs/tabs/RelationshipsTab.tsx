@@ -3,11 +3,12 @@
 import { Button } from '@/components/ui/button';
 import { Users } from 'lucide-react';
 import { RelationshipItem } from '../shared/RelationshipItem';
-import type { NPCDetailsViewModel } from '@/types/npcs';
+import type { NPCDTO, NPCRelationshipViewModel } from '@/types/npcs';
 import type { UpdateNPCRelationshipCommand } from '@/types/npc-relationships';
 
 interface RelationshipsTabProps {
-  viewModel: NPCDetailsViewModel;
+  npc: NPCDTO;
+  relationships?: NPCRelationshipViewModel[];
   onUpdateRelationship: (relationshipId: string, command: UpdateNPCRelationshipCommand) => void;
   onDeleteRelationship: (relationshipId: string) => void;
   onAddRelationship: () => void;
@@ -22,14 +23,14 @@ interface RelationshipsTabProps {
  * - "Add Relationship" button → open AddRelationshipDialog
  */
 export function RelationshipsTab({
-  viewModel,
+  npc,
+  relationships,
   onUpdateRelationship,
   onDeleteRelationship,
   onAddRelationship,
   isUpdating = false,
   isDeleting = false,
 }: RelationshipsTabProps) {
-  const { relationships } = viewModel;
 
   if (!relationships || relationships.length === 0) {
     return (

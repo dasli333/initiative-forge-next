@@ -5,13 +5,11 @@ import { z } from 'zod';
 // ============================================================================
 
 /**
- * Schema for NPC form (multi-step dialog)
- * Step 1: Basic Info
- * Step 2: Story
- * Step 3: Combat (optional)
+ * Schema for NPC form (simplified single-step dialog)
+ * Only basic info - biography/personality/combat edited in detail panel
  */
 export const npcFormSchema = z.object({
-  // Step 1: Basic Info
+  // Basic Info
   name: z
     .string()
     .min(1, 'Name is required')
@@ -28,79 +26,12 @@ export const npcFormSchema = z.object({
 
   current_location_id: z.string().uuid('Invalid location ID').nullable().optional(),
 
-  status: z.enum(['alive', 'dead', 'unknown'], {
-    errorMap: () => ({ message: 'Status must be alive, dead, or unknown' }),
-  }),
+  status: z.enum(['alive', 'dead', 'unknown']).optional(),
 
   image_url: z.string().url('Invalid image URL').nullable().optional(),
 
-  // Step 2: Story
-  biography_json: z.any().nullable().optional(), // Tiptap JSONContent
-  personality_json: z.any().nullable().optional(), // Tiptap JSONContent
-
-  // Step 3: Combat (optional)
-  addCombatStats: z.boolean().optional(),
-
-  combatStats: z
-    .object({
-      hp_max: z
-        .number()
-        .int()
-        .min(1, 'HP Max must be at least 1')
-        .max(999, 'HP Max must be less than 1000'),
-
-      armor_class: z
-        .number()
-        .int()
-        .min(0, 'AC cannot be negative')
-        .max(30, 'AC must be 30 or less'),
-
-      speed: z
-        .number()
-        .int()
-        .min(0, 'Speed cannot be negative')
-        .max(999, 'Speed must be less than 1000'),
-
-      strength: z
-        .number()
-        .int()
-        .min(1, 'Strength must be between 1 and 30')
-        .max(30, 'Strength must be between 1 and 30'),
-
-      dexterity: z
-        .number()
-        .int()
-        .min(1, 'Dexterity must be between 1 and 30')
-        .max(30, 'Dexterity must be between 1 and 30'),
-
-      constitution: z
-        .number()
-        .int()
-        .min(1, 'Constitution must be between 1 and 30')
-        .max(30, 'Constitution must be between 1 and 30'),
-
-      intelligence: z
-        .number()
-        .int()
-        .min(1, 'Intelligence must be between 1 and 30')
-        .max(30, 'Intelligence must be between 1 and 30'),
-
-      wisdom: z
-        .number()
-        .int()
-        .min(1, 'Wisdom must be between 1 and 30')
-        .max(30, 'Wisdom must be between 1 and 30'),
-
-      charisma: z
-        .number()
-        .int()
-        .min(1, 'Charisma must be between 1 and 30')
-        .max(30, 'Charisma must be between 1 and 30'),
-
-      actions_json: z.any().nullable().optional(), // Array of ActionDTO
-    })
-    .nullable()
-    .optional(),
+  // Tag selection
+  tag_ids: z.array(z.string().uuid()).max(10, 'Maximum 10 tags per NPC').optional(),
 });
 
 export type NPCFormData = z.infer<typeof npcFormSchema>;
@@ -119,7 +50,7 @@ export const actionSchema = z.object({
     .max(100, 'Name must be less than 100 characters'),
 
   type: z.enum(['melee_weapon_attack', 'ranged_weapon_attack', 'spell_attack', 'special'], {
-    errorMap: () => ({ message: 'Invalid action type' }),
+    message: 'Invalid action type',
   }),
 
   attack_bonus: z

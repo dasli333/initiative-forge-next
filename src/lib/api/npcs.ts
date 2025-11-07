@@ -7,7 +7,7 @@ import { deleteMentionsBySource, batchCreateEntityMentions } from '@/lib/api/ent
 /**
  * Get all NPCs for a campaign with optional filtering
  * Sorted by created_at descending (newest first)
- * Enriched with faction and location names via JOINs
+ * Enriched with faction, location names, and tags via JOINs
  */
 export async function getNPCs(
   campaignId: string,
@@ -20,7 +20,10 @@ export async function getNPCs(
     .select(`
       *,
       factions(name),
-      locations:current_location_id(name)
+      locations:current_location_id(name),
+      npc_tag_assignments(
+        npc_tags(*)
+      )
     `)
     .eq('campaign_id', campaignId)
     .order('created_at', { ascending: false });
@@ -46,6 +49,11 @@ export async function getNPCs(
     query = query.eq('status', filters.status);
   }
 
+  // Search filter (name or role)
+  if (filters?.search) {
+    query = query.or(`name.ilike.%${filters.search}%,role.ilike.%${filters.search}%`);
+  }
+
   const { data, error } = await query;
 
   if (error) {
@@ -53,9 +61,21 @@ export async function getNPCs(
     throw new Error(error.message);
   }
 
+  // Filter by tags if specified (client-side filtering after fetch)
+  // Note: Tag filtering requires client-side logic due to many-to-many relationship
+  let npcs = data as any[];
+
+  if (filters?.tag_ids && filters.tag_ids.length > 0) {
+    npcs = npcs.filter((npc: any) => {
+      const npcTagIds = npc.npc_tag_assignments?.map((assignment: any) => assignment.npc_tags?.id) || [];
+      // OR logic: NPC has at least one of the selected tags
+      return filters.tag_ids!.some((tagId) => npcTagIds.includes(tagId));
+    });
+  }
+
   // Type assertion: Supabase returns nested objects from JOINs
-  // We'll map these in the React Query hook to flatten faction_name/location_name
-  return data as unknown as NPCDTO[];
+  // We'll map these in the React Query hook to flatten faction_name/location_name/tags
+  return npcs as unknown as NPCDTO[];
 }
 
 /**
