@@ -22,6 +22,8 @@ interface NPCsListProps {
   factions: Array<{ id: string; name: string }>;
   locations: Array<{ id: string; name: string }>;
   tags: NPCTagDTO[];
+  filters: NPCFilters;
+  onFiltersChange: (filters: NPCFilters) => void;
   isLoading: boolean;
 }
 
@@ -38,11 +40,12 @@ export function NPCsList({
   factions,
   locations,
   tags,
+  filters,
+  onFiltersChange,
   isLoading,
 }: NPCsListProps) {
   const [localSearch, setLocalSearch] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('recent');
-  const [filters, setFilters] = useState<NPCFilters>({});
 
   // Client-side filtering and sorting
   const filteredAndSortedNPCs = useMemo(() => {
@@ -116,7 +119,7 @@ export function NPCsList({
       <div className="px-3 pb-3 border-b">
         <NPCFiltersCompact
           filters={filters}
-          onFiltersChange={setFilters}
+          onFiltersChange={onFiltersChange}
           factions={factions}
           locations={locations}
           tags={tags}
@@ -141,7 +144,7 @@ export function NPCsList({
               <button
                 onClick={() => {
                   setLocalSearch('');
-                  setFilters({});
+                  onFiltersChange({});
                 }}
                 className="mt-2 text-xs text-primary hover:underline"
               >

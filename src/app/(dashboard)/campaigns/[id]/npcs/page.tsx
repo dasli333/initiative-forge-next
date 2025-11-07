@@ -26,7 +26,9 @@ import {
   useDeleteNPCTagMutation,
   useBulkAssignTagsToNPCMutation,
 } from '@/hooks/useNPCTags';
-import type { NPCCardViewModel } from '@/types/npcs';
+import { useFactionsQuery } from '@/hooks/useFactions';
+import { useLocationsQuery } from '@/hooks/useLocations';
+import type { NPCCardViewModel, NPCFilters } from '@/types/npcs';
 import type { NPCFormData } from '@/lib/schemas/npcs';
 import type { JSONContent } from '@tiptap/core';
 import type { ActionDTO } from '@/types';
@@ -55,6 +57,7 @@ export default function NPCsPage() {
   const [isAddRelationshipOpen, setIsAddRelationshipOpen] = useState(false);
   const [isTagManagerOpen, setIsTagManagerOpen] = useState(false);
   const [editingNPCId, setEditingNPCId] = useState<string | null>(null);
+  const [filters, setFilters] = useState<NPCFilters>({});
 
   // Edit mode state for slideover
   const [isEditing, setIsEditing] = useState(false);
@@ -81,9 +84,11 @@ export default function NPCsPage() {
   } | null>(null);
 
   // Queries
-  const { data: npcs, isLoading: npcsLoading } = useNPCsQuery(campaignId, {});
+  const { data: npcs, isLoading: npcsLoading } = useNPCsQuery(campaignId, filters);
   const { data: npcDetails, isLoading: detailsLoading } = useNPCDetailsQuery(selectedNPCId);
   const { data: tags = [], isLoading: tagsLoading } = useNPCTagsQuery(campaignId);
+  const { data: factions = [] } = useFactionsQuery(campaignId);
+  const { data: locations = [] } = useLocationsQuery(campaignId);
 
   // Mutations
   const createMutation = useCreateNPCMutation(campaignId);
@@ -97,10 +102,6 @@ export default function NPCsPage() {
   const updateTagMutation = useUpdateNPCTagMutation();
   const deleteTagMutation = useDeleteNPCTagMutation(campaignId);
   const bulkAssignTagsMutation = useBulkAssignTagsToNPCMutation();
-
-  // Dummy data for factions and locations (replace with actual queries)
-  const factions = []; // TODO: Replace with useFactions query
-  const locations = []; // TODO: Replace with useLocations query
 
   // Handlers
   const handleCardClick = (npcId: string) => {
@@ -354,6 +355,8 @@ export default function NPCsPage() {
         factions={factions}
         locations={locations}
         tags={tags}
+        filters={filters}
+        onFiltersChange={setFilters}
         isLoading={npcsLoading}
         detailViewModel={npcDetails}
         isDetailLoading={detailsLoading}

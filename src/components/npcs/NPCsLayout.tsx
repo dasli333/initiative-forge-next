@@ -2,7 +2,7 @@
 
 import { NPCsList } from './NPCsList';
 import { NPCDetailPanel } from './NPCDetailPanel';
-import type { NPCCardViewModel, NPCDetailsViewModel } from '@/types/npcs';
+import type { NPCCardViewModel, NPCDetailsViewModel, NPCFilters } from '@/types/npcs';
 import type { NPCTagDTO } from '@/types/npc-tags';
 import type { UpdateNPCRelationshipCommand } from '@/types/npc-relationships';
 import type { JSONContent } from '@tiptap/core';
@@ -16,6 +16,8 @@ interface NPCsLayoutProps {
   factions: Array<{ id: string; name: string }>;
   locations: Array<{ id: string; name: string }>;
   tags: NPCTagDTO[];
+  filters: NPCFilters;
+  onFiltersChange: (filters: NPCFilters) => void;
   isLoading: boolean;
   // Detail panel props
   detailViewModel: NPCDetailsViewModel | undefined;
@@ -68,6 +70,8 @@ export function NPCsLayout({
   factions,
   locations,
   tags,
+  filters,
+  onFiltersChange,
   isLoading,
   detailViewModel,
   isDetailLoading,
@@ -96,6 +100,8 @@ export function NPCsLayout({
           factions={factions}
           locations={locations}
           tags={tags}
+          filters={filters}
+          onFiltersChange={onFiltersChange}
           isLoading={isLoading}
         />
       </div>

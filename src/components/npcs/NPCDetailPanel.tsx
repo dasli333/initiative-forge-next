@@ -96,7 +96,7 @@ export function NPCDetailPanel({
   }
 
   // Loading state
-  if (isLoading || !viewModel) {
+  if (isLoading) {
     return (
       <div className="flex flex-col h-full p-6 space-y-6">
         <div className="space-y-3">
@@ -112,6 +112,19 @@ export function NPCDetailPanel({
           <Skeleton className="h-32 w-full" />
           <Skeleton className="h-32 w-full" />
         </div>
+      </div>
+    );
+  }
+
+  // 404 - NPC not found
+  if (!viewModel) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full text-center px-6">
+        <Users className="w-16 h-16 text-muted-foreground/50 mb-4" />
+        <h3 className="text-lg font-medium text-foreground mb-2">NPC Not Found</h3>
+        <p className="text-sm text-muted-foreground max-w-sm">
+          The selected NPC could not be found. It may have been deleted.
+        </p>
       </div>
     );
   }
