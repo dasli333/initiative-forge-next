@@ -69,6 +69,12 @@ export default function NPCsPage() {
     image_url: string | null;
     biography_json: JSONContent | null;
     personality_json: JSONContent | null;
+    race: string | null;
+    age: number | null;
+    alignment: 'LG' | 'NG' | 'CG' | 'LN' | 'N' | 'CN' | 'LE' | 'NE' | 'CE' | null;
+    languages: string[] | null;
+    distinguishing_features: string | null;
+    secrets: string | null;
     combatStats: {
       hp_max: number;
       armor_class: number;
@@ -119,6 +125,12 @@ export default function NPCsPage() {
         image_url: npcDetails.npc.image_url,
         biography_json: npcDetails.npc.biography_json,
         personality_json: npcDetails.npc.personality_json,
+        race: npcDetails.npc.race || null,
+        age: npcDetails.npc.age || null,
+        alignment: npcDetails.npc.alignment as 'LG' | 'NG' | 'CG' | 'LN' | 'N' | 'CN' | 'LE' | 'NE' | 'CE' | null,
+        languages: npcDetails.npc.languages || null,
+        distinguishing_features: npcDetails.npc.distinguishing_features || null,
+        secrets: npcDetails.npc.secrets || null,
         combatStats: npcDetails.combatStats ? {
           hp_max: npcDetails.combatStats.hp_max,
           armor_class: npcDetails.combatStats.armor_class,
@@ -162,6 +174,25 @@ export default function NPCsPage() {
       }
       if (JSON.stringify(editedData.personality_json) !== JSON.stringify(npcDetails.npc.personality_json)) {
         changes.personality_json = editedData.personality_json;
+      }
+      // Character sheet fields
+      if (editedData.race !== npcDetails.npc.race) {
+        changes.race = editedData.race;
+      }
+      if (editedData.age !== npcDetails.npc.age) {
+        changes.age = editedData.age;
+      }
+      if (editedData.alignment !== npcDetails.npc.alignment) {
+        changes.alignment = editedData.alignment;
+      }
+      if (JSON.stringify(editedData.languages) !== JSON.stringify(npcDetails.npc.languages)) {
+        changes.languages = editedData.languages;
+      }
+      if (editedData.distinguishing_features !== npcDetails.npc.distinguishing_features) {
+        changes.distinguishing_features = editedData.distinguishing_features;
+      }
+      if (editedData.secrets !== npcDetails.npc.secrets) {
+        changes.secrets = editedData.secrets;
       }
 
       // Update NPC if there are story changes

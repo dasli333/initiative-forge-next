@@ -130,6 +130,13 @@ export async function createNPC(
       faction_id: command.faction_id || null,
       current_location_id: command.current_location_id || null,
       status: command.status || 'alive',
+      // Character sheet fields
+      race: command.race || null,
+      age: command.age || null,
+      alignment: command.alignment || null,
+      languages: command.languages || null,
+      distinguishing_features: command.distinguishing_features || null,
+      secrets: command.secrets || null,
     })
     .select()
     .single();
@@ -198,6 +205,13 @@ export async function updateNPC(
   if (command.faction_id !== undefined) updateData.faction_id = command.faction_id;
   if (command.current_location_id !== undefined) updateData.current_location_id = command.current_location_id;
   if (command.status !== undefined) updateData.status = command.status;
+  // Character sheet fields
+  if (command.race !== undefined) updateData.race = command.race;
+  if (command.age !== undefined) updateData.age = command.age;
+  if (command.alignment !== undefined) updateData.alignment = command.alignment;
+  if (command.languages !== undefined) updateData.languages = command.languages;
+  if (command.distinguishing_features !== undefined) updateData.distinguishing_features = command.distinguishing_features;
+  if (command.secrets !== undefined) updateData.secrets = command.secrets;
 
   const { data, error } = await supabase
     .from('npcs')

@@ -32,6 +32,42 @@ export const npcFormSchema = z.object({
 
   // Tag selection
   tag_ids: z.array(z.string().uuid()).max(10, 'Maximum 10 tags per NPC').optional(),
+
+  // Character sheet fields
+  race: z.string().max(100, 'Race must be less than 100 characters').nullable().optional(),
+
+  age: z
+    .number()
+    .int('Age must be a whole number')
+    .min(0, 'Age must be non-negative')
+    .max(10000, 'Age must be less than 10000')
+    .nullable()
+    .optional(),
+
+  alignment: z
+    .enum(['LG', 'NG', 'CG', 'LN', 'N', 'CN', 'LE', 'NE', 'CE'], {
+      message: 'Invalid alignment',
+    })
+    .nullable()
+    .optional(),
+
+  languages: z
+    .array(z.string().max(50, 'Language name must be less than 50 characters'))
+    .max(20, 'Maximum 20 languages')
+    .nullable()
+    .optional(),
+
+  distinguishing_features: z
+    .string()
+    .max(500, 'Distinguishing features must be less than 500 characters')
+    .nullable()
+    .optional(),
+
+  secrets: z
+    .string()
+    .max(1000, 'Secrets must be less than 1000 characters')
+    .nullable()
+    .optional(),
 });
 
 export type NPCFormData = z.infer<typeof npcFormSchema>;
@@ -147,6 +183,13 @@ export const updateNPCFieldSchema = z.object({
   status: z.enum(['alive', 'dead', 'unknown']).optional(),
   biography_json: z.any().nullable().optional(),
   personality_json: z.any().nullable().optional(),
+  // Character sheet fields
+  race: z.string().max(100).nullable().optional(),
+  age: z.number().int().min(0).max(10000).nullable().optional(),
+  alignment: z.enum(['LG', 'NG', 'CG', 'LN', 'N', 'CN', 'LE', 'NE', 'CE']).nullable().optional(),
+  languages: z.array(z.string().max(50)).max(20).nullable().optional(),
+  distinguishing_features: z.string().max(500).nullable().optional(),
+  secrets: z.string().max(1000).nullable().optional(),
 });
 
 /**

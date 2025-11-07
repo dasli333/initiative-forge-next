@@ -537,44 +537,62 @@ export type Database = {
       }
       npcs: {
         Row: {
+          age: number | null
+          alignment: string | null
           biography_json: Json | null
           campaign_id: string
           created_at: string
           current_location_id: string | null
+          distinguishing_features: string | null
           faction_id: string | null
           id: string
           image_url: string | null
+          languages: string[] | null
           name: string
           personality_json: Json | null
+          race: string | null
           role: string | null
+          secrets: string | null
           status: string
           updated_at: string
         }
         Insert: {
+          age?: number | null
+          alignment?: string | null
           biography_json?: Json | null
           campaign_id: string
           created_at?: string
           current_location_id?: string | null
+          distinguishing_features?: string | null
           faction_id?: string | null
           id?: string
           image_url?: string | null
+          languages?: string[] | null
           name: string
           personality_json?: Json | null
+          race?: string | null
           role?: string | null
+          secrets?: string | null
           status?: string
           updated_at?: string
         }
         Update: {
+          age?: number | null
+          alignment?: string | null
           biography_json?: Json | null
           campaign_id?: string
           created_at?: string
           current_location_id?: string | null
+          distinguishing_features?: string | null
           faction_id?: string | null
           id?: string
           image_url?: string | null
+          languages?: string[] | null
           name?: string
           personality_json?: Json | null
+          race?: string | null
           role?: string | null
+          secrets?: string | null
           status?: string
           updated_at?: string
         }

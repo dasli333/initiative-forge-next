@@ -36,6 +36,13 @@ export interface CreateNPCCommand {
   faction_id?: string | null;
   current_location_id?: string | null;
   status?: 'alive' | 'dead' | 'unknown';
+  // Character sheet fields
+  race?: string | null;
+  age?: number | null;
+  alignment?: 'LG' | 'NG' | 'CG' | 'LN' | 'N' | 'CN' | 'LE' | 'NE' | 'CE' | null;
+  languages?: string[] | null;
+  distinguishing_features?: string | null;
+  secrets?: string | null;
 }
 
 /**
@@ -51,6 +58,13 @@ export interface UpdateNPCCommand {
   faction_id?: string | null;
   current_location_id?: string | null;
   status?: 'alive' | 'dead' | 'unknown';
+  // Character sheet fields
+  race?: string | null;
+  age?: number | null;
+  alignment?: 'LG' | 'NG' | 'CG' | 'LN' | 'N' | 'CN' | 'LE' | 'NE' | 'CE' | null;
+  languages?: string[] | null;
+  distinguishing_features?: string | null;
+  secrets?: string | null;
 }
 
 // ============================================================================
