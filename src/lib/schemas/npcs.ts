@@ -39,7 +39,7 @@ export const npcFormSchema = z.object({
   personality_json: z.any().nullable().optional(), // Tiptap JSONContent
 
   // Step 3: Combat (optional)
-  addCombatStats: z.boolean().default(false),
+  addCombatStats: z.boolean().optional(),
 
   combatStats: z
     .object({
