@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import {
@@ -10,7 +10,31 @@ import {
   updateNPC,
   deleteNPC,
 } from '@/lib/api/npcs';
-import type { NPCSDTO, CreateNPCCommand, UpdateNPCCommand, NPCFilters } from '@/types/npcs';
+import {
+  getNPCCombatStats,
+  upsertNPCCombatStats,
+  deleteNPCCombatStats,
+} from '@/lib/api/npc-combat-stats';
+import {
+  getNPCRelationships,
+  createNPCRelationship,
+  updateNPCRelationship,
+  deleteNPCRelationship,
+} from '@/lib/api/npc-relationships';
+import { getMentionsOf } from '@/lib/api/entity-mentions';
+import type {
+  NPCDTO,
+  CreateNPCCommand,
+  UpdateNPCCommand,
+  NPCFilters,
+  NPCDetailsViewModel,
+  NPCRelationshipViewModel,
+} from '@/types/npcs';
+import type { UpsertNPCCombatStatsCommand } from '@/types/npc-combat-stats';
+import type { CreateNPCRelationshipCommand, UpdateNPCRelationshipCommand } from '@/types/npc-relationships';
+
+// Backward compat
+type NPCSDTO = NPCDTO;
 
 /**
  * React Query hook for fetching NPCs for a campaign
@@ -255,6 +279,192 @@ export function useDeleteNPCMutation(campaignId: string) {
     onSettled: (_data, _error, id) => {
       queryClient.invalidateQueries({ queryKey: ['npcs', campaignId] });
       queryClient.invalidateQueries({ queryKey: ['npc', id] });
+    },
+  });
+}
+
+// ============================================================================
+// NPC DETAILS (with combat + relationships + backlinks)
+// ============================================================================
+
+/**
+ * Query: Get full NPC details (NPC + combat stats + relationships + backlinks)
+ * Used in NPCDetailSlideover
+ */
+export function useNPCDetailsQuery(npcId: string | null): UseQueryResult<NPCDetailsViewModel, Error> {
+  return useQuery({
+    queryKey: ['npc', npcId, 'details'],
+    queryFn: async () => {
+      if (!npcId) throw new Error('NPC ID is required');
+
+      // Fetch all data in parallel
+      const [npc, combatStats, relationships, backlinks] = await Promise.all([
+        getNPC(npcId),
+        getNPCCombatStats(npcId),
+        getNPCRelationships(npcId),
+        getMentionsOf('npc', npcId),
+      ]);
+
+      // Enrich relationships with other NPC data
+      const enrichedRelationships: NPCRelationshipViewModel[] = await Promise.all(
+        relationships.map(async (rel) => {
+          const otherNpcId = rel.npc_id_1 === npcId ? rel.npc_id_2 : rel.npc_id_1;
+
+          try {
+            const otherNpc = await getNPC(otherNpcId);
+            return {
+              relationship: rel,
+              otherNpcName: otherNpc.name,
+              otherNpcImageUrl: otherNpc.image_url || undefined,
+            };
+          } catch (error) {
+            console.error('Failed to fetch other NPC:', error);
+            return {
+              relationship: rel,
+              otherNpcName: 'Unknown',
+              otherNpcImageUrl: undefined,
+            };
+          }
+        })
+      );
+
+      // Map backlinks to BacklinkItem format
+      const backlinkItems = backlinks.map((mention) => ({
+        source_type: mention.source_type as any,
+        source_id: mention.source_id,
+        source_name: '', // TODO: Fetch source name (needs additional API)
+        source_field: mention.source_field,
+      }));
+
+      return {
+        npc,
+        combatStats,
+        relationships: enrichedRelationships,
+        backlinks: backlinkItems,
+        factionName: undefined, // Extracted from JOINs
+        locationName: undefined, // Extracted from JOINs
+      };
+    },
+    enabled: !!npcId,
+  });
+}
+
+// ============================================================================
+// COMBAT STATS MUTATIONS
+// ============================================================================
+
+/**
+ * Mutation: Upsert NPC combat stats
+ */
+export function useUpsertNPCCombatStatsMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ npcId, command }: { npcId: string; command: UpsertNPCCombatStatsCommand }) =>
+      upsertNPCCombatStats(npcId, command),
+
+    onSuccess: (_, { npcId }) => {
+      queryClient.invalidateQueries({ queryKey: ['npc', npcId, 'details'] });
+      toast.success('Combat stats updated');
+    },
+
+    onError: (err) => {
+      toast.error('Failed to update combat stats');
+      console.error(err);
+    },
+  });
+}
+
+/**
+ * Mutation: Delete NPC combat stats
+ */
+export function useDeleteNPCCombatStatsMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (npcId: string) => deleteNPCCombatStats(npcId),
+
+    onSuccess: (_, npcId) => {
+      queryClient.invalidateQueries({ queryKey: ['npc', npcId, 'details'] });
+      toast.success('Combat stats removed');
+    },
+
+    onError: (err) => {
+      toast.error('Failed to remove combat stats');
+      console.error(err);
+    },
+  });
+}
+
+// ============================================================================
+// RELATIONSHIP MUTATIONS
+// ============================================================================
+
+/**
+ * Mutation: Create NPC relationship
+ */
+export function useCreateNPCRelationshipMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (command: CreateNPCRelationshipCommand) =>
+      createNPCRelationship(command),
+
+    onSuccess: (newRelationship) => {
+      // Invalidate details for both NPCs (bidirectional)
+      queryClient.invalidateQueries({ queryKey: ['npc', newRelationship.npc_id_1, 'details'] });
+      queryClient.invalidateQueries({ queryKey: ['npc', newRelationship.npc_id_2, 'details'] });
+      toast.success('Relationship created');
+    },
+
+    onError: (err) => {
+      toast.error('Failed to create relationship');
+      console.error(err);
+    },
+  });
+}
+
+/**
+ * Mutation: Update NPC relationship
+ */
+export function useUpdateNPCRelationshipMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ relationshipId, command }: { relationshipId: string; command: UpdateNPCRelationshipCommand }) =>
+      updateNPCRelationship(relationshipId, command),
+
+    onSuccess: (updatedRelationship) => {
+      queryClient.invalidateQueries({ queryKey: ['npc', updatedRelationship.npc_id_1, 'details'] });
+      queryClient.invalidateQueries({ queryKey: ['npc', updatedRelationship.npc_id_2, 'details'] });
+      toast.success('Relationship updated');
+    },
+
+    onError: (err) => {
+      toast.error('Failed to update relationship');
+      console.error(err);
+    },
+  });
+}
+
+/**
+ * Mutation: Delete NPC relationship
+ */
+export function useDeleteNPCRelationshipMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (relationshipId: string) => deleteNPCRelationship(relationshipId),
+
+    onSuccess: () => {
+      // Invalidate all NPC details (don't know which NPCs involved)
+      queryClient.invalidateQueries({ queryKey: ['npc'] });
+      toast.success('Relationship deleted');
+    },
+
+    onError: (err) => {
+      toast.error('Failed to delete relationship');
+      console.error(err);
     },
   });
 }

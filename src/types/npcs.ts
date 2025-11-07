@@ -10,10 +10,13 @@ export type NPC = Tables<'npcs'>;
 /**
  * NPC DTO with typed Json fields
  */
-export interface NPCSDTO extends Omit<NPC, 'biography_json' | 'personality_json'> {
+export interface NPCDTO extends Omit<NPC, 'biography_json' | 'personality_json'> {
   biography_json: JSONContent | null;
   personality_json: JSONContent | null;
 }
+
+// Legacy alias (deprecated, use NPCDTO)
+export type NPCSDTO = NPCDTO;
 
 // ============================================================================
 // COMMAND MODELS
@@ -60,4 +63,49 @@ export interface NPCFilters {
   faction_id?: string | null;
   current_location_id?: string | null;
   status?: 'alive' | 'dead' | 'unknown';
+}
+
+// ============================================================================
+// VIEW MODELS
+// ============================================================================
+
+/**
+ * Enriched NPC for grid cards
+ */
+export interface NPCCardViewModel {
+  npc: NPCDTO;
+  hasCombatStats: boolean;
+  factionName?: string;
+  locationName?: string;
+}
+
+/**
+ * Full NPC details for slideover
+ */
+export interface NPCDetailsViewModel {
+  npc: NPCDTO;
+  combatStats: import('@/types/npc-combat-stats').NPCCombatStatsDTO | null;
+  relationships: NPCRelationshipViewModel[];
+  backlinks: BacklinkItem[];
+  factionName?: string;
+  locationName?: string;
+}
+
+/**
+ * Relationship with enriched NPC data
+ */
+export interface NPCRelationshipViewModel {
+  relationship: import('@/types/npc-relationships').NPCRelationship;
+  otherNpcName: string;
+  otherNpcImageUrl?: string;
+}
+
+/**
+ * Backlink item (entity mentioning this NPC)
+ */
+export interface BacklinkItem {
+  source_type: 'npc' | 'quest' | 'session' | 'location' | 'faction' | 'story_arc' | 'lore_note' | 'story_item';
+  source_id: string;
+  source_name: string;
+  source_field: string;
 }

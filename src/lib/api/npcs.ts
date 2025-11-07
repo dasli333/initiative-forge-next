@@ -1,20 +1,27 @@
 import { getSupabaseClient } from '@/lib/supabase';
-import type { NPCSDTO, CreateNPCCommand, UpdateNPCCommand, NPCFilters } from '@/types/npcs';
+import type { NPCDTO, CreateNPCCommand, UpdateNPCCommand, NPCFilters } from '@/types/npcs';
 import type { Json } from '@/types/database';
+import { extractMentionsFromJson } from '@/lib/utils/mentionUtils';
+import { deleteMentionsBySource, batchCreateEntityMentions } from '@/lib/api/entity-mentions';
 
 /**
  * Get all NPCs for a campaign with optional filtering
  * Sorted by created_at descending (newest first)
+ * Enriched with faction and location names via JOINs
  */
 export async function getNPCs(
   campaignId: string,
   filters?: NPCFilters
-): Promise<NPCSDTO[]> {
+): Promise<NPCDTO[]> {
   const supabase = getSupabaseClient();
 
   let query = supabase
     .from('npcs')
-    .select('*')
+    .select(`
+      *,
+      factions(name),
+      locations:current_location_id(name)
+    `)
     .eq('campaign_id', campaignId)
     .order('created_at', { ascending: false });
 
@@ -46,14 +53,16 @@ export async function getNPCs(
     throw new Error(error.message);
   }
 
-  return data as unknown as NPCSDTO[];
+  // Type assertion: Supabase returns nested objects from JOINs
+  // We'll map these in the React Query hook to flatten faction_name/location_name
+  return data as unknown as NPCDTO[];
 }
 
 /**
  * Get a single NPC by ID
  * RLS will ensure user can only access NPCs from their campaigns
  */
-export async function getNPC(npcId: string): Promise<NPCSDTO> {
+export async function getNPC(npcId: string): Promise<NPCDTO> {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
@@ -70,7 +79,7 @@ export async function getNPC(npcId: string): Promise<NPCSDTO> {
     throw new Error(error.message);
   }
 
-  return data as unknown as NPCSDTO;
+  return data as unknown as NPCDTO;
 }
 
 /**
@@ -80,7 +89,7 @@ export async function getNPC(npcId: string): Promise<NPCSDTO> {
 export async function createNPC(
   campaignId: string,
   command: CreateNPCCommand
-): Promise<NPCSDTO> {
+): Promise<NPCDTO> {
   const supabase = getSupabaseClient();
 
   // Get current user for auth check
@@ -110,7 +119,43 @@ export async function createNPC(
     throw new Error(error.message);
   }
 
-  return data as unknown as NPCSDTO;
+  const npc = data as unknown as NPCDTO;
+
+  // Sync mentions from biography_json and personality_json (non-blocking)
+  try {
+    const biographyMentions = command.biography_json
+      ? extractMentionsFromJson(command.biography_json)
+      : [];
+    const personalityMentions = command.personality_json
+      ? extractMentionsFromJson(command.personality_json)
+      : [];
+
+    const allMentions = [
+      ...biographyMentions.map((m) => ({
+        source_type: 'npc' as const,
+        source_id: npc.id,
+        source_field: 'biography_json',
+        mentioned_type: m.entityType,
+        mentioned_id: m.id,
+      })),
+      ...personalityMentions.map((m) => ({
+        source_type: 'npc' as const,
+        source_id: npc.id,
+        source_field: 'personality_json',
+        mentioned_type: m.entityType,
+        mentioned_id: m.id,
+      })),
+    ];
+
+    if (allMentions.length > 0) {
+      await batchCreateEntityMentions(campaignId, allMentions);
+    }
+  } catch (mentionError) {
+    console.error('Failed to sync mentions on create:', mentionError);
+    // Don't fail the creation if mention sync fails
+  }
+
+  return npc;
 }
 
 /**
@@ -120,7 +165,7 @@ export async function createNPC(
 export async function updateNPC(
   npcId: string,
   command: UpdateNPCCommand
-): Promise<NPCSDTO> {
+): Promise<NPCDTO> {
   const supabase = getSupabaseClient();
 
   const updateData: Record<string, unknown> = {};
@@ -149,7 +194,55 @@ export async function updateNPC(
     throw new Error(error.message);
   }
 
-  return data as unknown as NPCSDTO;
+  const npc = data as unknown as NPCDTO;
+
+  // Sync mentions if biography_json or personality_json was updated (non-blocking)
+  try {
+    if (command.biography_json !== undefined) {
+      // Delete old mentions for biography field
+      await deleteMentionsBySource('npc', npcId, 'biography_json');
+
+      // Extract and create new mentions
+      const mentions = extractMentionsFromJson(command.biography_json);
+      if (mentions.length > 0) {
+        await batchCreateEntityMentions(
+          npc.campaign_id,
+          mentions.map((m) => ({
+            source_type: 'npc',
+            source_id: npcId,
+            source_field: 'biography_json',
+            mentioned_type: m.entityType,
+            mentioned_id: m.id,
+          }))
+        );
+      }
+    }
+
+    if (command.personality_json !== undefined) {
+      // Delete old mentions for personality field
+      await deleteMentionsBySource('npc', npcId, 'personality_json');
+
+      // Extract and create new mentions
+      const mentions = extractMentionsFromJson(command.personality_json);
+      if (mentions.length > 0) {
+        await batchCreateEntityMentions(
+          npc.campaign_id,
+          mentions.map((m) => ({
+            source_type: 'npc',
+            source_id: npcId,
+            source_field: 'personality_json',
+            mentioned_type: m.entityType,
+            mentioned_id: m.id,
+          }))
+        );
+      }
+    }
+  } catch (mentionError) {
+    console.error('Failed to sync mentions on update:', mentionError);
+    // Don't fail the update if mention sync fails
+  }
+
+  return npc;
 }
 
 /**
