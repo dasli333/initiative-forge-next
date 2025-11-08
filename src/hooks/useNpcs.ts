@@ -22,6 +22,7 @@ import {
   deleteNPCRelationship,
 } from '@/lib/api/npc-relationships';
 import { getMentionsOf } from '@/lib/api/entity-mentions';
+import { getNPCAssignedTags } from '@/lib/api/npc-tags';
 import type {
   NPCDTO,
   CreateNPCCommand,
@@ -117,6 +118,12 @@ export function useCreateNPCMutation(campaignId: string) {
           faction_id: command.faction_id || null,
           current_location_id: command.current_location_id || null,
           status: command.status || 'alive',
+          race: command.race || null,
+          age: command.age || null,
+          alignment: command.alignment || null,
+          languages: command.languages || null,
+          distinguishing_features: command.distinguishing_features || null,
+          secrets: command.secrets || null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         };
@@ -298,11 +305,12 @@ export function useNPCDetailsQuery(npcId: string | null): UseQueryResult<NPCDeta
       if (!npcId) throw new Error('NPC ID is required');
 
       // Fetch all data in parallel
-      const [npc, combatStats, relationships, backlinks] = await Promise.all([
+      const [npc, combatStats, relationships, backlinks, tags] = await Promise.all([
         getNPC(npcId),
         getNPCCombatStats(npcId),
         getNPCRelationships(npcId),
         getMentionsOf('npc', npcId),
+        getNPCAssignedTags(npcId),
       ]);
 
       // Enrich relationships with other NPC data
@@ -343,7 +351,7 @@ export function useNPCDetailsQuery(npcId: string | null): UseQueryResult<NPCDeta
         backlinks: backlinkItems,
         factionName: undefined, // Extracted from JOINs
         locationName: undefined, // Extracted from JOINs
-        tags: [], // TODO: Fetch tags
+        tags,
       };
     },
     enabled: !!npcId,

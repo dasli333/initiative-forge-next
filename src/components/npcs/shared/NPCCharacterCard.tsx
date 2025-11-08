@@ -3,7 +3,7 @@
 import { ImageUpload } from '@/components/shared/ImageUpload';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MapPin, User, Target, Calendar, Users, Heart, Shield } from 'lucide-react';
+import { MapPin, User, Target, Calendar, Users, Shield } from 'lucide-react';
 import { NPCStatField } from './NPCStatField';
 import { TagManager } from './TagManager';
 import type { NPCDTO } from '@/types/npcs';
@@ -34,6 +34,7 @@ interface NPCCharacterCardProps {
   } | null;
   onEditedDataChange: (field: string, value: unknown) => void;
   isUpdating?: boolean;
+  showNameInCard?: boolean;
 }
 
 const ALIGNMENT_LABELS: Record<string, string> = {
@@ -50,7 +51,7 @@ const ALIGNMENT_LABELS: Record<string, string> = {
 
 /**
  * NPC Character Card - Always visible header with key character info
- * - Name + Tags (always visible and editable)
+ * - Tags (always visible and editable)
  * - Avatar + Stats Grid (7 fields)
  * - Edit mode: shows form fields below card
  */
@@ -70,6 +71,7 @@ export function NPCCharacterCard({
   editedData,
   onEditedDataChange,
   isUpdating = false,
+  showNameInCard = true,
 }: NPCCharacterCardProps) {
   // Use editedData when editing, npc data when viewing
   const displayData = isEditing && editedData ? editedData : {
@@ -83,17 +85,27 @@ export function NPCCharacterCard({
     alignment: npc.alignment as 'LG' | 'NG' | 'CG' | 'LN' | 'N' | 'CN' | 'LE' | 'NE' | 'CE' | null,
   };
 
-  const getStatusBadgeVariant = (status: string): 'default' | 'destructive' | 'secondary' => {
-    if (status === 'alive') return 'default';
-    if (status === 'dead') return 'destructive';
-    return 'secondary';
-  };
-
   return (
     <div className="space-y-4">
-      {/* Name + Tags */}
-      <div className="space-y-2">
-        <h2 className="text-2xl font-bold">{npc.name}</h2>
+      {/* Name + Tags (conditional) */}
+      {showNameInCard && (
+        <div className="space-y-2">
+          <h2 className="text-2xl font-bold">{npc.name}</h2>
+          <TagManager
+            campaignId={campaignId}
+            npcId={npc.id}
+            assignedTags={assignedTags}
+            availableTags={availableTags}
+            onAssign={onAssignTag}
+            onUnassign={onUnassignTag}
+            onCreate={onCreateTag}
+            maxTags={5}
+          />
+        </div>
+      )}
+
+      {/* Tags only (when name is shown elsewhere) */}
+      {!showNameInCard && (
         <TagManager
           campaignId={campaignId}
           npcId={npc.id}
@@ -104,7 +116,7 @@ export function NPCCharacterCard({
           onCreate={onCreateTag}
           maxTags={5}
         />
-      </div>
+      )}
 
       {/* Character Card Header */}
       <div className="flex gap-4 p-4 bg-muted/30 rounded-lg border">
@@ -144,13 +156,6 @@ export function NPCCharacterCard({
             />
             <NPCStatField icon={Users} label="Faction" value={factionName} />
             <NPCStatField icon={MapPin} label="Location" value={locationName} />
-            <NPCStatField
-              icon={Heart}
-              label="Status"
-              value={displayData.status.charAt(0).toUpperCase() + displayData.status.slice(1)}
-              badge
-              badgeVariant={getStatusBadgeVariant(displayData.status)}
-            />
           </div>
         )}
 

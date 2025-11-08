@@ -18,7 +18,7 @@ import {
   useCreateNPCRelationshipMutation,
   useUpdateNPCRelationshipMutation,
   useDeleteNPCRelationshipMutation,
-} from '@/hooks/useNPCs';
+} from '@/hooks/useNpcs';
 import {
   useNPCTagsQuery,
   useNPCAssignedTagsQuery,

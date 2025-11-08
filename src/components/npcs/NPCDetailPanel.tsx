@@ -149,61 +149,77 @@ export function NPCDetailPanel({
 
   const { npc, combatStats, relationships, backlinks, factionName, locationName, tags } = viewModel;
 
+  const getStatusBadgeVariant = (status: string): 'default' | 'destructive' | 'secondary' => {
+    if (status === 'alive') return 'default';
+    if (status === 'dead') return 'destructive';
+    return 'secondary';
+  };
+
   return (
     <div className={cn(
       "flex flex-col h-full transition-all",
       isEditing && "border-2 border-primary/30 rounded-lg m-1"
     )}>
-      {/* Header - Edit/Save/Cancel buttons */}
+      {/* Header - Name, Tags, Edit/Save/Cancel */}
       <div className={cn(
-        "px-6 py-3 border-b flex justify-end",
+        "px-6 py-4 border-b",
         isEditing && "bg-primary/5"
       )}>
-        <div className="flex gap-2">
-          {isEditing ? (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onCancelEdit}
-                disabled={isUpdating}
-              >
-                <X className="w-4 h-4 mr-2" />
-                Cancel
-              </Button>
-              <Button size="sm" onClick={onSave} disabled={isUpdating}>
-                <Save className="w-4 h-4 mr-2" />
-                {isUpdating ? 'Saving...' : 'Save'}
-              </Button>
-            </>
-          ) : (
-            <Button variant="outline" size="sm" onClick={onEdit}>
-              <Pencil className="w-4 h-4 mr-2" />
-              Edit
-            </Button>
-          )}
-        </div>
-      </div>
+        <div className="flex items-start justify-between gap-4">
+          {/* Left: Name + Tags */}
+          <div className="flex-1 min-w-0 space-y-2">
+            <div className="flex items-center gap-2">
+              <h2 className="text-2xl font-bold">{npc.name}</h2>
+              <Badge variant={getStatusBadgeVariant(npc.status)}>
+                {npc.status.charAt(0).toUpperCase() + npc.status.slice(1)}
+              </Badge>
+            </div>
+            <NPCCharacterCard
+              npc={npc}
+              campaignId={campaignId}
+              factionName={factionName}
+              locationName={locationName}
+              factions={factions}
+              locations={locations}
+              assignedTags={tags || []}
+              availableTags={availableTags}
+              onAssignTag={onAssignTag}
+              onUnassignTag={onUnassignTag}
+              onCreateTag={onCreateTag}
+              isEditing={isEditing}
+              editedData={editedData}
+              onEditedDataChange={onEditedDataChange}
+              isUpdating={isUpdating}
+              showNameInCard={false}
+            />
+          </div>
 
-      {/* Character Card - Always visible */}
-      <div className="px-6 py-4 border-b">
-        <NPCCharacterCard
-          npc={npc}
-          campaignId={campaignId}
-          factionName={factionName}
-          locationName={locationName}
-          factions={factions}
-          locations={locations}
-          assignedTags={tags || []}
-          availableTags={availableTags}
-          onAssignTag={onAssignTag}
-          onUnassignTag={onUnassignTag}
-          onCreateTag={onCreateTag}
-          isEditing={isEditing}
-          editedData={editedData}
-          onEditedDataChange={onEditedDataChange}
-          isUpdating={isUpdating}
-        />
+          {/* Right: Action buttons */}
+          <div className="flex gap-2 flex-shrink-0">
+            {isEditing ? (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onCancelEdit}
+                  disabled={isUpdating}
+                >
+                  <X className="w-4 h-4 mr-2" />
+                  Cancel
+                </Button>
+                <Button size="sm" onClick={onSave} disabled={isUpdating}>
+                  <Save className="w-4 h-4 mr-2" />
+                  {isUpdating ? 'Saving...' : 'Save'}
+                </Button>
+              </>
+            ) : (
+              <Button variant="outline" size="sm" onClick={onEdit}>
+                <Pencil className="w-4 h-4 mr-2" />
+                Edit
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Tabs */}

@@ -36,7 +36,6 @@ export async function createNPCRelationship(command: CreateNPCRelationshipComman
       npc_id_2: command.npc_id_2,
       relationship_type: command.relationship_type,
       description: command.description || null,
-      strength: command.strength ?? 50,
     })
     .select()
     .single();
@@ -58,7 +57,6 @@ export async function updateNPCRelationship(
   const updateData: Record<string, unknown> = {};
   if (command.relationship_type !== undefined) updateData.relationship_type = command.relationship_type;
   if (command.description !== undefined) updateData.description = command.description;
-  if (command.strength !== undefined) updateData.strength = command.strength;
 
   const { data, error } = await supabase
     .from('npc_relationships')
