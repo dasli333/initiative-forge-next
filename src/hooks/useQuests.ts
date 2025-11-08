@@ -85,12 +85,17 @@ export function useCreateQuestMutation(campaignId: string) {
         const tempQuest: QuestDTO = {
           id: `temp-${Date.now()}`,
           campaign_id: campaignId,
+          quest_giver_id: command.quest_giver_id || null,
+          quest_type: command.quest_type || 'side',
           story_arc_id: command.story_arc_id || null,
           title: command.title,
           description_json: command.description_json || null,
           objectives_json: command.objectives_json || null,
           rewards_json: command.rewards_json || null,
           status: command.status || 'not_started',
+          notes: command.notes || null,
+          start_date: command.start_date || null,
+          deadline: command.deadline || null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         };

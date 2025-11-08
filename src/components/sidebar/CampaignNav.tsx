@@ -30,6 +30,7 @@ export function CampaignNav({ selectedCampaignId, currentPath }: CampaignNavProp
   const charactersHref = `/campaigns/${selectedCampaignId}/characters`;
   const locationsHref = `/campaigns/${selectedCampaignId}/locations`;
   const npcsHref = `/campaigns/${selectedCampaignId}/npcs`;
+  const questsHref = `/campaigns/${selectedCampaignId}/quests`;
 
   return (
     <div className="mt-6 space-y-1" data-testid="campaign-nav">
@@ -74,10 +75,8 @@ export function CampaignNav({ selectedCampaignId, currentPath }: CampaignNavProp
         <NavItem
           icon={Scroll}
           label="Quests"
-          href="#"
-          isActive={false}
-          isDisabled
-          badge={{ text: 'Soon', variant: 'default' }}
+          href={questsHref}
+          isActive={currentPath === questsHref || currentPath.startsWith(questsHref + '/')}
         />
         <NavItem
           icon={BookText}

@@ -715,10 +715,15 @@ export type Database = {
         Row: {
           campaign_id: string
           created_at: string
+          deadline: string | null
           description_json: Json | null
           id: string
+          notes: string | null
           objectives_json: Json | null
+          quest_giver_id: string | null
+          quest_type: string
           rewards_json: Json | null
+          start_date: string | null
           status: string
           story_arc_id: string | null
           title: string
@@ -727,10 +732,15 @@ export type Database = {
         Insert: {
           campaign_id: string
           created_at?: string
+          deadline?: string | null
           description_json?: Json | null
           id?: string
+          notes?: string | null
           objectives_json?: Json | null
+          quest_giver_id?: string | null
+          quest_type?: string
           rewards_json?: Json | null
+          start_date?: string | null
           status?: string
           story_arc_id?: string | null
           title: string
@@ -739,10 +749,15 @@ export type Database = {
         Update: {
           campaign_id?: string
           created_at?: string
+          deadline?: string | null
           description_json?: Json | null
           id?: string
+          notes?: string | null
           objectives_json?: Json | null
+          quest_giver_id?: string | null
+          quest_type?: string
           rewards_json?: Json | null
+          start_date?: string | null
           status?: string
           story_arc_id?: string | null
           title?: string
@@ -754,6 +769,13 @@ export type Database = {
             columns: ["campaign_id"]
             isOneToOne: false
             referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quests_quest_giver_id_fkey"
+            columns: ["quest_giver_id"]
+            isOneToOne: false
+            referencedRelation: "npcs"
             referencedColumns: ["id"]
           },
           {
