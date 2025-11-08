@@ -100,7 +100,7 @@ export default function QuestsPage() {
     if (questDetails) {
       setEditedData({
         title: questDetails.title,
-        quest_type: questDetails.quest_type || 'side',
+        quest_type: (questDetails.quest_type as 'main' | 'side') || 'side',
         quest_giver_id: questDetails.quest_giver_id,
         story_arc_id: questDetails.story_arc_id,
         description_json: questDetails.description_json,

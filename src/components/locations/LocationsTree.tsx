@@ -16,7 +16,9 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import { Search } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import type { LocationDTO } from '@/types/locations';
 import { buildLocationTree, canDropLocation } from '@/lib/utils/locationTreeUtils';
@@ -37,6 +39,7 @@ export function LocationsTree({
 }: LocationsTreeProps) {
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [localSearch, setLocalSearch] = useState('');
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -47,10 +50,21 @@ export function LocationsTree({
     useSensor(KeyboardSensor)
   );
 
+  // Filter locations by search
+  const filteredLocations = useMemo(() => {
+    if (!localSearch.trim()) {
+      return locations;
+    }
+    const searchLower = localSearch.toLowerCase();
+    return locations.filter((loc) =>
+      loc.name.toLowerCase().includes(searchLower)
+    );
+  }, [locations, localSearch]);
+
   // Build tree structure
   const tree = useMemo(
-    () => buildLocationTree(locations, expandedNodes),
-    [locations, expandedNodes]
+    () => buildLocationTree(filteredLocations, expandedNodes),
+    [filteredLocations, expandedNodes]
   );
 
   // Get all location IDs for sortable context
@@ -134,47 +148,78 @@ export function LocationsTree({
     : null;
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-      onDragCancel={handleDragCancel}
-    >
-      <SortableContext items={allLocationIds} strategy={verticalListSortingStrategy}>
-        <ScrollArea className="h-full">
-          <div className="p-2" role="tree" aria-label="Locations hierarchy">
-            {tree.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-64 text-center">
-                <p className="text-sm text-muted-foreground mb-2">No locations yet</p>
-                <p className="text-xs text-muted-foreground">
-                  Create your first location to get started
-                </p>
-              </div>
-            ) : (
-              tree.map((node) => (
-                <LocationTreeNode
-                  key={node.location.id}
-                  node={node}
-                  isSelected={selectedLocationId === node.location.id}
-                  onSelect={onLocationSelect}
-                  onToggleExpand={handleToggleExpand}
-                  level={0}
-                />
-              ))
-            )}
-          </div>
-        </ScrollArea>
-      </SortableContext>
+    <div className="flex flex-col h-full">
+      {/* Search */}
+      <div className="px-3 pt-3 pb-3 border-b">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search locations..."
+            value={localSearch}
+            onChange={(e) => setLocalSearch(e.target.value)}
+            className="pl-9 h-9 text-sm"
+          />
+        </div>
+      </div>
 
-      {/* Drag overlay */}
-      <DragOverlay>
-        {activeLocation ? (
-          <div className="bg-background border border-border rounded-md p-2 shadow-lg">
-            <span className="text-sm font-medium">{activeLocation.name}</span>
-          </div>
-        ) : null}
-      </DragOverlay>
-    </DndContext>
+      {/* Tree */}
+      <div className="flex-1 overflow-hidden">
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDragCancel={handleDragCancel}
+        >
+          <SortableContext items={allLocationIds} strategy={verticalListSortingStrategy}>
+            <ScrollArea className="h-full">
+              <div className="px-3 py-2" role="tree" aria-label="Locations hierarchy">
+                {tree.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <p className="text-sm text-muted-foreground">
+                      {locations.length === 0 ? 'No locations yet' : 'No locations match search'}
+                    </p>
+                    {locations.length > 0 && (
+                      <button
+                        onClick={() => setLocalSearch('')}
+                        className="mt-2 text-xs text-primary hover:underline"
+                      >
+                        Clear search
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  tree.map((node) => (
+                    <LocationTreeNode
+                      key={node.location.id}
+                      node={node}
+                      isSelected={selectedLocationId === node.location.id}
+                      onSelect={onLocationSelect}
+                      onToggleExpand={handleToggleExpand}
+                      level={0}
+                    />
+                  ))
+                )}
+              </div>
+            </ScrollArea>
+          </SortableContext>
+
+          {/* Drag overlay */}
+          <DragOverlay>
+            {activeLocation ? (
+              <div className="bg-background border border-border rounded-md p-2 shadow-lg">
+                <span className="text-sm font-medium">{activeLocation.name}</span>
+              </div>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
+      </div>
+
+      {/* Footer stats */}
+      <div className="px-3 py-2 border-t text-xs text-muted-foreground">
+        Showing {filteredLocations.length} of {locations.length} locations
+      </div>
+    </div>
   );
 }

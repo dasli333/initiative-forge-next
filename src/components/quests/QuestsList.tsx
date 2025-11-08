@@ -77,8 +77,6 @@ export function QuestsList({
     return sorted;
   }, [quests, localSearch, sortBy]);
 
-  const activeCount = quests.filter((q) => q.quest.status === 'active').length;
-
   return (
     <div className="flex h-full flex-col">
       {/* Search bar */}
@@ -148,7 +146,7 @@ export function QuestsList({
 
       {/* Footer stats */}
       <div className="border-t px-3 py-2 text-xs text-muted-foreground">
-        {quests.length} quest{quests.length !== 1 ? 's' : ''}, {activeCount} active
+        Showing {filteredAndSortedQuests.length} of {quests.length} quests
       </div>
     </div>
   );

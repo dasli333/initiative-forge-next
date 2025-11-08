@@ -1,5 +1,6 @@
 'use client';
 
+import { SplitLayout } from '@/components/shared/SplitLayout';
 import { QuestsList } from './QuestsList';
 import { QuestDetailPanel } from './QuestDetailPanel';
 import type { QuestCardViewModel, QuestDetailsViewModel, QuestFilters } from '@/types/quests';
@@ -72,9 +73,8 @@ export function QuestsLayout({
   isDeleting,
 }: QuestsLayoutProps) {
   return (
-    <div className="flex flex-1 gap-6 overflow-hidden">
-      {/* LEFT PANEL - Quest List (30%) */}
-      <div className="w-[30%] overflow-hidden border-r">
+    <SplitLayout
+      leftPanel={
         <QuestsList
           quests={quests}
           selectedQuestId={selectedQuestId}
@@ -85,10 +85,8 @@ export function QuestsLayout({
           onFiltersChange={onFiltersChange}
           isLoading={isLoading}
         />
-      </div>
-
-      {/* RIGHT PANEL - Detail Panel (70%) */}
-      <div className="flex-1 overflow-hidden">
+      }
+      rightPanel={
         <QuestDetailPanel
           questId={selectedQuestId}
           viewModel={detailViewModel}
@@ -106,7 +104,7 @@ export function QuestsLayout({
           isUpdating={isUpdating}
           isDeleting={isDeleting}
         />
-      </div>
-    </div>
+      }
+    />
   );
 }

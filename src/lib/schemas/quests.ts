@@ -63,7 +63,7 @@ export const questFormSchema = z.object({
 
   quest_type: z.enum(['main', 'side'], {
     message: 'Invalid quest type',
-  }).default('side'),
+  }).optional().default('side'),
 
   quest_giver_id: z
     .string()
@@ -79,7 +79,7 @@ export const questFormSchema = z.object({
 
   status: z.enum(['not_started', 'active', 'completed', 'failed'], {
     message: 'Invalid status',
-  }).default('not_started'),
+  }).optional().default('not_started'),
 
   // Rich content
   description_json: z.any().nullable().optional(),

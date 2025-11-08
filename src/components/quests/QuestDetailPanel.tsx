@@ -88,10 +88,15 @@ export function QuestDetailPanel({
   // Empty state (no quest selected)
   if (!questId) {
     return (
-      <div className="flex h-full flex-col items-center justify-center text-center">
-        <div className="space-y-2">
-          <Scroll className="mx-auto h-12 w-12 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">Select a quest to view details</p>
+      <div className="flex h-full items-center justify-center">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <Scroll className="h-16 w-16 text-muted-foreground" />
+          <div>
+            <h3 className="text-lg font-semibold">No Quest Selected</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Select a quest from the list to view details, or create a new one to get started.
+            </p>
+          </div>
         </div>
       </div>
     );

@@ -59,7 +59,7 @@ export function DetailsTab({
           }
           onChange={(value) => onEditedDataChange('description_json', value)}
           campaignId={campaignId}
-          editable={isEditing}
+          readonly={!isEditing}
           placeholder="Describe the quest, use @mentions to link entities..."
         />
       </div>

@@ -57,7 +57,7 @@ export function QuestFormDialog({
   onClose,
   onSubmit,
 }: QuestFormDialogProps) {
-  const form = useForm<QuestFormData>({
+  const form = useForm({
     resolver: zodResolver(questFormSchema),
     defaultValues: initialData || {
       title: '',
@@ -256,7 +256,6 @@ export function QuestFormDialog({
                       value={field.value}
                       onChange={field.onChange}
                       campaignId={campaignId}
-                      editable={true}
                       placeholder="Describe the quest, use @mentions to link entities..."
                     />
                   </FormControl>

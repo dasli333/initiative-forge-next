@@ -1,5 +1,6 @@
 'use client';
 
+import { SplitLayout } from '@/components/shared/SplitLayout';
 import { LocationDetailsPanel } from './LocationDetailsPanel';
 import { LocationsTree } from './LocationsTree';
 import type { LocationDTO } from '@/types/locations';
@@ -29,19 +30,16 @@ export function LocationsLayout({
   onAddChild,
 }: LocationsLayoutProps) {
   return (
-    <div className="flex-1 flex gap-6 overflow-hidden">
-      {/* LEFT PANEL - Hierarchical tree */}
-      <div className="w-[30%] border-r pr-6 overflow-hidden">
+    <SplitLayout
+      leftPanel={
         <LocationsTree
           locations={locations}
           selectedLocationId={selectedLocationId}
           onLocationSelect={onLocationSelect}
           onLocationMove={onLocationMove}
         />
-      </div>
-
-      {/* RIGHT PANEL - Details */}
-      <div className="flex-1 overflow-hidden">
+      }
+      rightPanel={
         <LocationDetailsPanel
           selectedLocationId={selectedLocationId}
           locations={locations}
@@ -52,7 +50,7 @@ export function LocationsLayout({
           onDeleteLocation={onDeleteLocation}
           onAddChild={onAddChild}
         />
-      </div>
-    </div>
+      }
+    />
   );
 }

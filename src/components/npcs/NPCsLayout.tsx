@@ -1,5 +1,6 @@
 'use client';
 
+import { SplitLayout } from '@/components/shared/SplitLayout';
 import { NPCsList } from './NPCsList';
 import { NPCDetailPanel } from './NPCDetailPanel';
 import type { NPCCardViewModel, NPCDetailsViewModel, NPCFilters } from '@/types/npcs';
@@ -106,9 +107,8 @@ export function NPCsLayout({
   isDeleting = false,
 }: NPCsLayoutProps) {
   return (
-    <div className="flex-1 flex gap-6 overflow-hidden">
-      {/* LEFT PANEL - NPC List (30%) */}
-      <div className="w-[30%] border-r overflow-hidden">
+    <SplitLayout
+      leftPanel={
         <NPCsList
           npcs={npcs}
           selectedNPCId={selectedNPCId}
@@ -120,10 +120,8 @@ export function NPCsLayout({
           onFiltersChange={onFiltersChange}
           isLoading={isLoading}
         />
-      </div>
-
-      {/* RIGHT PANEL - Detail Panel (70%) */}
-      <div className="flex-1 overflow-hidden">
+      }
+      rightPanel={
         <NPCDetailPanel
           npcId={selectedNPCId}
           viewModel={detailViewModel}
@@ -151,7 +149,7 @@ export function NPCsLayout({
           isUpdating={isUpdating}
           isDeleting={isDeleting}
         />
-      </div>
-    </div>
+      }
+    />
   );
 }
