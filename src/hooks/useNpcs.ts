@@ -344,13 +344,18 @@ export function useNPCDetailsQuery(npcId: string | null): UseQueryResult<NPCDeta
         source_field: mention.source_field,
       }));
 
+      // Extract faction and location names from JOINs
+      const npcData = npc as any;
+      const factionName = npcData.factions?.name || undefined;
+      const locationName = npcData.locations?.name || undefined;
+
       return {
         npc,
         combatStats,
         relationships: enrichedRelationships,
         backlinks: backlinkItems,
-        factionName: undefined, // Extracted from JOINs
-        locationName: undefined, // Extracted from JOINs
+        factionName,
+        locationName,
         tags,
       };
     },

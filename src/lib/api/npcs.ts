@@ -87,7 +87,11 @@ export async function getNPC(npcId: string): Promise<NPCDTO> {
 
   const { data, error } = await supabase
     .from('npcs')
-    .select('*')
+    .select(`
+      *,
+      factions(name),
+      locations:current_location_id(name)
+    `)
     .eq('id', npcId)
     .single();
 
