@@ -53,6 +53,7 @@ interface NPCsLayoutProps {
   onEdit: () => void;
   onSave: () => void;
   onCancelEdit: () => void;
+  onDelete: () => void;
   onEditedDataChange: (field: string, value: unknown) => void;
   onCombatStatsChange: (field: string, value: unknown) => void;
   onAddCombatStats: () => void;
@@ -64,6 +65,7 @@ interface NPCsLayoutProps {
   onUnassignTag: (tagId: string) => Promise<void>;
   onCreateTag: (name: string, color: string, icon: string) => Promise<NPCTagDTO>;
   isUpdating?: boolean;
+  isDeleting?: boolean;
 }
 
 /**
@@ -89,6 +91,7 @@ export function NPCsLayout({
   onEdit,
   onSave,
   onCancelEdit,
+  onDelete,
   onEditedDataChange,
   onCombatStatsChange,
   onAddCombatStats,
@@ -100,6 +103,7 @@ export function NPCsLayout({
   onUnassignTag,
   onCreateTag,
   isUpdating = false,
+  isDeleting = false,
 }: NPCsLayoutProps) {
   return (
     <div className="flex-1 flex gap-6 overflow-hidden">
@@ -133,6 +137,7 @@ export function NPCsLayout({
           onEdit={onEdit}
           onSave={onSave}
           onCancelEdit={onCancelEdit}
+          onDelete={onDelete}
           onEditedDataChange={onEditedDataChange}
           onCombatStatsChange={onCombatStatsChange}
           onAddCombatStats={onAddCombatStats}
@@ -144,6 +149,7 @@ export function NPCsLayout({
           onUnassignTag={onUnassignTag}
           onCreateTag={onCreateTag}
           isUpdating={isUpdating}
+          isDeleting={isDeleting}
         />
       </div>
     </div>

@@ -286,6 +286,8 @@ export function useDeleteNPCMutation(campaignId: string) {
     onSettled: (_data, _error, id) => {
       queryClient.invalidateQueries({ queryKey: ['npcs', campaignId] });
       queryClient.invalidateQueries({ queryKey: ['npc', id] });
+      // Invalidate all NPC details to refresh relationships
+      queryClient.invalidateQueries({ queryKey: ['npc'] });
     },
   });
 }

@@ -13,6 +13,7 @@ import {
   useNPCDetailsQuery,
   useCreateNPCMutation,
   useUpdateNPCMutation,
+  useDeleteNPCMutation,
   useUpsertNPCCombatStatsMutation,
   useDeleteNPCCombatStatsMutation,
   useCreateNPCRelationshipMutation,
@@ -102,6 +103,7 @@ export default function NPCsPage() {
   // Mutations
   const createMutation = useCreateNPCMutation(campaignId);
   const updateMutation = useUpdateNPCMutation(campaignId);
+  const deleteMutation = useDeleteNPCMutation(campaignId);
   const upsertCombatStatsMutation = useUpsertNPCCombatStatsMutation();
   const deleteCombatStatsMutation = useDeleteNPCCombatStatsMutation();
   const createRelationshipMutation = useCreateNPCRelationshipMutation();
@@ -358,6 +360,17 @@ export default function NPCsPage() {
     return await createTagMutation.mutateAsync({ name, color, icon });
   };
 
+  const handleDelete = () => {
+    if (selectedNPCId) {
+      const deletedId = selectedNPCId;
+      // Clear selection immediately to prevent 406 error
+      setSelectedNPCId(null);
+      router.push(`/campaigns/${campaignId}/npcs`, { scroll: false });
+
+      deleteMutation.mutate(deletedId);
+    }
+  };
+
   // Reset edit mode when selected NPC changes
   useEffect(() => {
     if (isEditing) {
@@ -421,6 +434,7 @@ export default function NPCsPage() {
         onEdit={handleEdit}
         onSave={handleSave}
         onCancelEdit={handleCancelEdit}
+        onDelete={handleDelete}
         onEditedDataChange={handleEditedDataChange}
         onCombatStatsChange={handleCombatStatsChange}
         onAddCombatStats={handleAddCombatStats}
@@ -436,6 +450,7 @@ export default function NPCsPage() {
         onUnassignTag={handleUnassignTag}
         onCreateTag={handleCreateTag}
         isUpdating={updateMutation.isPending || upsertCombatStatsMutation.isPending}
+        isDeleting={deleteMutation.isPending}
       />
 
       {/* Tag Manager Dialog */}

@@ -1,10 +1,21 @@
 'use client';
 
+import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
-import { Pencil, Save, X, Users } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Pencil, Save, X, Users, Trash2 } from 'lucide-react';
 import { StoryTab } from './tabs/StoryTab';
 import { CombatTab } from './tabs/CombatTab';
 import { RelationshipsTab } from './tabs/RelationshipsTab';
@@ -21,6 +32,7 @@ interface NPCDetailPanelProps {
   onEdit: () => void;
   onSave: () => void;
   onCancelEdit: () => void;
+  onDelete: () => void;
   viewModel: NPCDetailsViewModel | undefined;
   campaignId: string;
   factions: Array<{ id: string; name: string }>;
@@ -66,11 +78,12 @@ interface NPCDetailPanelProps {
   onUnassignTag: (tagId: string) => Promise<void>;
   onCreateTag: (name: string, color: string, icon: string) => Promise<NPCTagDTO>;
   isUpdating?: boolean;
+  isDeleting?: boolean;
 }
 
 /**
  * Right panel for NPC details
- * - Header: Edit/Save/Cancel buttons
+ * - Header: Edit/Save/Cancel/Delete buttons
  * - Character Card: Always visible (name, tags, avatar, stats)
  * - Tabs: Story | Combat | Relationships
  * - Renders: NPCCharacterCard, StoryTab, CombatTab, RelationshipsTab
@@ -80,6 +93,7 @@ export function NPCDetailPanel({
   onEdit,
   onSave,
   onCancelEdit,
+  onDelete,
   viewModel,
   campaignId,
   factions,
@@ -99,7 +113,9 @@ export function NPCDetailPanel({
   onUnassignTag,
   onCreateTag,
   isUpdating = false,
+  isDeleting = false,
 }: NPCDetailPanelProps) {
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   // Empty state when no NPC selected
   if (!npcId) {
     return (
@@ -213,14 +229,58 @@ export function NPCDetailPanel({
                 </Button>
               </>
             ) : (
-              <Button variant="outline" size="sm" onClick={onEdit}>
-                <Pencil className="w-4 h-4 mr-2" />
-                Edit
-              </Button>
+              <>
+                <Button variant="outline" size="sm" onClick={onEdit}>
+                  <Pencil className="w-4 h-4 mr-2" />
+                  Edit
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setShowDeleteDialog(true)}
+                  disabled={isDeleting}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete
+                </Button>
+              </>
             )}
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete NPC</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete <strong>{npc.name}</strong>?
+              {relationships.length > 0 && (
+                <span className="block mt-2 text-destructive">
+                  This will also remove {relationships.length} relationship{relationships.length > 1 ? 's' : ''}.
+                </span>
+              )}
+              <span className="block mt-2">
+                This action cannot be undone.
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setShowDeleteDialog(false);
+                onDelete();
+              }}
+              disabled={isDeleting}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Tabs */}
       <div className="flex-1 overflow-hidden">
