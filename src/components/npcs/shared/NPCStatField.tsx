@@ -23,9 +23,8 @@ export function NPCStatField({
   badge = false,
   badgeVariant = 'default',
 }: NPCStatFieldProps) {
-  if (!value && value !== 0) {
-    return null; // Don't render if no value
-  }
+  // Display placeholder if no value
+  const displayValue = (!value && value !== 0) ? '—' : value;
 
   return (
     <div className="flex items-center gap-2">
@@ -34,10 +33,12 @@ export function NPCStatField({
         <div className="text-xs text-muted-foreground">{label}</div>
         {badge ? (
           <Badge variant={badgeVariant} className="text-xs mt-0.5">
-            {value}
+            {displayValue}
           </Badge>
         ) : (
-          <div className="text-sm font-medium truncate">{value}</div>
+          <div className="text-sm font-medium truncate text-muted-foreground/50">
+            {displayValue}
+          </div>
         )}
       </div>
     </div>

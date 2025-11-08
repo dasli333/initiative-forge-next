@@ -31,6 +31,12 @@ interface NPCsLayoutProps {
     image_url: string | null;
     biography_json: JSONContent | null;
     personality_json: JSONContent | null;
+    race: string | null;
+    age: number | null;
+    alignment: 'LG' | 'NG' | 'CG' | 'LN' | 'N' | 'CN' | 'LE' | 'NE' | 'CE' | null;
+    languages: string[] | null;
+    distinguishing_features: string | null;
+    secrets: string | null;
     combatStats: {
       hp_max: number;
       armor_class: number;
@@ -54,6 +60,9 @@ interface NPCsLayoutProps {
   onUpdateRelationship: (relationshipId: string, command: UpdateNPCRelationshipCommand) => void;
   onDeleteRelationship: (relationshipId: string) => void;
   onAddRelationship: () => void;
+  onAssignTag: (tagId: string) => Promise<void>;
+  onUnassignTag: (tagId: string) => Promise<void>;
+  onCreateTag: (name: string, color: string, icon: string) => Promise<NPCTagDTO>;
   isUpdating?: boolean;
 }
 
@@ -87,6 +96,9 @@ export function NPCsLayout({
   onUpdateRelationship,
   onDeleteRelationship,
   onAddRelationship,
+  onAssignTag,
+  onUnassignTag,
+  onCreateTag,
   isUpdating = false,
 }: NPCsLayoutProps) {
   return (
@@ -114,6 +126,7 @@ export function NPCsLayout({
           campaignId={campaignId}
           factions={factions}
           locations={locations}
+          availableTags={tags}
           isLoading={isDetailLoading}
           isEditing={isEditing}
           editedData={editedData}
@@ -127,6 +140,9 @@ export function NPCsLayout({
           onUpdateRelationship={onUpdateRelationship}
           onDeleteRelationship={onDeleteRelationship}
           onAddRelationship={onAddRelationship}
+          onAssignTag={onAssignTag}
+          onUnassignTag={onUnassignTag}
+          onCreateTag={onCreateTag}
           isUpdating={isUpdating}
         />
       </div>

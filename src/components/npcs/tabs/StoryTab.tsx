@@ -1,16 +1,12 @@
 'use client';
 
-import { ImageUpload } from '@/components/shared/ImageUpload';
 import { RichTextEditor } from '@/components/shared/RichTextEditor';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, MapPin, User, Target, Calendar, BookOpen, Package, Users, FileText, Heart, Shield } from 'lucide-react';
+import { MapPin, User, Target, Calendar, BookOpen, Package, Users, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
-import { NPCStatField } from '../shared/NPCStatField';
 import { LanguageSelector } from '../shared/LanguageSelector';
 import type { NPCDTO, BacklinkItem } from '@/types/npcs';
 import type { JSONContent } from '@tiptap/core';
@@ -18,23 +14,11 @@ import type { JSONContent } from '@tiptap/core';
 interface StoryTabProps {
   npc: NPCDTO;
   backlinks?: BacklinkItem[];
-  factionName?: string;
-  locationName?: string;
   campaignId: string;
-  factions: Array<{ id: string; name: string }>;
-  locations: Array<{ id: string; name: string }>;
   isEditing: boolean;
   editedData: {
-    role: string;
-    faction_id: string | null;
-    current_location_id: string | null;
-    status: 'alive' | 'dead' | 'unknown';
-    image_url: string | null;
     biography_json: JSONContent | null;
     personality_json: JSONContent | null;
-    race: string | null;
-    age: number | null;
-    alignment: 'LG' | 'NG' | 'CG' | 'LN' | 'N' | 'CN' | 'LE' | 'NE' | 'CE' | null;
     languages: string[] | null;
     distinguishing_features: string | null;
     secrets: string | null;
@@ -76,33 +60,17 @@ const ENTITY_ROUTE_MAP = {
   lore_note: 'lore-notes',
 };
 
-const ALIGNMENT_LABELS: Record<string, string> = {
-  LG: 'Lawful Good',
-  NG: 'Neutral Good',
-  CG: 'Chaotic Good',
-  LN: 'Lawful Neutral',
-  N: 'Neutral',
-  CN: 'Chaotic Neutral',
-  LE: 'Lawful Evil',
-  NE: 'Neutral Evil',
-  CE: 'Chaotic Evil',
-};
-
 /**
- * Story tab component for NPC details (Character Sheet style)
- * - Character card header: avatar + stats grid
- * - Editable fields: role, race, age, alignment, faction, location, status, languages, features, secrets
+ * Story tab component for NPC details
+ * - Descriptive fields: languages, distinguishing features, secrets
  * - RichTextEditor: biography_json, personality_json
  * - BacklinksSection: list of mentions
+ * Note: Character card (name, avatar, stats) moved to parent component
  */
 export function StoryTab({
   npc,
   backlinks,
-  factionName,
-  locationName,
   campaignId,
-  factions,
-  locations,
   isEditing,
   editedData,
   onEditedDataChange,
@@ -119,84 +87,15 @@ export function StoryTab({
 
   // Use editedData when editing, npc data when viewing
   const displayData = isEditing && editedData ? editedData : {
-    role: npc.role || '',
-    faction_id: npc.faction_id,
-    current_location_id: npc.current_location_id,
-    status: npc.status,
-    image_url: npc.image_url,
     biography_json: npc.biography_json,
     personality_json: npc.personality_json,
-    race: npc.race || null,
-    age: npc.age || null,
-    alignment: npc.alignment as 'LG' | 'NG' | 'CG' | 'LN' | 'N' | 'CN' | 'LE' | 'NE' | 'CE' | null,
     languages: npc.languages || null,
     distinguishing_features: npc.distinguishing_features || null,
     secrets: npc.secrets || null,
   };
 
-  const getStatusBadgeVariant = (status: string): 'default' | 'destructive' | 'secondary' => {
-    if (status === 'alive') return 'default';
-    if (status === 'dead') return 'destructive';
-    return 'secondary';
-  };
-
   return (
     <div className="space-y-6">
-      {/* Character Card Header */}
-      <div className="flex gap-4 p-4 bg-muted/30 rounded-lg border">
-        {/* Left: Avatar */}
-        <div className="flex-shrink-0">
-          {isEditing ? (
-            <ImageUpload
-              value={displayData.image_url}
-              onChange={(url) => onEditedDataChange('image_url', url)}
-              campaignId={campaignId}
-              entityType="npc"
-              maxSizeMB={5}
-            />
-          ) : displayData.image_url ? (
-            <img
-              src={displayData.image_url}
-              alt={npc.name}
-              className="w-40 h-40 rounded-lg object-cover border-2 border-border"
-            />
-          ) : (
-            <div className="w-40 h-40 rounded-lg bg-muted border-2 border-dashed border-border flex items-center justify-center">
-              <User className="w-16 h-16 text-muted-foreground/50" />
-            </div>
-          )}
-        </div>
-
-        {/* Right: Stats Grid (View Mode) */}
-        {!isEditing && (
-          <div className="flex-1 grid grid-cols-2 gap-3">
-            <NPCStatField icon={User} label="Role" value={displayData.role} />
-            <NPCStatField icon={Shield} label="Race" value={displayData.race} />
-            <NPCStatField icon={Calendar} label="Age" value={displayData.age} />
-            <NPCStatField
-              icon={Target}
-              label="Alignment"
-              value={displayData.alignment ? ALIGNMENT_LABELS[displayData.alignment] : null}
-            />
-            <NPCStatField icon={Users} label="Faction" value={factionName} />
-            <NPCStatField icon={MapPin} label="Location" value={locationName} />
-            <NPCStatField
-              icon={Heart}
-              label="Status"
-              value={displayData.status.charAt(0).toUpperCase() + displayData.status.slice(1)}
-              badge
-              badgeVariant={getStatusBadgeVariant(displayData.status)}
-            />
-          </div>
-        )}
-
-        {/* Right: Edit Mode Placeholder */}
-        {isEditing && (
-          <div className="flex-1 flex items-center justify-center text-sm text-muted-foreground">
-            Edit fields below to update character details
-          </div>
-        )}
-      </div>
 
       {/* Languages Row */}
       {!isEditing && displayData.languages && displayData.languages.length > 0 && (
@@ -238,131 +137,6 @@ export function StoryTab({
       {/* Edit Mode Fields */}
       {isEditing && (
         <>
-          {/* Role */}
-          <div>
-            <label className="text-sm font-medium mb-2 block">Role</label>
-            <Input
-              value={displayData.role}
-              onChange={(e) => onEditedDataChange('role', e.target.value)}
-              placeholder="e.g., Merchant, Guard Captain, Wizard"
-              disabled={isUpdating}
-            />
-          </div>
-
-          {/* Race */}
-          <div>
-            <label className="text-sm font-medium mb-2 block">Race</label>
-            <Input
-              value={displayData.race || ''}
-              onChange={(e) => onEditedDataChange('race', e.target.value || null)}
-              placeholder="e.g., Human, Elf, Dwarf, Half-Orc"
-              disabled={isUpdating}
-            />
-          </div>
-
-          {/* Age */}
-          <div>
-            <label className="text-sm font-medium mb-2 block">Age</label>
-            <Input
-              type="number"
-              value={displayData.age || ''}
-              onChange={(e) => onEditedDataChange('age', e.target.value ? parseInt(e.target.value) : null)}
-              placeholder="e.g., 35"
-              min={0}
-              max={10000}
-              disabled={isUpdating}
-            />
-          </div>
-
-          {/* Alignment */}
-          <div>
-            <label className="text-sm font-medium mb-2 block">Alignment</label>
-            <Select
-              value={displayData.alignment || 'none'}
-              onValueChange={(value) => onEditedDataChange('alignment', value === 'none' ? null : value)}
-              disabled={isUpdating}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select alignment" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">No alignment</SelectItem>
-                <SelectItem value="LG">Lawful Good</SelectItem>
-                <SelectItem value="NG">Neutral Good</SelectItem>
-                <SelectItem value="CG">Chaotic Good</SelectItem>
-                <SelectItem value="LN">Lawful Neutral</SelectItem>
-                <SelectItem value="N">Neutral</SelectItem>
-                <SelectItem value="CN">Chaotic Neutral</SelectItem>
-                <SelectItem value="LE">Lawful Evil</SelectItem>
-                <SelectItem value="NE">Neutral Evil</SelectItem>
-                <SelectItem value="CE">Chaotic Evil</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Faction */}
-          <div>
-            <label className="text-sm font-medium mb-2 block">Faction</label>
-            <Select
-              value={displayData.faction_id || 'none'}
-              onValueChange={(value) => onEditedDataChange('faction_id', value === 'none' ? null : value)}
-              disabled={isUpdating}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select faction" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">No faction</SelectItem>
-                {factions.map((faction) => (
-                  <SelectItem key={faction.id} value={faction.id}>
-                    {faction.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Location */}
-          <div>
-            <label className="text-sm font-medium mb-2 block">Current Location</label>
-            <Select
-              value={displayData.current_location_id || 'none'}
-              onValueChange={(value) => onEditedDataChange('current_location_id', value === 'none' ? null : value)}
-              disabled={isUpdating}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select location" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">No location</SelectItem>
-                {locations.map((location) => (
-                  <SelectItem key={location.id} value={location.id}>
-                    {location.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Status */}
-          <div>
-            <label className="text-sm font-medium mb-2 block">Status</label>
-            <Select
-              value={displayData.status}
-              onValueChange={(value) => onEditedDataChange('status', value)}
-              disabled={isUpdating}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="alive">Alive</SelectItem>
-                <SelectItem value="dead">Dead</SelectItem>
-                <SelectItem value="unknown">Unknown</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           {/* Languages */}
           <div>
             <label className="text-sm font-medium mb-2 block">Languages</label>

@@ -21,10 +21,13 @@ import {
 } from '@/hooks/useNPCs';
 import {
   useNPCTagsQuery,
+  useNPCAssignedTagsQuery,
   useCreateNPCTagMutation,
   useUpdateNPCTagMutation,
   useDeleteNPCTagMutation,
   useBulkAssignTagsToNPCMutation,
+  useAssignTagToNPCMutation,
+  useUnassignTagFromNPCMutation,
 } from '@/hooks/useNPCTags';
 import { useFactionsQuery } from '@/hooks/useFactions';
 import { useLocationsQuery } from '@/hooks/useLocations';
@@ -108,6 +111,8 @@ export default function NPCsPage() {
   const updateTagMutation = useUpdateNPCTagMutation();
   const deleteTagMutation = useDeleteNPCTagMutation(campaignId);
   const bulkAssignTagsMutation = useBulkAssignTagsToNPCMutation();
+  const assignTagMutation = useAssignTagToNPCMutation();
+  const unassignTagMutation = useUnassignTagFromNPCMutation();
 
   // Handlers
   const handleCardClick = (npcId: string) => {
@@ -333,6 +338,26 @@ export default function NPCsPage() {
     }
   };
 
+  const handleAssignTag = async (tagId: string) => {
+    if (!selectedNPCId) return;
+    await assignTagMutation.mutateAsync({
+      npc_id: selectedNPCId,
+      tag_id: tagId,
+    });
+  };
+
+  const handleUnassignTag = async (tagId: string) => {
+    if (!selectedNPCId) return;
+    await unassignTagMutation.mutateAsync({
+      npc_id: selectedNPCId,
+      tag_id: tagId,
+    });
+  };
+
+  const handleCreateTag = async (name: string, color: string, icon: string) => {
+    return await createTagMutation.mutateAsync({ name, color, icon });
+  };
+
   // Reset edit mode when selected NPC changes
   useEffect(() => {
     if (isEditing) {
@@ -407,6 +432,9 @@ export default function NPCsPage() {
           deleteRelationshipMutation.mutate(relationshipId);
         }}
         onAddRelationship={() => setIsAddRelationshipOpen(true)}
+        onAssignTag={handleAssignTag}
+        onUnassignTag={handleUnassignTag}
+        onCreateTag={handleCreateTag}
         isUpdating={updateMutation.isPending || upsertCombatStatsMutation.isPending}
       />
 

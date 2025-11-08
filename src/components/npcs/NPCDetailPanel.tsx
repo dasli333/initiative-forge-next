@@ -8,10 +8,11 @@ import { Pencil, Save, X, Users } from 'lucide-react';
 import { StoryTab } from './tabs/StoryTab';
 import { CombatTab } from './tabs/CombatTab';
 import { RelationshipsTab } from './tabs/RelationshipsTab';
-import { TagBadge } from './shared/TagBadge';
+import { NPCCharacterCard } from './shared/NPCCharacterCard';
 import { cn } from '@/lib/utils';
 import type { NPCDetailsViewModel } from '@/types/npcs';
 import type { UpdateNPCRelationshipCommand } from '@/types/npc-relationships';
+import type { NPCTagDTO } from '@/types/npc-tags';
 import type { JSONContent } from '@tiptap/core';
 import type { ActionDTO } from '@/types';
 
@@ -24,6 +25,7 @@ interface NPCDetailPanelProps {
   campaignId: string;
   factions: Array<{ id: string; name: string }>;
   locations: Array<{ id: string; name: string }>;
+  availableTags: NPCTagDTO[];
   isLoading: boolean;
   isEditing: boolean;
   editedData: {
@@ -34,6 +36,12 @@ interface NPCDetailPanelProps {
     image_url: string | null;
     biography_json: JSONContent | null;
     personality_json: JSONContent | null;
+    race: string | null;
+    age: number | null;
+    alignment: 'LG' | 'NG' | 'CG' | 'LN' | 'N' | 'CN' | 'LE' | 'NE' | 'CE' | null;
+    languages: string[] | null;
+    distinguishing_features: string | null;
+    secrets: string | null;
     combatStats: {
       hp_max: number;
       armor_class: number;
@@ -54,14 +62,18 @@ interface NPCDetailPanelProps {
   onUpdateRelationship: (relationshipId: string, command: UpdateNPCRelationshipCommand) => void;
   onDeleteRelationship: (relationshipId: string) => void;
   onAddRelationship: () => void;
+  onAssignTag: (tagId: string) => Promise<void>;
+  onUnassignTag: (tagId: string) => Promise<void>;
+  onCreateTag: (name: string, color: string, icon: string) => Promise<NPCTagDTO>;
   isUpdating?: boolean;
 }
 
 /**
  * Right panel for NPC details
- * - Header: NPC name, role, tags, Edit/Save/Cancel buttons
+ * - Header: Edit/Save/Cancel buttons
+ * - Character Card: Always visible (name, tags, avatar, stats)
  * - Tabs: Story | Combat | Relationships
- * - Renders: StoryTab, CombatTab, RelationshipsTab
+ * - Renders: NPCCharacterCard, StoryTab, CombatTab, RelationshipsTab
  */
 export function NPCDetailPanel({
   npcId,
@@ -72,6 +84,7 @@ export function NPCDetailPanel({
   campaignId,
   factions,
   locations,
+  availableTags,
   isLoading,
   isEditing,
   editedData,
@@ -82,6 +95,9 @@ export function NPCDetailPanel({
   onUpdateRelationship,
   onDeleteRelationship,
   onAddRelationship,
+  onAssignTag,
+  onUnassignTag,
+  onCreateTag,
   isUpdating = false,
 }: NPCDetailPanelProps) {
   // Empty state when no NPC selected
@@ -138,61 +154,56 @@ export function NPCDetailPanel({
       "flex flex-col h-full transition-all",
       isEditing && "border-2 border-primary/30 rounded-lg m-1"
     )}>
-      {/* Header */}
+      {/* Header - Edit/Save/Cancel buttons */}
       <div className={cn(
-        "px-6 py-4 border-b space-y-3",
+        "px-6 py-3 border-b flex justify-end",
         isEditing && "bg-primary/5"
       )}>
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-bold truncate">{npc.name}</h2>
-              {isEditing && (
-                <Badge variant="secondary" className="text-xs">
-                  Editing
-                </Badge>
-              )}
-            </div>
-            {npc.role && (
-              <p className="text-sm text-muted-foreground truncate">{npc.role}</p>
-            )}
-          </div>
-
-          {/* Action buttons */}
-          <div className="flex gap-2">
-            {isEditing ? (
-              <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={onCancelEdit}
-                  disabled={isUpdating}
-                >
-                  <X className="w-4 h-4 mr-2" />
-                  Cancel
-                </Button>
-                <Button size="sm" onClick={onSave} disabled={isUpdating}>
-                  <Save className="w-4 h-4 mr-2" />
-                  {isUpdating ? 'Saving...' : 'Save'}
-                </Button>
-              </>
-            ) : (
-              <Button variant="outline" size="sm" onClick={onEdit}>
-                <Pencil className="w-4 h-4 mr-2" />
-                Edit
+        <div className="flex gap-2">
+          {isEditing ? (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onCancelEdit}
+                disabled={isUpdating}
+              >
+                <X className="w-4 h-4 mr-2" />
+                Cancel
               </Button>
-            )}
-          </div>
+              <Button size="sm" onClick={onSave} disabled={isUpdating}>
+                <Save className="w-4 h-4 mr-2" />
+                {isUpdating ? 'Saving...' : 'Save'}
+              </Button>
+            </>
+          ) : (
+            <Button variant="outline" size="sm" onClick={onEdit}>
+              <Pencil className="w-4 h-4 mr-2" />
+              Edit
+            </Button>
+          )}
         </div>
+      </div>
 
-        {/* Tags */}
-        {tags && tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {tags.map((tag) => (
-              <TagBadge key={tag.id} tag={tag} size="sm" />
-            ))}
-          </div>
-        )}
+      {/* Character Card - Always visible */}
+      <div className="px-6 py-4 border-b">
+        <NPCCharacterCard
+          npc={npc}
+          campaignId={campaignId}
+          factionName={factionName}
+          locationName={locationName}
+          factions={factions}
+          locations={locations}
+          assignedTags={tags || []}
+          availableTags={availableTags}
+          onAssignTag={onAssignTag}
+          onUnassignTag={onUnassignTag}
+          onCreateTag={onCreateTag}
+          isEditing={isEditing}
+          editedData={editedData}
+          onEditedDataChange={onEditedDataChange}
+          isUpdating={isUpdating}
+        />
       </div>
 
       {/* Tabs */}
@@ -210,15 +221,12 @@ export function NPCDetailPanel({
             <TabsContent value="story" className="mt-0 h-full">
               <StoryTab
                 npc={npc}
-                factionName={factionName}
-                locationName={locationName}
                 backlinks={backlinks}
-                factions={factions}
-                locations={locations}
                 campaignId={campaignId}
                 isEditing={isEditing}
                 editedData={editedData}
                 onEditedDataChange={onEditedDataChange}
+                isUpdating={isUpdating}
               />
             </TabsContent>
 
