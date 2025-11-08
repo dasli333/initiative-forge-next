@@ -186,7 +186,7 @@ export default function QuestsPage() {
   }, [selectedQuestId]);
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex flex-col h-full">
       {/* Header */}
       <QuestsHeader onCreateClick={() => setIsCreateDialogOpen(true)} />
 

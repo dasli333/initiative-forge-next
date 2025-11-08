@@ -143,7 +143,7 @@ export default function LocationsPage() {
   }
 
   return (
-    <div className="flex flex-col h-full p-6 gap-6">
+    <div className="flex flex-col h-full">
       <LocationsHeader
         campaignName={campaign.name}
         campaignId={campaignId}

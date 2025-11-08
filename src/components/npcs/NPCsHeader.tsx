@@ -1,10 +1,19 @@
 'use client';
 
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Plus, Tags } from 'lucide-react';
 
 interface NPCsHeaderProps {
   campaignName: string;
+  campaignId: string;
   onAddClick: () => void;
   onManageTagsClick: () => void;
 }
@@ -14,27 +23,33 @@ interface NPCsHeaderProps {
  * - Breadcrumb: My Campaigns → [Campaign Name] → NPCs
  * - H1: "NPCs"
  * - Actions: "Manage Tags" and "Add NPC" buttons
- * - Filters moved to NPCsList component (compact filters)
  */
 export function NPCsHeader({
   campaignName,
+  campaignId,
   onAddClick,
   onManageTagsClick,
 }: NPCsHeaderProps) {
   return (
-    <div className="space-y-4">
-      {/* Breadcrumb */}
-      <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
-        <a href="/campaigns" className="hover:text-foreground transition-colors">
-          My Campaigns
-        </a>
-        <span>→</span>
-        <span className="text-foreground">{campaignName}</span>
-        <span>→</span>
-        <span className="text-foreground font-medium">NPCs</span>
-      </nav>
+    <div className="space-y-4 pb-4 border-b">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/campaigns">My Campaigns</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href={`/campaigns/${campaignId}`}>
+              {campaignName}
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>NPCs</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
-      {/* Title & Actions */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">NPCs</h1>
         <div className="flex gap-2">

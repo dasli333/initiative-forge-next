@@ -407,10 +407,11 @@ export default function NPCsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 space-y-8 h-screen flex flex-col">
+    <div className="flex flex-col h-full">
       {/* Header */}
       <NPCsHeader
         campaignName={selectedCampaign.name}
+        campaignId={campaignId}
         onAddClick={handleAddClick}
         onManageTagsClick={() => setIsTagManagerOpen(true)}
       />

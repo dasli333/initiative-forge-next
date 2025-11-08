@@ -178,7 +178,7 @@ export function NPCDetailPanel({
     )}>
       {/* Header - Name, Tags, Edit/Save/Cancel */}
       <div className={cn(
-        "px-6 py-4 border-b",
+        "px-6 py-4",
         isEditing && "bg-primary/5"
       )}>
         <div className="flex items-start justify-between gap-4">

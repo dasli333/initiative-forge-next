@@ -150,7 +150,7 @@ export function LocationsTree({
   return (
     <div className="flex flex-col h-full">
       {/* Search */}
-      <div className="px-3 pt-3 pb-3 border-b">
+      <div className="px-3 pt-3 pb-2 border-b">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
