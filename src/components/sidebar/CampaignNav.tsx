@@ -31,6 +31,7 @@ export function CampaignNav({ selectedCampaignId, currentPath }: CampaignNavProp
   const locationsHref = `/campaigns/${selectedCampaignId}/locations`;
   const npcsHref = `/campaigns/${selectedCampaignId}/npcs`;
   const questsHref = `/campaigns/${selectedCampaignId}/quests`;
+  const storyArcsHref = `/campaigns/${selectedCampaignId}/story-arcs`;
 
   return (
     <div className="mt-6 space-y-1" data-testid="campaign-nav">
@@ -81,10 +82,8 @@ export function CampaignNav({ selectedCampaignId, currentPath }: CampaignNavProp
         <NavItem
           icon={BookText}
           label="Story Arcs"
-          href="#"
-          isActive={false}
-          isDisabled
-          badge={{ text: 'Soon', variant: 'default' }}
+          href={storyArcsHref}
+          isActive={currentPath === storyArcsHref || currentPath.startsWith(storyArcsHref + '/')}
         />
         <NavItem
           icon={Shield}

@@ -1,6 +1,8 @@
 import { getSupabaseClient } from '@/lib/supabase';
 import type { StoryArcDTO, CreateStoryArcCommand, UpdateStoryArcCommand, StoryArcFilters } from '@/types/story-arcs';
 import type { Json } from '@/types/database';
+import { extractMentionsFromJson } from '@/lib/utils/mentionUtils';
+import { batchCreateEntityMentions, deleteMentionsBySource } from '@/lib/api/entity-mentions';
 
 /**
  * Get all story arcs for a campaign with optional filtering
@@ -91,7 +93,31 @@ export async function createStoryArc(
     throw new Error(error.message);
   }
 
-  return data as unknown as StoryArcDTO;
+  const storyArc = data as unknown as StoryArcDTO;
+
+  // Sync mentions from description_json (non-blocking)
+  if (command.description_json) {
+    try {
+      const mentions = extractMentionsFromJson(command.description_json);
+      if (mentions.length > 0) {
+        await batchCreateEntityMentions(
+          campaignId,
+          mentions.map((m) => ({
+            source_type: 'story_arc',
+            source_id: storyArc.id,
+            source_field: 'description_json',
+            mentioned_type: m.entityType,
+            mentioned_id: m.id,
+          }))
+        );
+      }
+    } catch (mentionError) {
+      console.error('Failed to sync mentions on create:', mentionError);
+      // Don't fail the creation if mention sync fails
+    }
+  }
+
+  return storyArc;
 }
 
 /**
@@ -127,7 +153,35 @@ export async function updateStoryArc(
     throw new Error(error.message);
   }
 
-  return data as unknown as StoryArcDTO;
+  const storyArc = data as unknown as StoryArcDTO;
+
+  // Sync mentions if description_json was updated (non-blocking)
+  if (command.description_json !== undefined) {
+    try {
+      // Delete old mentions for this field
+      await deleteMentionsBySource('story_arc', storyArcId, 'description_json');
+
+      // Extract and create new mentions
+      const mentions = extractMentionsFromJson(command.description_json);
+      if (mentions.length > 0) {
+        await batchCreateEntityMentions(
+          storyArc.campaign_id,
+          mentions.map((m) => ({
+            source_type: 'story_arc',
+            source_id: storyArcId,
+            source_field: 'description_json',
+            mentioned_type: m.entityType,
+            mentioned_id: m.id,
+          }))
+        );
+      }
+    } catch (mentionError) {
+      console.error('Failed to sync mentions on update:', mentionError);
+      // Don't fail the update if mention sync fails
+    }
+  }
+
+  return storyArc;
 }
 
 /**
