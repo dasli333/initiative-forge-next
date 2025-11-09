@@ -19,6 +19,7 @@ import { Pencil, Save, X, Users, Trash2 } from 'lucide-react';
 import { StoryTab } from './tabs/StoryTab';
 import { CombatTab } from './tabs/CombatTab';
 import { RelationshipsTab } from './tabs/RelationshipsTab';
+import { RelatedTab } from './tabs/RelatedTab';
 import { NPCCharacterCard } from './shared/NPCCharacterCard';
 import { cn } from '@/lib/utils';
 import type { NPCDetailsViewModel } from '@/types/npcs';
@@ -290,6 +291,7 @@ export function NPCDetailPanel({
               <TabsTrigger value="story">Story</TabsTrigger>
               <TabsTrigger value="combat">Combat</TabsTrigger>
               <TabsTrigger value="relationships">Relationships</TabsTrigger>
+              <TabsTrigger value="related">Related</TabsTrigger>
             </TabsList>
           </div>
 
@@ -297,7 +299,6 @@ export function NPCDetailPanel({
             <TabsContent value="story" className="mt-0 h-full">
               <StoryTab
                 npc={npc}
-                backlinks={backlinks}
                 campaignId={campaignId}
                 isEditing={isEditing}
                 editedData={editedData}
@@ -328,6 +329,13 @@ export function NPCDetailPanel({
                 onDeleteRelationship={onDeleteRelationship}
                 onAddRelationship={onAddRelationship}
                 isUpdating={isUpdating}
+              />
+            </TabsContent>
+
+            <TabsContent value="related" className="mt-0 h-full">
+              <RelatedTab
+                backlinks={backlinks}
+                campaignId={campaignId}
               />
             </TabsContent>
           </div>
