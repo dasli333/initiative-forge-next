@@ -424,7 +424,6 @@ export type Database = {
           npc_id_1: string
           npc_id_2: string
           relationship_type: string
-          strength: number | null
         }
         Insert: {
           created_at?: string
@@ -433,7 +432,6 @@ export type Database = {
           npc_id_1: string
           npc_id_2: string
           relationship_type: string
-          strength?: number | null
         }
         Update: {
           created_at?: string
@@ -442,7 +440,6 @@ export type Database = {
           npc_id_1?: string
           npc_id_2?: string
           relationship_type?: string
-          strength?: number | null
         }
         Relationships: [
           {
@@ -620,53 +617,92 @@ export type Database = {
           },
         ]
       }
-      player_characters: {
+      pc_npc_relationships: {
         Row: {
-          actions: Json | null
+          created_at: string
+          description: string | null
+          id: string
+          npc_id: string
+          player_character_id: string
+          relationship_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          npc_id: string
+          player_character_id: string
+          relationship_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          npc_id?: string
+          player_character_id?: string
+          relationship_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pc_npc_relationships_npc_id_fkey"
+            columns: ["npc_id"]
+            isOneToOne: false
+            referencedRelation: "npcs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pc_npc_relationships_player_character_id_fkey"
+            columns: ["player_character_id"]
+            isOneToOne: false
+            referencedRelation: "player_characters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      player_character_combat_stats: {
+        Row: {
+          actions_json: Json | null
           armor_class: number
-          campaign_id: string
           charisma: number
           constitution: number
           created_at: string
           dexterity: number
-          id: string
+          hp_max: number
           intelligence: number
-          max_hp: number
-          name: string
+          player_character_id: string
           speed: number
           strength: number
           updated_at: string
           wisdom: number
         }
         Insert: {
-          actions?: Json | null
+          actions_json?: Json | null
           armor_class: number
-          campaign_id: string
           charisma: number
           constitution: number
           created_at?: string
           dexterity: number
-          id?: string
+          hp_max: number
           intelligence: number
-          max_hp: number
-          name: string
+          player_character_id: string
           speed: number
           strength: number
           updated_at?: string
           wisdom: number
         }
         Update: {
-          actions?: Json | null
+          actions_json?: Json | null
           armor_class?: number
-          campaign_id?: string
           charisma?: number
           constitution?: number
           created_at?: string
           dexterity?: number
-          id?: string
+          hp_max?: number
           intelligence?: number
-          max_hp?: number
-          name?: string
+          player_character_id?: string
           speed?: number
           strength?: number
           updated_at?: string
@@ -674,10 +710,88 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "player_character_combat_stats_player_character_id_fkey"
+            columns: ["player_character_id"]
+            isOneToOne: true
+            referencedRelation: "player_characters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      player_characters: {
+        Row: {
+          age: number | null
+          alignment: string | null
+          background: string | null
+          biography_json: Json | null
+          campaign_id: string
+          class: string | null
+          created_at: string
+          faction_id: string | null
+          id: string
+          image_url: string | null
+          languages: string[] | null
+          level: number | null
+          name: string
+          notes: string | null
+          personality_json: Json | null
+          race: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          age?: number | null
+          alignment?: string | null
+          background?: string | null
+          biography_json?: Json | null
+          campaign_id: string
+          class?: string | null
+          created_at?: string
+          faction_id?: string | null
+          id?: string
+          image_url?: string | null
+          languages?: string[] | null
+          level?: number | null
+          name: string
+          notes?: string | null
+          personality_json?: Json | null
+          race?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          age?: number | null
+          alignment?: string | null
+          background?: string | null
+          biography_json?: Json | null
+          campaign_id?: string
+          class?: string | null
+          created_at?: string
+          faction_id?: string | null
+          id?: string
+          image_url?: string | null
+          languages?: string[] | null
+          level?: number | null
+          name?: string
+          notes?: string | null
+          personality_json?: Json | null
+          race?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
             foreignKeyName: "player_characters_campaign_id_fkey"
             columns: ["campaign_id"]
             isOneToOne: false
             referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "player_characters_faction_id_fkey"
+            columns: ["faction_id"]
+            isOneToOne: false
+            referencedRelation: "factions"
             referencedColumns: ["id"]
           },
         ]

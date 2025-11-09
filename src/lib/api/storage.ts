@@ -130,3 +130,62 @@ export async function deleteNPCImage(imageUrl: string): Promise<void> {
     throw error;
   }
 }
+
+/**
+ * Upload Player Character image to Supabase Storage with WebP compression
+ * @param campaignId - Campaign ID for folder structure
+ * @param file - Image file to upload
+ * @returns Public URL of uploaded image
+ */
+export async function uploadPlayerCharacterImage(
+  campaignId: string,
+  file: File
+): Promise<string> {
+  const supabase = getSupabaseClient();
+
+  // 1. Client-side compression to WebP (max 5 MB)
+  const compressedFile = await compressImageToWebP(file, 5);
+
+  // 2. Upload to Supabase Storage
+  const fileName = `${campaignId}/${Date.now()}-${file.name.replace(/\.[^/.]+$/, '.webp')}`;
+  const { data, error } = await supabase.storage
+    .from('pc-images')
+    .upload(fileName, compressedFile);
+
+  if (error) {
+    console.error('Failed to upload player character image:', error);
+    throw error;
+  }
+
+  // 3. Get public URL
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from('pc-images').getPublicUrl(data?.path || fileName);
+
+  return publicUrl;
+}
+
+/**
+ * Delete Player Character image from Supabase Storage
+ * @param imageUrl - Full public URL of the image
+ */
+export async function deletePlayerCharacterImage(imageUrl: string): Promise<void> {
+  const supabase = getSupabaseClient();
+
+  // Extract file path from URL
+  const fileName = imageUrl.split('/pc-images/')[1];
+
+  if (!fileName) {
+    console.error('Invalid player character image URL:', imageUrl);
+    throw new Error('Invalid image URL');
+  }
+
+  const { error } = await supabase.storage
+    .from('pc-images')
+    .remove([fileName]);
+
+  if (error) {
+    console.error('Failed to delete player character image:', error);
+    throw error;
+  }
+}

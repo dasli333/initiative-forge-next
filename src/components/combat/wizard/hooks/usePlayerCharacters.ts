@@ -14,7 +14,11 @@ export function usePlayerCharacters(campaignId: string) {
 
       const { data, error } = await supabase
         .from("player_characters")
-        .select("*")
+        .select(`
+          id,
+          name,
+          player_character_combat_stats(hp_max, armor_class)
+        `)
         .eq("campaign_id", campaignId)
         .order("name", { ascending: true });
 
@@ -23,7 +27,13 @@ export function usePlayerCharacters(campaignId: string) {
         throw new Error("Failed to fetch player characters");
       }
 
-      return data as unknown as PlayerCharacterDTO[];
+      // Map to include combat stats
+      return (data as any[]).map((pc: any) => ({
+        id: pc.id,
+        name: pc.name,
+        max_hp: pc.player_character_combat_stats?.hp_max || null,
+        armor_class: pc.player_character_combat_stats?.armor_class || null,
+      }));
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });

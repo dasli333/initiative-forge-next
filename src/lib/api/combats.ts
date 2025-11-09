@@ -109,7 +109,7 @@ async function resolvePlayerCharacter(
 ): Promise<CombatParticipantDTO> {
   const { data, error } = await supabase
     .from("player_characters")
-    .select("*")
+    .select("id, name")
     .eq("id", playerId)
     .eq("campaign_id", campaignId)
     .single();
@@ -118,26 +118,39 @@ async function resolvePlayerCharacter(
     throw new Error(`Player character not found: ${playerId}`);
   }
 
-  const pc = data as unknown as PlayerCharacter;
+  // Fetch combat stats (required for combat)
+  const { data: combatStats, error: statsError } = await supabase
+    .from("player_character_combat_stats")
+    .select("*")
+    .eq("player_character_id", playerId)
+    .maybeSingle();
+
+  if (statsError) {
+    throw new Error(`Failed to fetch combat stats: ${statsError.message}`);
+  }
+
+  if (!combatStats) {
+    throw new Error(`Player character ${data.name} has no combat stats and cannot be added to combat`);
+  }
 
   return {
     id: crypto.randomUUID(),
     source: "player_character",
-    player_character_id: pc.id,
-    display_name: pc.name,
+    player_character_id: data.id,
+    display_name: data.name,
     initiative: null,
-    current_hp: pc.max_hp,
-    max_hp: pc.max_hp,
-    armor_class: pc.armor_class,
+    current_hp: combatStats.hp_max,
+    max_hp: combatStats.hp_max,
+    armor_class: combatStats.armor_class,
     stats: {
-      str: pc.strength,
-      dex: pc.dexterity,
-      con: pc.constitution,
-      int: pc.intelligence,
-      wis: pc.wisdom,
-      cha: pc.charisma,
+      str: combatStats.strength,
+      dex: combatStats.dexterity,
+      con: combatStats.constitution,
+      int: combatStats.intelligence,
+      wis: combatStats.wisdom,
+      cha: combatStats.charisma,
     },
-    actions: (pc.actions as unknown as ActionDTO[]) || [],
+    actions: (combatStats.actions_json as unknown as ActionDTO[]) || [],
     is_active_turn: false,
     active_conditions: [],
   };

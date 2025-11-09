@@ -14,6 +14,7 @@ export interface EntitySearchResult {
   entityType:
     | 'location'
     | 'npc'
+    | 'player_character'
     | 'quest'
     | 'session'
     | 'story_arc'
@@ -40,6 +41,7 @@ export async function searchCampaignEntities(
   const [
     locationsRes,
     npcsRes,
+    playerCharactersRes,
     questsRes,
     sessionsRes,
     storyArcsRes,
@@ -54,6 +56,10 @@ export async function searchCampaignEntities(
     supabase
       .from('npcs')
       .select('id, name, image_url, biography_json')
+      .eq('campaign_id', campaignId),
+    supabase
+      .from('player_characters')
+      .select('id, name, image_url, class, level')
       .eq('campaign_id', campaignId),
     supabase
       .from('quests')
@@ -84,6 +90,7 @@ export async function searchCampaignEntities(
   // Handle errors
   if (locationsRes.error) throw locationsRes.error;
   if (npcsRes.error) throw npcsRes.error;
+  if (playerCharactersRes.error) throw playerCharactersRes.error;
   if (questsRes.error) throw questsRes.error;
   if (sessionsRes.error) throw sessionsRes.error;
   if (storyArcsRes.error) throw storyArcsRes.error;
@@ -106,6 +113,13 @@ export async function searchCampaignEntities(
       entityType: 'npc' as const,
       imageUrl: npc.image_url,
       excerpt: extractExcerpt(npc.biography_json as TiptapNode | null),
+    })),
+    ...(playerCharactersRes.data || []).map((pc: any) => ({
+      id: pc.id,
+      label: pc.name,
+      entityType: 'player_character' as const,
+      imageUrl: pc.image_url,
+      excerpt: pc.level && pc.class ? `Level ${pc.level} ${pc.class}` : pc.class || null,
     })),
     ...(questsRes.data || []).map((quest) => ({
       id: quest.id,

@@ -66,17 +66,7 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
   const selectedLanguage = useLanguageStore((state) => state.selectedLanguage);
 
   // ==================== DERIVED STATE ====================
-  const playerCharacters = useMemo(() => {
-    if (!playerCharactersQuery.data) return [];
-    return playerCharactersQuery.data.map(
-      (pc): PlayerCharacterViewModel => ({
-        id: pc.id,
-        name: pc.name,
-        max_hp: pc.max_hp,
-        armor_class: pc.armor_class,
-      })
-    );
-  }, [playerCharactersQuery.data]);
+  const playerCharacters = playerCharactersQuery.data || [];
 
   const monsters = useMemo(() => {
     if (!monstersQuery.data) return [];

@@ -301,3 +301,37 @@ export async function deleteNPC(npcId: string): Promise<void> {
     throw new Error(error.message);
   }
 }
+
+/**
+ * Get PC relationships for an NPC
+ * Returns player characters related to this NPC
+ */
+export async function getNPCPCRelationships(npcId: string): Promise<import('@/types/npcs').PCRelationshipViewModel[]> {
+  const supabase = getSupabaseClient();
+
+  const { data, error } = await supabase
+    .from('pc_npc_relationships')
+    .select(`
+      id,
+      player_character_id,
+      relationship_type,
+      description,
+      player_characters(name, image_url)
+    `)
+    .eq('npc_id', npcId)
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    console.error('Failed to fetch PC relationships:', error);
+    throw new Error(error.message);
+  }
+
+  return (data as any[]).map((rel: any) => ({
+    id: rel.id,
+    player_character_id: rel.player_character_id,
+    player_character_name: rel.player_characters?.name || 'Unknown',
+    player_character_image_url: rel.player_characters?.image_url || null,
+    relationship_type: rel.relationship_type,
+    description: rel.description,
+  }));
+}

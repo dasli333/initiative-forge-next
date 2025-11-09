@@ -9,6 +9,7 @@ import {
   createNPC,
   updateNPC,
   deleteNPC,
+  getNPCPCRelationships,
 } from '@/lib/api/npcs';
 import {
   getNPCCombatStats,
@@ -307,10 +308,11 @@ export function useNPCDetailsQuery(npcId: string | null): UseQueryResult<NPCDeta
       if (!npcId) throw new Error('NPC ID is required');
 
       // Fetch all data in parallel
-      const [npc, combatStats, relationships, backlinks, tags] = await Promise.all([
+      const [npc, combatStats, relationships, pcRelationships, backlinks, tags] = await Promise.all([
         getNPC(npcId),
         getNPCCombatStats(npcId),
         getNPCRelationships(npcId),
+        getNPCPCRelationships(npcId),
         getMentionsOf('npc', npcId),
         getNPCAssignedTags(npcId),
       ]);
@@ -355,6 +357,7 @@ export function useNPCDetailsQuery(npcId: string | null): UseQueryResult<NPCDeta
         npc,
         combatStats,
         relationships: enrichedRelationships,
+        pcRelationships,
         backlinks: backlinkItems,
         factionName,
         locationName,

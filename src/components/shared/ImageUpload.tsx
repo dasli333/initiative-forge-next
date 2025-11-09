@@ -5,9 +5,9 @@ import { Upload, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import { uploadLocationImage, deleteLocationImage, uploadNPCImage, deleteNPCImage } from '@/lib/api/storage';
+import { uploadLocationImage, deleteLocationImage, uploadNPCImage, deleteNPCImage, uploadPlayerCharacterImage, deletePlayerCharacterImage } from '@/lib/api/storage';
 
-type EntityType = 'location' | 'npc';
+type EntityType = 'location' | 'npc' | 'player_character';
 
 interface ImageUploadProps {
   value?: string | null;
@@ -93,9 +93,14 @@ export function ImageUpload({
           setState((prev) => ({ ...prev, progress: Math.min(prev.progress + 10, 90) }));
         }, 150);
 
-        const imageUrl = entityType === 'npc'
-          ? await uploadNPCImage(campaignId, file)
-          : await uploadLocationImage(campaignId, file);
+        let imageUrl: string;
+        if (entityType === 'npc') {
+          imageUrl = await uploadNPCImage(campaignId, file);
+        } else if (entityType === 'player_character') {
+          imageUrl = await uploadPlayerCharacterImage(campaignId, file);
+        } else {
+          imageUrl = await uploadLocationImage(campaignId, file);
+        }
 
         clearInterval(progressInterval);
         setState((prev) => ({
@@ -164,6 +169,8 @@ export function ImageUpload({
       if (state.previewUrl.startsWith('http')) {
         if (entityType === 'npc') {
           await deleteNPCImage(state.previewUrl);
+        } else if (entityType === 'player_character') {
+          await deletePlayerCharacterImage(state.previewUrl);
         } else {
           await deleteLocationImage(state.previewUrl);
         }

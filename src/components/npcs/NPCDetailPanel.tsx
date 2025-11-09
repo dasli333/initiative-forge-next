@@ -335,6 +335,7 @@ export function NPCDetailPanel({
             <TabsContent value="related" className="mt-0 h-full">
               <RelatedTab
                 backlinks={backlinks}
+                pcRelationships={viewModel?.pcRelationships}
                 campaignId={campaignId}
               />
             </TabsContent>

@@ -19,7 +19,7 @@ import {
   useCreateNPCRelationshipMutation,
   useUpdateNPCRelationshipMutation,
   useDeleteNPCRelationshipMutation,
-} from '@/hooks/useNpcs';
+} from '@/hooks/useNPCs';
 import {
   useNPCTagsQuery,
   useNPCAssignedTagsQuery,

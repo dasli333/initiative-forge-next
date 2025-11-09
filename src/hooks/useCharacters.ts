@@ -1,38 +1,51 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import {
-  getCharacters,
+  getCharacterCards,
+  getCharacterDetails,
   createCharacter,
   updateCharacter,
   deleteCharacter,
+  addCombatStats,
+  updateCombatStats,
+  removeCombatStats,
+  createPCNPCRelationship,
+  updatePCNPCRelationship,
+  deletePCNPCRelationship,
 } from '@/lib/api/characters';
 import type {
-  PlayerCharacterDTO,
+  PlayerCharacterCardViewModel,
+  PlayerCharacterDetailsViewModel,
+  PlayerCharacterFilters,
   CreatePlayerCharacterCommand,
   UpdatePlayerCharacterCommand,
-} from '@/types';
+  CreateCombatStatsCommand,
+  UpdateCombatStatsCommand,
+  CreatePCNPCRelationshipCommand,
+  UpdatePCNPCRelationshipCommand,
+} from '@/types/player-characters';
+
+// ============================================================================
+// CHARACTER CARDS QUERY (LIST VIEW)
+// ============================================================================
 
 /**
- * Hook for fetching player characters for a campaign
+ * Query: Get character cards for campaign with optional filters
  */
-export function useCharactersQuery(campaignId: string | null | undefined) {
+export function useCharacterCardsQuery(campaignId: string, filters?: PlayerCharacterFilters) {
   const router = useRouter();
 
   return useQuery({
-    queryKey: ['campaigns', campaignId, 'characters'],
-    queryFn: async (): Promise<PlayerCharacterDTO[]> => {
-      if (!campaignId) throw new Error('Campaign ID is required');
-
+    queryKey: ['player_characters', campaignId, 'cards', filters],
+    queryFn: async (): Promise<PlayerCharacterCardViewModel[]> => {
       try {
-        return await getCharacters(campaignId);
+        return await getCharacterCards(campaignId, filters);
       } catch (error) {
-        if (error instanceof Error) {
-          if (error.message.includes('auth')) {
-            router.push('/login');
-          }
+        if (error instanceof Error && error.message.includes('auth')) {
+          router.push('/login');
         }
         throw error;
       }
@@ -41,35 +54,64 @@ export function useCharactersQuery(campaignId: string | null | undefined) {
   });
 }
 
+// ============================================================================
+// CHARACTER DETAILS QUERY
+// ============================================================================
+
 /**
- * Hook for creating a new player character
+ * Query: Get full character details (character + combat stats + relationships)
+ */
+export function useCharacterDetailsQuery(
+  characterId: string | null
+): UseQueryResult<PlayerCharacterDetailsViewModel, Error> {
+  return useQuery({
+    queryKey: ['player_character', characterId, 'details'],
+    queryFn: async () => {
+      if (!characterId) throw new Error('Character ID is required');
+      return await getCharacterDetails(characterId);
+    },
+    enabled: !!characterId,
+  });
+}
+
+// ============================================================================
+// CHARACTER MUTATIONS
+// ============================================================================
+
+/**
+ * Mutation: Create new character
  */
 export function useCreateCharacterMutation(campaignId: string) {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: async (command: CreatePlayerCharacterCommand) => {
-      return await createCharacter(campaignId, command);
+      try {
+        return await createCharacter(campaignId, command);
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('auth')) {
+          router.push('/login');
+        }
+        throw error;
+      }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['campaigns', campaignId, 'characters'],
-      });
-      toast.success('Character created successfully');
+      queryClient.invalidateQueries({ queryKey: ['player_characters', campaignId] });
+      toast.success('Character created');
     },
     onError: (error: Error) => {
       if (error.message.includes('already exists')) {
-        toast.error('A character with this name already exists');
+        toast.error('Character with this name already exists');
       } else {
         toast.error('Failed to create character');
       }
-      console.error('Error creating character:', error);
     },
   });
 }
 
 /**
- * Hook for updating a player character
+ * Mutation: Update character
  */
 export function useUpdateCharacterMutation(campaignId: string) {
   const queryClient = useQueryClient();
@@ -81,45 +123,176 @@ export function useUpdateCharacterMutation(campaignId: string) {
     }: {
       characterId: string;
       command: UpdatePlayerCharacterCommand;
-    }) => {
-      return await updateCharacter(characterId, command);
+    }) => updateCharacter(characterId, command),
+
+    onSuccess: (data, { characterId }) => {
+      queryClient.invalidateQueries({ queryKey: ['player_characters', campaignId] });
+      queryClient.invalidateQueries({ queryKey: ['player_character', characterId] });
+      toast.success('Character updated');
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['campaigns', campaignId, 'characters'],
-      });
-      toast.success('Character updated successfully');
-    },
+
     onError: (error: Error) => {
       if (error.message.includes('not found')) {
         toast.error('Character not found');
       } else {
         toast.error('Failed to update character');
       }
-      console.error('Error updating character:', error);
     },
   });
 }
 
 /**
- * Hook for deleting a player character
+ * Mutation: Delete character
  */
 export function useDeleteCharacterMutation(campaignId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (characterId: string) => {
-      await deleteCharacter(characterId);
-    },
+    mutationFn: async (characterId: string) => deleteCharacter(characterId),
+
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['campaigns', campaignId, 'characters'],
-      });
-      toast.success('Character deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['player_characters', campaignId] });
+      toast.success('Character deleted');
     },
-    onError: (error: Error) => {
+
+    onError: () => {
       toast.error('Failed to delete character');
-      console.error('Error deleting character:', error);
+    },
+  });
+}
+
+// ============================================================================
+// COMBAT STATS MUTATIONS
+// ============================================================================
+
+/**
+ * Mutation: Add combat stats
+ */
+export function useAddCombatStatsMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ characterId, command }: { characterId: string; command: CreateCombatStatsCommand }) =>
+      addCombatStats(characterId, command),
+
+    onSuccess: (_, { characterId }) => {
+      queryClient.invalidateQueries({ queryKey: ['player_character', characterId, 'details'] });
+      toast.success('Combat stats added');
+    },
+
+    onError: () => {
+      toast.error('Failed to add combat stats');
+    },
+  });
+}
+
+/**
+ * Mutation: Update combat stats
+ */
+export function useUpdateCombatStatsMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ characterId, command }: { characterId: string; command: UpdateCombatStatsCommand }) =>
+      updateCombatStats(characterId, command),
+
+    onSuccess: (_, { characterId }) => {
+      queryClient.invalidateQueries({ queryKey: ['player_character', characterId, 'details'] });
+      toast.success('Combat stats updated');
+    },
+
+    onError: () => {
+      toast.error('Failed to update combat stats');
+    },
+  });
+}
+
+/**
+ * Mutation: Remove combat stats
+ */
+export function useRemoveCombatStatsMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (characterId: string) => removeCombatStats(characterId),
+
+    onSuccess: (_, characterId) => {
+      queryClient.invalidateQueries({ queryKey: ['player_character', characterId, 'details'] });
+      toast.success('Combat stats removed');
+    },
+
+    onError: () => {
+      toast.error('Failed to remove combat stats');
+    },
+  });
+}
+
+// ============================================================================
+// PC-NPC RELATIONSHIP MUTATIONS
+// ============================================================================
+
+/**
+ * Mutation: Create PC-NPC relationship
+ */
+export function useCreatePCNPCRelationshipMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ characterId, command }: { characterId: string; command: CreatePCNPCRelationshipCommand }) =>
+      createPCNPCRelationship(characterId, command),
+
+    onSuccess: (_, { characterId }) => {
+      queryClient.invalidateQueries({ queryKey: ['player_character', characterId, 'details'] });
+      toast.success('Relationship created');
+    },
+
+    onError: (error: Error) => {
+      if (error.message.includes('already exists')) {
+        toast.error('Relationship already exists');
+      } else {
+        toast.error('Failed to create relationship');
+      }
+    },
+  });
+}
+
+/**
+ * Mutation: Update PC-NPC relationship
+ */
+export function useUpdatePCNPCRelationshipMutation(characterId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ relationshipId, command }: { relationshipId: string; command: UpdatePCNPCRelationshipCommand }) =>
+      updatePCNPCRelationship(relationshipId, command),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['player_character', characterId, 'details'] });
+      toast.success('Relationship updated');
+    },
+
+    onError: () => {
+      toast.error('Failed to update relationship');
+    },
+  });
+}
+
+/**
+ * Mutation: Delete PC-NPC relationship
+ */
+export function useDeletePCNPCRelationshipMutation(characterId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (relationshipId: string) => deletePCNPCRelationship(relationshipId),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['player_character', characterId, 'details'] });
+      toast.success('Relationship deleted');
+    },
+
+    onError: () => {
+      toast.error('Failed to delete relationship');
     },
   });
 }

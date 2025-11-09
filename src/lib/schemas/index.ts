@@ -92,7 +92,7 @@ export {
 } from "./combat.schema";
 
 // Player character schemas
-export { CreatePlayerCharacterCommandSchema, type CreatePlayerCharacterCommand } from "./player-character.schema";
+export { characterFormSchema, type CharacterFormData } from "./player-character.schema";
 
 // Combat wizard schemas
 export {

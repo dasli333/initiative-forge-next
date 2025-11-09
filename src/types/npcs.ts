@@ -104,10 +104,23 @@ export interface NPCDetailsViewModel {
   npc: NPCDTO;
   combatStats: import('@/types/npc-combat-stats').NPCCombatStatsDTO | null;
   relationships: NPCRelationshipViewModel[];
+  pcRelationships: PCRelationshipViewModel[]; // Player characters related to this NPC
   backlinks: BacklinkItem[];
   factionName?: string;
   locationName?: string;
   tags: NPCTagDTO[]; // Assigned tags for this NPC
+}
+
+/**
+ * PC relationship (player character → this NPC)
+ */
+export interface PCRelationshipViewModel {
+  id: string;
+  player_character_id: string;
+  player_character_name: string;
+  player_character_image_url: string | null;
+  relationship_type: string;
+  description: string | null;
 }
 
 /**

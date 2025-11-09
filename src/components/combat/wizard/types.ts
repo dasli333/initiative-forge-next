@@ -35,8 +35,8 @@ export interface WizardState {
 export interface PlayerCharacterViewModel {
   id: string;
   name: string;
-  max_hp: number;
-  armor_class: number;
+  max_hp: number | null;
+  armor_class: number | null;
 }
 
 /**

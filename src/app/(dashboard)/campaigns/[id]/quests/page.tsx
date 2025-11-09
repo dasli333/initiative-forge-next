@@ -13,7 +13,7 @@ import {
   useUpdateQuestMutation,
   useDeleteQuestMutation,
 } from '@/hooks/useQuests';
-import { useNPCsQuery } from '@/hooks/useNpcs';
+import { useNPCsQuery } from '@/hooks/useNPCs';
 import { useStoryArcsQuery } from '@/hooks/useStoryArcs';
 import { calculateObjectivesProgress, formatRewardsSummary } from '@/lib/api/quests';
 import type { QuestCardViewModel, QuestFilters } from '@/types/quests';
