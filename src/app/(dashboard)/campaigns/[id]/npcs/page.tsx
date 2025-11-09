@@ -268,7 +268,39 @@ export default function NPCsPage() {
   };
 
   const handleAddCombatStats = () => {
-    if (editedData) {
+    if (!selectedNPCId || !npcDetails) return;
+
+    // Enter edit mode if not already editing
+    if (!isEditing) {
+      setEditedData({
+        role: npcDetails.npc.role || '',
+        faction_id: npcDetails.npc.faction_id,
+        current_location_id: npcDetails.npc.current_location_id,
+        status: npcDetails.npc.status as 'alive' | 'dead' | 'unknown',
+        image_url: npcDetails.npc.image_url,
+        biography_json: npcDetails.npc.biography_json,
+        personality_json: npcDetails.npc.personality_json,
+        race: npcDetails.npc.race || null,
+        age: npcDetails.npc.age || null,
+        alignment: npcDetails.npc.alignment as 'LG' | 'NG' | 'CG' | 'LN' | 'N' | 'CN' | 'LE' | 'NE' | 'CE' | null,
+        languages: npcDetails.npc.languages || null,
+        distinguishing_features: npcDetails.npc.distinguishing_features || null,
+        secrets: npcDetails.npc.secrets || null,
+        combatStats: {
+          hp_max: 10,
+          armor_class: 10,
+          speed: 30,
+          strength: 10,
+          dexterity: 10,
+          constitution: 10,
+          intelligence: 10,
+          wisdom: 10,
+          charisma: 10,
+          actions_json: null,
+        },
+      });
+      setIsEditing(true);
+    } else if (editedData) {
       setEditedData({
         ...editedData,
         combatStats: {
@@ -288,11 +320,17 @@ export default function NPCsPage() {
   };
 
   const handleRemoveCombatStats = () => {
-    if (editedData) {
+    if (!selectedNPCId) return;
+
+    // If editing, update editedData; otherwise delete immediately
+    if (isEditing && editedData) {
       setEditedData({
         ...editedData,
         combatStats: null,
       });
+    } else {
+      // Delete combat stats immediately without entering edit mode
+      deleteCombatStatsMutation.mutate(selectedNPCId);
     }
   };
 

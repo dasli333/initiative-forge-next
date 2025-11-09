@@ -359,7 +359,7 @@ export function CombatTab({
 
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="destructive" disabled={!isEditing || isUpdating}>
+            <Button variant="destructive" disabled={isUpdating}>
               <Trash2 className="h-4 w-4 mr-2" />
               Remove Combat Stats
             </Button>
