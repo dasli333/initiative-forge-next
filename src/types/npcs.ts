@@ -20,6 +20,19 @@ export interface NPCDTO extends Omit<NPC, 'biography_json' | 'personality_json' 
 // Legacy alias (deprecated, use NPCDTO)
 export type NPCSDTO = NPCDTO;
 
+/**
+ * Enriched NPC with joined data from Supabase query
+ * Used internally in API layer before flattening to NPCDTO
+ */
+export interface NPCWithJoins extends NPCDTO {
+  factions?: { name: string } | null;
+  locations?: { name: string } | null;
+  npc_tag_assignments?: Array<{
+    npc_tags: NPCTagDTO | null;
+  }> | null;
+  npc_combat_stats?: unknown | null;
+}
+
 // ============================================================================
 // COMMAND MODELS
 // ============================================================================
@@ -110,6 +123,21 @@ export interface NPCDetailsViewModel {
   factionName?: string;
   locationName?: string;
   tags: NPCTagDTO[]; // Assigned tags for this NPC
+}
+
+/**
+ * PC relationship with joined data from Supabase query
+ * Used internally in API layer before mapping to PCRelationshipViewModel
+ */
+export interface PCRelationshipWithJoins {
+  id: string;
+  player_character_id: string;
+  relationship_type: string;
+  description: string | null;
+  player_characters?: {
+    name: string;
+    image_url: string | null;
+  } | null;
 }
 
 /**

@@ -69,7 +69,7 @@ export default function StoryArcsPage() {
     if (storyArcDetails) {
       setEditedData({
         title: storyArcDetails.title,
-        status: storyArcDetails.status as any,
+        status: storyArcDetails.status as 'planning' | 'active' | 'completed' | 'abandoned',
         start_date: storyArcDetails.start_date,
         end_date: storyArcDetails.end_date,
         description_json: storyArcDetails.description_json,

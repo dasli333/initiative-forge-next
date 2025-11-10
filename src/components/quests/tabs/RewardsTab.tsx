@@ -37,7 +37,7 @@ export function RewardsTab({
       ? editedData.rewards_json || {}
       : viewModel.quest.rewards_json || {};
 
-  const handleRewardChange = (field: keyof QuestRewards, value: any) => {
+  const handleRewardChange = (field: keyof QuestRewards, value: number | string[] | string | undefined) => {
     if (!isEditing || !editedData) return;
     const updated = { ...rewards, [field]: value };
     onEditedDataChange('rewards_json', updated);

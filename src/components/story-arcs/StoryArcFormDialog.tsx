@@ -98,7 +98,7 @@ export function StoryArcFormDialog({
               <Label htmlFor="status">Status</Label>
               <Select
                 value={watch('status')}
-                onValueChange={(val) => setValue('status', val as any)}
+                onValueChange={(val) => setValue('status', val as 'planning' | 'active' | 'completed' | 'abandoned')}
               >
                 <SelectTrigger>
                   <SelectValue />

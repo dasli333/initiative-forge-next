@@ -1,5 +1,5 @@
 import { getSupabaseClient } from '@/lib/supabase';
-import type { QuestDTO, CreateQuestCommand, UpdateQuestCommand, QuestFilters, QuestObjective, QuestRewards } from '@/types/quests';
+import type { QuestDTO, CreateQuestCommand, UpdateQuestCommand, QuestFilters, QuestObjective, QuestRewards, Quest } from '@/types/quests';
 import type { Json } from '@/types/database';
 import type { JSONContent } from '@tiptap/react';
 import { extractMentionsFromJson } from '@/lib/utils/mentionUtils';
@@ -48,7 +48,7 @@ export function formatRewardsSummary(rewards: QuestRewards | null): string {
 /**
  * Parse JSON fields from raw database response
  */
-function parseQuestDTO(raw: any): QuestDTO {
+function parseQuestDTO(raw: Quest & { story_arcs?: { title: string } | null }): QuestDTO {
   return {
     ...raw,
     description_json: raw.description_json as JSONContent | null,

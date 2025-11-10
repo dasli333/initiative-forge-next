@@ -3,6 +3,18 @@ import { getSupabaseClient } from "@/lib/supabase";
 import type { PlayerCharacterDTO } from "@/types";
 
 /**
+ * Player character with joined combat stats from Supabase query
+ */
+interface PCWithCombatStats {
+  id: string;
+  name: string;
+  player_character_combat_stats?: {
+    hp_max: number;
+    armor_class: number;
+  } | null;
+}
+
+/**
  * Hook for fetching player characters for a campaign
  * Uses TanStack Query (useQuery) with direct Supabase calls
  */
@@ -28,7 +40,7 @@ export function usePlayerCharacters(campaignId: string) {
       }
 
       // Map to include combat stats
-      return (data as any[]).map((pc: any) => ({
+      return (data as PCWithCombatStats[]).map((pc) => ({
         id: pc.id,
         name: pc.name,
         max_hp: pc.player_character_combat_stats?.hp_max || null,

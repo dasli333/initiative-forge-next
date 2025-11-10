@@ -163,7 +163,7 @@ export async function getNPCAssignedTags(npcId: string): Promise<NPCTagDTO[]> {
   }
 
   // Extract tags from JOIN result
-  return data.map((assignment: any) => assignment.npc_tags) as NPCTagDTO[];
+  return data.map((assignment: { tag_id: string; npc_tags: NPCTagDTO }) => assignment.npc_tags);
 }
 
 /**

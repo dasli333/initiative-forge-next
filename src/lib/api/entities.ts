@@ -114,7 +114,7 @@ export async function searchCampaignEntities(
       imageUrl: npc.image_url,
       excerpt: extractExcerpt(npc.biography_json as TiptapNode | null),
     })),
-    ...(playerCharactersRes.data || []).map((pc: any) => ({
+    ...(playerCharactersRes.data || []).map((pc: { id: string; name: string; image_url: string | null; level: number | null; class: string | null }) => ({
       id: pc.id,
       label: pc.name,
       entityType: 'player_character' as const,

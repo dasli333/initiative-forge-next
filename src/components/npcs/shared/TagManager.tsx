@@ -112,10 +112,8 @@ export function TagManager({
     }
   };
 
-  const getIconComponent = (iconName: string) => {
-    const IconComponent = (LucideIcons as any)[iconName] as React.ComponentType<
-      any
-    >;
+  const getIconComponent = (iconName: string): React.ComponentType<{ size?: number }> => {
+    const IconComponent = (LucideIcons as Record<string, React.ComponentType<{ size?: number }>>)[iconName];
     return IconComponent || LucideIcons.Tag;
   };
 

@@ -422,15 +422,15 @@ export default function NPCsPage() {
   const npcsWithTags: NPCCardViewModel[] = useMemo(() => {
     if (!npcs) return [];
 
-    return npcs.map((npc: any) => {
+    return npcs.map((npc) => {
       // Extract tags from JOIN result
-      const npcTags = npc.npc_tag_assignments?.map((assignment: any) => assignment.npc_tags).filter(Boolean) || [];
+      const npcTags = (npc as import('@/types/npcs').NPCWithJoins).npc_tag_assignments?.map((assignment) => assignment.npc_tags).filter(Boolean) || [];
 
       return {
         npc,
-        hasCombatStats: !!npc.npc_combat_stats, // Check if combat stats exist
-        factionName: npc.factions?.name,
-        locationName: npc.locations?.name,
+        hasCombatStats: !!(npc as import('@/types/npcs').NPCWithJoins).npc_combat_stats, // Check if combat stats exist
+        factionName: (npc as import('@/types/npcs').NPCWithJoins).factions?.name,
+        locationName: (npc as import('@/types/npcs').NPCWithJoins).locations?.name,
         tags: npcTags,
       };
     });
@@ -530,7 +530,7 @@ export default function NPCsPage() {
                 current_location_id: npcDetails.npc.current_location_id,
                 status: npcDetails.npc.status as 'alive' | 'dead' | 'unknown',
                 image_url: npcDetails.npc.image_url,
-                tag_ids: npcDetails.tags?.map((tag: any) => tag.id) || [],
+                tag_ids: npcDetails.tags?.map((tag) => tag.id) || [],
               }
             : undefined
         }

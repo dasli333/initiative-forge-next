@@ -10,7 +10,7 @@ export type NPCTagAssignment = Tables<'npc_tag_assignments'>;
 /**
  * NPC Tag DTO (no Json fields, direct mapping)
  */
-export interface NPCTagDTO extends NPCTag {}
+export type NPCTagDTO = NPCTag;
 
 // ============================================================================
 // COMMAND MODELS

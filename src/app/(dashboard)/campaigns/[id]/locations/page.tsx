@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { LocationsHeader } from '@/components/locations/LocationsHeader';
@@ -24,7 +24,6 @@ export default function LocationsPage() {
   const campaignId = params.id as string;
   const selectedId = searchParams.get('selectedId');
 
-  const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [parentLocationId, setParentLocationId] = useState<string | null>(null);
 
@@ -37,14 +36,13 @@ export default function LocationsPage() {
   const updateMutation = useUpdateLocationMutation(campaignId);
   const deleteMutation = useDeleteLocationMutation(campaignId);
 
-  // Auto-select location from URL query param
-  useEffect(() => {
+  // Derive selected location from URL query param
+  const selectedLocationId = useMemo(() => {
     if (selectedId && !isLocationsLoading && locations.length > 0) {
       const locationExists = locations.some((loc) => loc.id === selectedId);
-      if (locationExists) {
-        setSelectedLocationId(selectedId);
-      }
+      return locationExists ? selectedId : null;
     }
+    return null;
   }, [selectedId, locations, isLocationsLoading]);
 
   const handleCreateLocation = async (data: CreateLocationCommand | UpdateLocationCommand) => {

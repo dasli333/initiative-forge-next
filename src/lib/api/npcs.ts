@@ -1,5 +1,5 @@
 import { getSupabaseClient } from '@/lib/supabase';
-import type { NPCDTO, CreateNPCCommand, UpdateNPCCommand, NPCFilters } from '@/types/npcs';
+import type { NPCDTO, CreateNPCCommand, UpdateNPCCommand, NPCFilters, NPCWithJoins, PCRelationshipWithJoins } from '@/types/npcs';
 import type { Json } from '@/types/database';
 import { extractMentionsFromJson } from '@/lib/utils/mentionUtils';
 import { deleteMentionsBySource, batchCreateEntityMentions } from '@/lib/api/entity-mentions';
@@ -63,11 +63,11 @@ export async function getNPCs(
 
   // Filter by tags if specified (client-side filtering after fetch)
   // Note: Tag filtering requires client-side logic due to many-to-many relationship
-  let npcs = data as any[];
+  let npcs = data as NPCWithJoins[];
 
   if (filters?.tag_ids && filters.tag_ids.length > 0) {
-    npcs = npcs.filter((npc: any) => {
-      const npcTagIds = npc.npc_tag_assignments?.map((assignment: any) => assignment.npc_tags?.id) || [];
+    npcs = npcs.filter((npc) => {
+      const npcTagIds = npc.npc_tag_assignments?.map((assignment) => assignment.npc_tags?.id).filter(Boolean) || [];
       // OR logic: NPC has at least one of the selected tags
       return filters.tag_ids!.some((tagId) => npcTagIds.includes(tagId));
     });
@@ -356,7 +356,7 @@ export async function getNPCPCRelationships(npcId: string): Promise<import('@/ty
     throw new Error(error.message);
   }
 
-  return (data as any[]).map((rel: any) => ({
+  return (data as PCRelationshipWithJoins[]).map((rel) => ({
     id: rel.id,
     player_character_id: rel.player_character_id,
     player_character_name: rel.player_characters?.name || 'Unknown',

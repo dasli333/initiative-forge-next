@@ -1,7 +1,5 @@
 import { getSupabaseClient } from '@/lib/supabase';
 import type { SpellDTO } from '@/types';
-import type { PostgrestFilterBuilder } from '@supabase/postgrest-js';
-import type { Database } from '@/types/database';
 
 export interface FetchSpellsParams {
   searchQuery?: string;

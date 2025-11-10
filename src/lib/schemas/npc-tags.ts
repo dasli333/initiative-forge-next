@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { TAG_COLORS, TAG_ICONS } from '@/types/npc-tags';
+import { TAG_COLORS, TAG_ICONS, type TagColor, type TagIcon } from '@/types/npc-tags';
 
 // ============================================================================
 // NPC TAG SCHEMA
@@ -18,13 +18,13 @@ export const npcTagSchema = z.object({
   color: z
     .string()
     .refine(
-      (val) => TAG_COLORS.includes(val as any) || /^#[0-9A-F]{6}$/i.test(val),
+      (val): val is TagColor | `#${string}` => TAG_COLORS.includes(val as TagColor) || /^#[0-9A-F]{6}$/i.test(val),
       'Color must be a valid Tailwind color or hex code'
     ),
 
   icon: z
     .string()
-    .refine((val) => TAG_ICONS.includes(val as any), 'Invalid icon name'),
+    .refine((val): val is TagIcon => TAG_ICONS.includes(val as TagIcon), 'Invalid icon name'),
 });
 
 export type NPCTagFormData = z.infer<typeof npcTagSchema>;

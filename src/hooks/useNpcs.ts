@@ -342,14 +342,17 @@ export function useNPCDetailsQuery(npcId: string | null): UseQueryResult<NPCDeta
 
       // Map backlinks to BacklinkItem format
       const backlinkItems = backlinks.map((mention) => ({
-        source_type: mention.source_type as any,
+        source_type: mention.source_type as 'npc' | 'quest' | 'session' | 'location' | 'faction' | 'story_arc' | 'lore_note' | 'story_item',
         source_id: mention.source_id,
         source_name: '', // TODO: Fetch source name (needs additional API)
         source_field: mention.source_field,
       }));
 
       // Extract faction and location names from JOINs
-      const npcData = npc as any;
+      const npcData = npc as NPCDTO & {
+        factions?: { name: string } | null;
+        locations?: { name: string } | null;
+      };
       const factionName = npcData.factions?.name || undefined;
       const locationName = npcData.locations?.name || undefined;
 

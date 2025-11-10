@@ -45,7 +45,7 @@ export function QuestsFiltersCompact({
       const { status, ...rest } = filters;
       onFiltersChange(rest);
     } else {
-      onFiltersChange({ ...filters, status: value as any });
+      onFiltersChange({ ...filters, status: value as 'not_started' | 'active' | 'completed' | 'failed' });
     }
   };
 

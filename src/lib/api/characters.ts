@@ -14,12 +14,25 @@ import type {
   UpdatePCNPCRelationshipCommand,
 } from '@/types/player-characters';
 import type { Json } from '@/types/database';
+import type { JSONContent } from '@tiptap/react';
 import { extractMentionsFromJson } from '@/lib/utils/mentionUtils';
 import { deleteMentionsBySource, batchCreateEntityMentions } from '@/lib/api/entity-mentions';
 
 // ============================================================================
 // CHARACTER CARD QUERIES (LIST VIEW)
 // ============================================================================
+
+interface CharacterCardQueryResult {
+  id: string;
+  name: string;
+  class: string;
+  level: number;
+  image_url: string | null;
+  faction_id: string | null;
+  status: string;
+  factions: { name: string } | null;
+  player_character_combat_stats: { hp_max: number; armor_class: number }[] | null;
+}
 
 /**
  * Get character cards for campaign with optional filtering
@@ -31,6 +44,7 @@ export async function getCharacterCards(
 ): Promise<PlayerCharacterCardViewModel[]> {
   const supabase = getSupabaseClient();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query: any = supabase
     .from('player_characters')
     .select(`
@@ -73,7 +87,7 @@ export async function getCharacterCards(
   }
 
   // Map to ViewModel
-  return (data as any[]).map((pc: any) => ({
+  return (data as CharacterCardQueryResult[]).map((pc) => ({
     id: pc.id,
     name: pc.name,
     class: pc.class,
@@ -90,6 +104,36 @@ export async function getCharacterCards(
 // ============================================================================
 // CHARACTER DETAIL QUERIES
 // ============================================================================
+
+interface CharacterDetailsQueryResult {
+  id: string;
+  campaign_id: string;
+  name: string;
+  class: string;
+  level: number;
+  race: string | null;
+  background: string | null;
+  alignment: string | null;
+  age: number | null;
+  languages: string[] | null;
+  faction_id: string | null;
+  image_url: string | null;
+  biography_json: Json | null;
+  personality_json: Json | null;
+  notes: Json | null;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  factions: { name: string } | null;
+}
+
+interface RelationshipQueryResult {
+  id: string;
+  npc_id: string;
+  relationship_type: string;
+  description: string | null;
+  npcs: { name: string; image_url: string | null } | null;
+}
 
 /**
  * Get full character details including combat stats and relationships
@@ -150,7 +194,7 @@ export async function getCharacterDetails(
   }
 
   // Map relationships
-  const relationships: PCNPCRelationshipViewModel[] = (rawRelationships as any[]).map((rel: any) => ({
+  const relationships: PCNPCRelationshipViewModel[] = (rawRelationships as RelationshipQueryResult[]).map((rel) => ({
     id: rel.id,
     npc_id: rel.npc_id,
     npc_name: rel.npcs?.name || 'Unknown',
@@ -159,25 +203,27 @@ export async function getCharacterDetails(
     description: rel.description,
   }));
 
+  const characterWithFaction = character as CharacterDetailsQueryResult;
+
   // Map to DetailsViewModel
   return {
-    id: character.id,
-    campaign_id: character.campaign_id,
-    name: character.name,
-    class: character.class,
-    level: character.level,
-    race: character.race,
-    background: character.background,
-    alignment: character.alignment as any,
-    age: character.age,
-    languages: character.languages,
-    faction_id: character.faction_id,
-    faction_name: (character as any).factions?.name || null,
-    image_url: character.image_url,
-    biography_json: character.biography_json as any,
-    personality_json: character.personality_json as any,
-    notes: character.notes as any,
-    status: character.status as any,
+    id: characterWithFaction.id,
+    campaign_id: characterWithFaction.campaign_id,
+    name: characterWithFaction.name,
+    class: characterWithFaction.class,
+    level: characterWithFaction.level,
+    race: characterWithFaction.race,
+    background: characterWithFaction.background,
+    alignment: characterWithFaction.alignment as 'LG' | 'NG' | 'CG' | 'LN' | 'N' | 'CN' | 'LE' | 'NE' | 'CE' | null,
+    age: characterWithFaction.age,
+    languages: characterWithFaction.languages,
+    faction_id: characterWithFaction.faction_id,
+    faction_name: characterWithFaction.factions?.name || null,
+    image_url: characterWithFaction.image_url,
+    biography_json: characterWithFaction.biography_json as JSONContent | null,
+    personality_json: characterWithFaction.personality_json as JSONContent | null,
+    notes: characterWithFaction.notes as JSONContent | null,
+    status: characterWithFaction.status as 'active' | 'inactive' | 'npc',
     combat_stats: combatStats ? {
       player_character_id: combatStats.player_character_id,
       hp_max: combatStats.hp_max,
@@ -189,7 +235,7 @@ export async function getCharacterDetails(
       intelligence: combatStats.intelligence,
       wisdom: combatStats.wisdom,
       charisma: combatStats.charisma,
-      actions_json: combatStats.actions_json as any,
+      actions_json: combatStats.actions_json as PlayerCharacterCombatStatsDTO['actions_json'],
       created_at: combatStats.created_at,
       updated_at: combatStats.updated_at,
     } : null,
@@ -502,7 +548,7 @@ export async function getCharacterRelationships(
     throw new Error(error.message);
   }
 
-  return (data as any[]).map((rel: any) => ({
+  return (data as RelationshipQueryResult[]).map((rel) => ({
     id: rel.id,
     npc_id: rel.npc_id,
     npc_name: rel.npcs?.name || 'Unknown',
