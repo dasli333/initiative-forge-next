@@ -11,9 +11,10 @@ export type PlayerCharacter = Tables<'player_characters'>;
 /**
  * Player Character DTO with typed Json fields
  */
-export interface PlayerCharacterDTO extends Omit<PlayerCharacter, 'biography_json' | 'personality_json'> {
+export interface PlayerCharacterDTO extends Omit<PlayerCharacter, 'biography_json' | 'personality_json' | 'notes'> {
   biography_json: JSONContent | null;
   personality_json: JSONContent | null;
+  notes: JSONContent | null;
 }
 
 /**
@@ -57,7 +58,7 @@ export interface CreatePlayerCharacterCommand {
   image_url?: string | null;
   biography_json?: JSONContent | null; // Rich text with @mentions
   personality_json?: JSONContent | null; // Rich text with @mentions
-  notes?: string | null; // DM-only notes
+  notes?: JSONContent | null; // DM-only rich text notes with @mentions
   status?: 'active' | 'retired' | 'deceased';
 }
 
@@ -78,7 +79,7 @@ export interface UpdatePlayerCharacterCommand {
   image_url?: string | null;
   biography_json?: JSONContent | null;
   personality_json?: JSONContent | null;
-  notes?: string | null;
+  notes?: JSONContent | null; // DM-only rich text notes with @mentions
   status?: 'active' | 'retired' | 'deceased';
 }
 
@@ -164,7 +165,7 @@ export interface PlayerCharacterDetailsViewModel {
   image_url: string | null;
   biography_json: JSONContent | null;
   personality_json: JSONContent | null;
-  notes: string | null;
+  notes: JSONContent | null; // DM-only rich text notes with @mentions
   status: 'active' | 'retired' | 'deceased';
   combat_stats: PlayerCharacterCombatStatsDTO | null;
   relationships: PCNPCRelationshipViewModel[];

@@ -1,26 +1,28 @@
 'use client';
 
-import { Textarea } from '@/components/ui/textarea';
+import { RichTextEditor } from '@/components/shared/RichTextEditor';
 import { FileText } from 'lucide-react';
+import type { JSONContent } from '@tiptap/core';
 
 interface NotesTabProps {
   isEditing: boolean;
-  notes: string | null;
-  editedNotes: string | null;
-  onNotesChange: (notes: string) => void;
+  notes: JSONContent | null;
+  editedNotes: JSONContent | null;
+  onNotesChange: (notes: JSONContent | null) => void;
+  campaignId: string;
 }
 
 /**
  * Notes tab component for Player Character details
  * - GM-only private notes field
- * - Large textarea (simple text, not rich text)
- * - Auto-resizing textarea
+ * - Rich text editor with @mentions support
  */
 export function NotesTab({
   isEditing,
   notes,
   editedNotes,
   onNotesChange,
+  campaignId,
 }: NotesTabProps) {
   const displayNotes = isEditing ? editedNotes : notes;
 
@@ -40,27 +42,15 @@ export function NotesTab({
         </p>
       </div>
 
-      {/* Notes Textarea */}
-      {isEditing ? (
-        <Textarea
-          value={displayNotes || ''}
-          onChange={(e) => onNotesChange(e.target.value)}
-          placeholder="Add private notes about this character..."
-          className="min-h-[400px] resize-y"
-        />
-      ) : (
-        <div className="min-h-[200px] p-4 rounded-lg border bg-muted/30">
-          {displayNotes ? (
-            <p className="text-sm text-foreground/90 whitespace-pre-wrap">
-              {displayNotes}
-            </p>
-          ) : (
-            <p className="text-sm text-muted-foreground italic">
-              No notes yet. Click Edit to add private DM notes.
-            </p>
-          )}
-        </div>
-      )}
+      {/* Notes Editor */}
+      <RichTextEditor
+        value={displayNotes}
+        onChange={(content) => isEditing && onNotesChange(content)}
+        campaignId={campaignId}
+        placeholder="Add private notes about this character..."
+        readonly={!isEditing}
+        className="min-h-[400px]"
+      />
     </div>
   );
 }

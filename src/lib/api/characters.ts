@@ -176,7 +176,7 @@ export async function getCharacterDetails(
     image_url: character.image_url,
     biography_json: character.biography_json as any,
     personality_json: character.personality_json as any,
-    notes: character.notes,
+    notes: character.notes as any,
     status: character.status as any,
     combat_stats: combatStats ? {
       player_character_id: combatStats.player_character_id,
@@ -241,7 +241,7 @@ export async function createCharacter(
       image_url: command.image_url || null,
       biography_json: (command.biography_json as unknown as Json) || null,
       personality_json: (command.personality_json as unknown as Json) || null,
-      notes: command.notes || null,
+      notes: (command.notes as unknown as Json) || null,
       status: command.status || 'active',
     })
     .select()
@@ -255,9 +255,11 @@ export async function createCharacter(
   // Extract and create entity mentions
   const mentionedFromBio = command.biography_json ? extractMentionsFromJson(command.biography_json) : [];
   const mentionedFromPersonality = command.personality_json ? extractMentionsFromJson(command.personality_json) : [];
+  const mentionedFromNotes = command.notes ? extractMentionsFromJson(command.notes) : [];
   const allMentions = [
     ...mentionedFromBio.map(m => ({ ...m, source_field: 'biography_json' })),
-    ...mentionedFromPersonality.map(m => ({ ...m, source_field: 'personality_json' }))
+    ...mentionedFromPersonality.map(m => ({ ...m, source_field: 'personality_json' })),
+    ...mentionedFromNotes.map(m => ({ ...m, source_field: 'notes' }))
   ];
 
   if (allMentions.length > 0) {
@@ -302,7 +304,7 @@ export async function updateCharacter(
       image_url: command.image_url,
       biography_json: command.biography_json as unknown as Json,
       personality_json: command.personality_json as unknown as Json,
-      notes: command.notes,
+      notes: command.notes as unknown as Json,
       status: command.status,
     })
     .eq('id', characterId)
@@ -317,22 +319,27 @@ export async function updateCharacter(
     throw new Error(error.message);
   }
 
-  // Sync mentions if biography or personality changed
-  if (command.biography_json !== undefined || command.personality_json !== undefined) {
-    // Delete old mentions from both fields
+  // Sync mentions if biography, personality, or notes changed
+  if (command.biography_json !== undefined || command.personality_json !== undefined || command.notes !== undefined) {
+    // Delete old mentions from updated fields
     if (command.biography_json !== undefined) {
       await deleteMentionsBySource('player_character', characterId, 'biography_json');
     }
     if (command.personality_json !== undefined) {
       await deleteMentionsBySource('player_character', characterId, 'personality_json');
     }
+    if (command.notes !== undefined) {
+      await deleteMentionsBySource('player_character', characterId, 'notes');
+    }
 
     // Extract new mentions
     const mentionedFromBio = command.biography_json ? extractMentionsFromJson(command.biography_json) : [];
     const mentionedFromPersonality = command.personality_json ? extractMentionsFromJson(command.personality_json) : [];
+    const mentionedFromNotes = command.notes ? extractMentionsFromJson(command.notes) : [];
     const allMentions = [
       ...mentionedFromBio.map(m => ({ ...m, source_field: 'biography_json' })),
-      ...mentionedFromPersonality.map(m => ({ ...m, source_field: 'personality_json' }))
+      ...mentionedFromPersonality.map(m => ({ ...m, source_field: 'personality_json' })),
+      ...mentionedFromNotes.map(m => ({ ...m, source_field: 'notes' }))
     ];
 
     // Create new mentions

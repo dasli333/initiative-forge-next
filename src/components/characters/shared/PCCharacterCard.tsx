@@ -25,7 +25,7 @@ interface PCCharacterCardProps {
     status: 'active' | 'retired' | 'deceased';
     biography_json: JSONContent | null;
     personality_json: JSONContent | null;
-    notes: string | null;
+    notes: JSONContent | null;
     languages: string[] | null;
     combatStats: {
       hp_max: number;

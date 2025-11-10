@@ -37,7 +37,7 @@ interface NPCsLayoutProps {
     alignment: 'LG' | 'NG' | 'CG' | 'LN' | 'N' | 'CN' | 'LE' | 'NE' | 'CE' | null;
     languages: string[] | null;
     distinguishing_features: string | null;
-    secrets: string | null;
+    secrets: JSONContent | null;
     combatStats: {
       hp_max: number;
       armor_class: number;

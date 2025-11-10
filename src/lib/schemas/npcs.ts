@@ -64,8 +64,7 @@ export const npcFormSchema = z.object({
     .optional(),
 
   secrets: z
-    .string()
-    .max(1000, 'Secrets must be less than 1000 characters')
+    .any() // JSONContent from Tiptap
     .nullable()
     .optional(),
 });
@@ -189,7 +188,7 @@ export const updateNPCFieldSchema = z.object({
   alignment: z.enum(['LG', 'NG', 'CG', 'LN', 'N', 'CN', 'LE', 'NE', 'CE']).nullable().optional(),
   languages: z.array(z.string().max(50)).max(20).nullable().optional(),
   distinguishing_features: z.string().max(500).nullable().optional(),
-  secrets: z.string().max(1000).nullable().optional(),
+  secrets: z.any().nullable().optional(), // JSONContent from Tiptap
 });
 
 /**

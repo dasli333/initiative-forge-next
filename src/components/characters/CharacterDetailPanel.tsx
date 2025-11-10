@@ -54,7 +54,7 @@ interface CharacterDetailPanelProps {
     image_url: string | null;
     biography_json: JSONContent | null;
     personality_json: JSONContent | null;
-    notes: string | null;
+    notes: JSONContent | null;
     status: 'active' | 'retired' | 'deceased';
     combatStats: {
       hp_max: number;
@@ -284,6 +284,7 @@ export function CharacterDetailPanel({
                 notes={viewModel.notes}
                 editedNotes={editedData?.notes || null}
                 onNotesChange={(notes) => onEditedDataChange('notes', notes)}
+                campaignId={campaignId}
               />
             </TabsContent>
 

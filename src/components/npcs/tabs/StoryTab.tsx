@@ -18,7 +18,7 @@ interface StoryTabProps {
     personality_json: JSONContent | null;
     languages: string[] | null;
     distinguishing_features: string | null;
-    secrets: string | null;
+    secrets: JSONContent | null;
   } | null;
   onEditedDataChange: (field: string, value: unknown) => void;
   isUpdating?: boolean;
@@ -76,19 +76,6 @@ export function StoryTab({
         </div>
       )}
 
-      {/* Secrets (View Mode) */}
-      {!isEditing && displayData.secrets && (
-        <div className="border-l-4 border-amber-500 pl-4 py-2 bg-amber-50 dark:bg-amber-950/20 rounded">
-          <label className="text-sm font-medium mb-2 block flex items-center gap-2">
-            <FileText className="w-4 h-4" />
-            Secrets (GM Only)
-          </label>
-          <p className="text-sm text-foreground/90 whitespace-pre-wrap">
-            {displayData.secrets}
-          </p>
-        </div>
-      )}
-
       {/* Edit Mode Fields */}
       {isEditing && (
         <>
@@ -115,26 +102,27 @@ export function StoryTab({
             />
           </div>
 
-          {/* Secrets */}
-          <div>
-            <label className="text-sm font-medium mb-2 block flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              Secrets (GM Only)
-            </label>
-            <Textarea
-              value={displayData.secrets || ''}
-              onChange={(e) => onEditedDataChange('secrets', e.target.value || null)}
-              placeholder="Secret motivations, hidden allegiances, plot hooks..."
-              disabled={isUpdating}
-              rows={4}
-              className="border-amber-300 dark:border-amber-700"
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              This information is for the GM only and should not be shared with players
-            </p>
-          </div>
         </>
       )}
+
+      {/* Secrets RichTextEditor */}
+      <div>
+        <label className="text-sm font-medium mb-2 block flex items-center gap-2">
+          <FileText className="w-4 h-4" />
+          Secrets (GM Only)
+        </label>
+        <RichTextEditor
+          value={displayData.secrets}
+          onChange={(content) => isEditing && onEditedDataChange('secrets', content)}
+          campaignId={campaignId}
+          placeholder="Secret motivations, hidden allegiances, plot hooks..."
+          readonly={!isEditing}
+          className="border-amber-300 dark:border-amber-700"
+        />
+        <p className="text-xs text-muted-foreground mt-1">
+          This information is for the GM only and should not be shared with players
+        </p>
+      </div>
 
       {/* Biography RichTextEditor */}
       <div>

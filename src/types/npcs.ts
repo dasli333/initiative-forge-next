@@ -11,9 +11,10 @@ export type NPC = Tables<'npcs'>;
 /**
  * NPC DTO with typed Json fields
  */
-export interface NPCDTO extends Omit<NPC, 'biography_json' | 'personality_json'> {
+export interface NPCDTO extends Omit<NPC, 'biography_json' | 'personality_json' | 'secrets'> {
   biography_json: JSONContent | null;
   personality_json: JSONContent | null;
+  secrets: JSONContent | null;
 }
 
 // Legacy alias (deprecated, use NPCDTO)
@@ -42,7 +43,7 @@ export interface CreateNPCCommand {
   alignment?: 'LG' | 'NG' | 'CG' | 'LN' | 'N' | 'CN' | 'LE' | 'NE' | 'CE' | null;
   languages?: string[] | null;
   distinguishing_features?: string | null;
-  secrets?: string | null;
+  secrets?: JSONContent | null; // Rich text with @mentions
 }
 
 /**
@@ -64,7 +65,7 @@ export interface UpdateNPCCommand {
   alignment?: 'LG' | 'NG' | 'CG' | 'LN' | 'N' | 'CN' | 'LE' | 'NE' | 'CE' | null;
   languages?: string[] | null;
   distinguishing_features?: string | null;
-  secrets?: string | null;
+  secrets?: JSONContent | null; // Rich text with @mentions
 }
 
 // ============================================================================

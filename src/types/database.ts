@@ -549,7 +549,7 @@ export type Database = {
           personality_json: Json | null
           race: string | null
           role: string | null
-          secrets: string | null
+          secrets: Json | null
           status: string
           updated_at: string
         }
@@ -569,7 +569,7 @@ export type Database = {
           personality_json?: Json | null
           race?: string | null
           role?: string | null
-          secrets?: string | null
+          secrets?: Json | null
           status?: string
           updated_at?: string
         }
@@ -589,7 +589,7 @@ export type Database = {
           personality_json?: Json | null
           race?: string | null
           role?: string | null
-          secrets?: string | null
+          secrets?: Json | null
           status?: string
           updated_at?: string
         }
@@ -733,7 +733,7 @@ export type Database = {
           languages: string[] | null
           level: number | null
           name: string
-          notes: string | null
+          notes: Json | null
           personality_json: Json | null
           race: string | null
           status: string
@@ -753,7 +753,7 @@ export type Database = {
           languages?: string[] | null
           level?: number | null
           name: string
-          notes?: string | null
+          notes?: Json | null
           personality_json?: Json | null
           race?: string | null
           status?: string
@@ -773,7 +773,7 @@ export type Database = {
           languages?: string[] | null
           level?: number | null
           name?: string
-          notes?: string | null
+          notes?: Json | null
           personality_json?: Json | null
           race?: string | null
           status?: string

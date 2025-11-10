@@ -140,7 +140,7 @@ export async function createNPC(
       alignment: command.alignment || null,
       languages: command.languages || null,
       distinguishing_features: command.distinguishing_features || null,
-      secrets: command.secrets || null,
+      secrets: (command.secrets as unknown as Json) || null,
     })
     .select()
     .single();
@@ -152,13 +152,16 @@ export async function createNPC(
 
   const npc = data as unknown as NPCDTO;
 
-  // Sync mentions from biography_json and personality_json (non-blocking)
+  // Sync mentions from biography_json, personality_json, and secrets (non-blocking)
   try {
     const biographyMentions = command.biography_json
       ? extractMentionsFromJson(command.biography_json)
       : [];
     const personalityMentions = command.personality_json
       ? extractMentionsFromJson(command.personality_json)
+      : [];
+    const secretsMentions = command.secrets
+      ? extractMentionsFromJson(command.secrets)
       : [];
 
     const allMentions = [
@@ -173,6 +176,13 @@ export async function createNPC(
         source_type: 'npc' as const,
         source_id: npc.id,
         source_field: 'personality_json',
+        mentioned_type: m.entityType,
+        mentioned_id: m.id,
+      })),
+      ...secretsMentions.map((m) => ({
+        source_type: 'npc' as const,
+        source_id: npc.id,
+        source_field: 'secrets',
         mentioned_type: m.entityType,
         mentioned_id: m.id,
       })),
@@ -215,7 +225,7 @@ export async function updateNPC(
   if (command.alignment !== undefined) updateData.alignment = command.alignment;
   if (command.languages !== undefined) updateData.languages = command.languages;
   if (command.distinguishing_features !== undefined) updateData.distinguishing_features = command.distinguishing_features;
-  if (command.secrets !== undefined) updateData.secrets = command.secrets;
+  if (command.secrets !== undefined) updateData.secrets = command.secrets as unknown as Json;
 
   const { data, error } = await supabase
     .from('npcs')
@@ -234,7 +244,7 @@ export async function updateNPC(
 
   const npc = data as unknown as NPCDTO;
 
-  // Sync mentions if biography_json or personality_json was updated (non-blocking)
+  // Sync mentions if biography_json, personality_json, or secrets was updated (non-blocking)
   try {
     if (command.biography_json !== undefined) {
       // Delete old mentions for biography field
@@ -269,6 +279,26 @@ export async function updateNPC(
             source_type: 'npc',
             source_id: npcId,
             source_field: 'personality_json',
+            mentioned_type: m.entityType,
+            mentioned_id: m.id,
+          }))
+        );
+      }
+    }
+
+    if (command.secrets !== undefined) {
+      // Delete old mentions for secrets field
+      await deleteMentionsBySource('npc', npcId, 'secrets');
+
+      // Extract and create new mentions
+      const mentions = extractMentionsFromJson(command.secrets);
+      if (mentions.length > 0) {
+        await batchCreateEntityMentions(
+          npc.campaign_id,
+          mentions.map((m) => ({
+            source_type: 'npc',
+            source_id: npcId,
+            source_field: 'secrets',
             mentioned_type: m.entityType,
             mentioned_id: m.id,
           }))
