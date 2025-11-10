@@ -303,7 +303,7 @@ export function CharactersView({ campaignId, campaignName }: CharactersViewProps
   };
 
   return (
-    <div className="flex flex-col h-full p-6">
+    <div className="flex flex-col h-full">
       {/* Header */}
       <CharactersHeader
         campaignName={campaignName}
