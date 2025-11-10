@@ -21,6 +21,8 @@ import { CombatTab } from './tabs/CombatTab';
 import { RelationshipsTab } from './tabs/RelationshipsTab';
 import { NotesTab } from './tabs/NotesTab';
 import { RelatedTab } from './tabs/RelatedTab';
+import { PCCharacterCard } from './shared/PCCharacterCard';
+import { Badge } from '@/components/ui/badge';
 import type {
   PlayerCharacterDetailsViewModel,
   UpdatePCNPCRelationshipCommand,
@@ -154,145 +156,146 @@ export function CharacterDetailPanel({
     );
   }
 
-  return (
-    <div className="flex flex-col h-full">
-      {/* Header */}
-      <div
-        className={cn(
-          'p-4 border-b flex items-center justify-between',
-          isEditing && 'bg-accent/20 border-l-4 border-l-primary'
-        )}
-      >
-        <div>
-          <h2 className="text-xl font-bold">{viewModel.name}</h2>
-          <p className="text-sm text-muted-foreground">
-            {[
-              viewModel.level && `Level ${viewModel.level}`,
-              viewModel.class,
-            ]
-              .filter(Boolean)
-              .join(' ') || 'Player Character'}
-          </p>
-        </div>
+  const getStatusBadgeVariant = (status: string): 'default' | 'destructive' | 'secondary' => {
+    if (status === 'active') return 'default';
+    if (status === 'deceased') return 'destructive';
+    return 'secondary';
+  };
 
-        {/* Action buttons */}
-        <div className="flex items-center gap-2">
-          {isEditing ? (
-            <>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={onCancelEdit}
-                disabled={isUpdating}
-              >
-                <X className="w-4 h-4 mr-1" />
-                Cancel
-              </Button>
-              <Button
-                size="sm"
-                onClick={onSave}
-                disabled={isUpdating}
-              >
-                <Save className="w-4 h-4 mr-1" />
-                {isUpdating ? 'Saving...' : 'Save'}
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={onEdit}
-              >
-                <Pencil className="w-4 h-4 mr-1" />
-                Edit
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setShowDeleteDialog(true)}
-                disabled={isDeleting}
-              >
-                <Trash2 className="w-4 h-4 mr-1" />
-                Delete
-              </Button>
-            </>
-          )}
+  return (
+    <div className={cn(
+      "flex flex-col h-full transition-all",
+      isEditing && "border-2 border-primary/30 rounded-lg m-1"
+    )}>
+      {/* Header - Name, Status Badge, Edit/Save/Cancel */}
+      <div className={cn(
+        "px-6 py-4",
+        isEditing && "bg-primary/5"
+      )}>
+        <div className="flex items-start justify-between gap-4">
+          {/* Left: Name + Status Badge */}
+          <div className="flex-1 min-w-0 space-y-2">
+            <div className="flex items-center gap-2">
+              <h2 className="text-2xl font-bold">{viewModel.name}</h2>
+              <Badge variant={getStatusBadgeVariant(viewModel.status)}>
+                {viewModel.status.charAt(0).toUpperCase() + viewModel.status.slice(1)}
+              </Badge>
+            </div>
+            <PCCharacterCard
+              viewModel={viewModel}
+              campaignId={campaignId}
+              factions={factions}
+              isEditing={isEditing}
+              editedData={editedData}
+              onEditedDataChange={onEditedDataChange}
+              isUpdating={isUpdating}
+            />
+          </div>
+
+          {/* Right: Action buttons */}
+          <div className="flex gap-2 flex-shrink-0">
+            {isEditing ? (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onCancelEdit}
+                  disabled={isUpdating}
+                >
+                  <X className="w-4 h-4 mr-2" />
+                  Cancel
+                </Button>
+                <Button size="sm" onClick={onSave} disabled={isUpdating}>
+                  <Save className="w-4 h-4 mr-2" />
+                  {isUpdating ? 'Saving...' : 'Save'}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="outline" size="sm" onClick={onEdit}>
+                  <Pencil className="w-4 h-4 mr-2" />
+                  Edit
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setShowDeleteDialog(true)}
+                  disabled={isDeleting}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="story" className="flex-1 flex flex-col">
-        <TabsList className="w-full justify-start rounded-none border-b bg-transparent p-0">
-          <TabsTrigger value="story" className="rounded-none">
-            Story
-          </TabsTrigger>
-          <TabsTrigger value="combat" className="rounded-none">
-            Combat
-          </TabsTrigger>
-          <TabsTrigger value="relationships" className="rounded-none">
-            Relationships
-          </TabsTrigger>
-          <TabsTrigger value="notes" className="rounded-none">
-            Notes
-          </TabsTrigger>
-          <TabsTrigger value="related" className="rounded-none">
-            Related
-          </TabsTrigger>
-        </TabsList>
+      <div className="flex-1 overflow-hidden">
+        <Tabs defaultValue="story" className="h-full flex flex-col">
+          <div className="px-6 pt-4">
+            <TabsList className="w-full">
+              <TabsTrigger value="story">Story</TabsTrigger>
+              <TabsTrigger value="combat">Combat</TabsTrigger>
+              <TabsTrigger value="relationships">Relationships</TabsTrigger>
+              <TabsTrigger value="notes">Notes</TabsTrigger>
+              <TabsTrigger value="related">Related</TabsTrigger>
+            </TabsList>
+          </div>
 
-        {/* Tab Content */}
-        <div className="flex-1 overflow-y-auto">
-          <TabsContent value="story" className="p-6 m-0">
-            <StoryTab
-              isEditing={isEditing}
-              editedData={editedData}
-              viewModel={viewModel}
-              onFieldChange={onEditedDataChange}
-              campaignId={campaignId}
-              factions={factions}
-            />
-          </TabsContent>
+          <div className="flex-1 overflow-y-auto px-6 py-4">
+            <TabsContent value="story" className="mt-0 h-full">
+              <StoryTab
+                isEditing={isEditing}
+                editedData={editedData}
+                viewModel={viewModel}
+                onFieldChange={onEditedDataChange}
+                campaignId={campaignId}
+                factions={factions}
+              />
+            </TabsContent>
 
-          <TabsContent value="combat" className="p-6 m-0">
-            <CombatTab
-              isEditing={isEditing}
-              combatStats={viewModel.combat_stats}
-              editedCombatStats={editedData?.combatStats || null}
-              onCombatStatsChange={onCombatStatsChange}
-              onAddCombatStats={onAddCombatStats}
-              onRemoveCombatStats={onRemoveCombatStats}
-            />
-          </TabsContent>
+            <TabsContent value="combat" className="mt-0 h-full">
+              <CombatTab
+                isEditing={isEditing}
+                combatStats={viewModel.combat_stats}
+                editedCombatStats={editedData?.combatStats || null}
+                onCombatStatsChange={onCombatStatsChange}
+                onAddCombatStats={onAddCombatStats}
+                onRemoveCombatStats={onRemoveCombatStats}
+              />
+            </TabsContent>
 
-          <TabsContent value="relationships" className="p-6 m-0">
-            <RelationshipsTab
-              relationships={viewModel.relationships}
-              isEditing={isEditing}
-              onUpdateRelationship={onUpdateRelationship}
-              onDeleteRelationship={onDeleteRelationship}
-              onAddRelationship={onAddRelationship}
-              isUpdating={isUpdating}
-            />
-          </TabsContent>
+            <TabsContent value="relationships" className="mt-0 h-full">
+              <RelationshipsTab
+                relationships={viewModel.relationships}
+                isEditing={isEditing}
+                onUpdateRelationship={onUpdateRelationship}
+                onDeleteRelationship={onDeleteRelationship}
+                onAddRelationship={onAddRelationship}
+                isUpdating={isUpdating}
+              />
+            </TabsContent>
 
-          <TabsContent value="notes" className="p-6 m-0">
-            <NotesTab
-              isEditing={isEditing}
-              notes={viewModel.notes}
-              editedNotes={editedData?.notes || null}
-              onNotesChange={(notes) => onEditedDataChange('notes', notes)}
-            />
-          </TabsContent>
+            <TabsContent value="notes" className="mt-0 h-full">
+              <NotesTab
+                isEditing={isEditing}
+                notes={viewModel.notes}
+                editedNotes={editedData?.notes || null}
+                onNotesChange={(notes) => onEditedDataChange('notes', notes)}
+              />
+            </TabsContent>
 
-          <TabsContent value="related" className="p-6 m-0">
-            <RelatedTab
-              characterId={characterId}
-              campaignId={campaignId}
-            />
-          </TabsContent>
-        </div>
-      </Tabs>
+            <TabsContent value="related" className="mt-0 h-full">
+              <RelatedTab
+                characterId={characterId}
+                campaignId={campaignId}
+              />
+            </TabsContent>
+          </div>
+        </Tabs>
+      </div>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
