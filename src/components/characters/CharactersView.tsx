@@ -41,7 +41,7 @@ export function CharactersView({ campaignId, campaignName }: CharactersViewProps
 
   // Local state
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(
-    searchParams.get('characterId') || null
+    searchParams.get('selectedId') || null
   );
   const [filters, setFilters] = useState<PlayerCharacterFilters>({});
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -97,7 +97,7 @@ export function CharactersView({ campaignId, campaignName }: CharactersViewProps
   // Handlers
   const handleCardClick = (characterId: string) => {
     setSelectedCharacterId(characterId);
-    router.push(`/campaigns/${campaignId}/characters?characterId=${characterId}`, { scroll: false });
+    router.push(`/campaigns/${campaignId}/characters?selectedId=${characterId}`, { scroll: false });
   };
 
   const handleEdit = () => {
@@ -298,7 +298,7 @@ export function CharactersView({ campaignId, campaignName }: CharactersViewProps
     });
     if (result) {
       setSelectedCharacterId(result.id);
-      router.push(`/campaigns/${campaignId}/characters?characterId=${result.id}`, { scroll: false });
+      router.push(`/campaigns/${campaignId}/characters?selectedId=${result.id}`, { scroll: false });
     }
   };
 

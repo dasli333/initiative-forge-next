@@ -65,13 +65,7 @@ export function RelatedTab({ characterId, campaignId }: RelatedTabProps) {
   const handleBacklinkClick = (backlink: { source_type: string; source_id: string }) => {
     const route = ENTITY_ROUTE_MAP[backlink.source_type as keyof typeof ENTITY_ROUTE_MAP];
     if (route) {
-      if (backlink.source_type === 'player_character') {
-        router.push(`/campaigns/${campaignId}/${route}?characterId=${backlink.source_id}`);
-      } else if (backlink.source_type === 'npc') {
-        router.push(`/campaigns/${campaignId}/${route}?npcId=${backlink.source_id}`);
-      } else {
-        router.push(`/campaigns/${campaignId}/${route}?selectedId=${backlink.source_id}`);
-      }
+      router.push(`/campaigns/${campaignId}/${route}?selectedId=${backlink.source_id}`);
     }
   };
 

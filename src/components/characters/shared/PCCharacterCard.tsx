@@ -102,7 +102,7 @@ export function PCCharacterCard({
                 value={displayData.image_url}
                 onChange={(url) => onEditedDataChange('image_url', url)}
                 campaignId={campaignId}
-                entityType="player-character"
+                entityType="player_character"
                 maxSizeMB={5}
                 className="[&_img]:h-40 [&_img]:w-40"
               />

@@ -15,6 +15,7 @@ interface RelatedTabProps {
 const ENTITY_ICONS = {
   location: MapPin,
   npc: User,
+  player_character: User,
   quest: Target,
   session: Calendar,
   story_arc: BookOpen,
@@ -26,6 +27,7 @@ const ENTITY_ICONS = {
 const ENTITY_COLORS = {
   location: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300',
   npc: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
+  player_character: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900 dark:text-cyan-300',
   quest: 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300',
   session: 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
   story_arc: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300',
@@ -37,6 +39,7 @@ const ENTITY_COLORS = {
 const ENTITY_ROUTE_MAP = {
   location: 'locations',
   npc: 'npcs',
+  player_character: 'characters',
   quest: 'quests',
   session: 'sessions',
   story_arc: 'story-arcs',
@@ -60,7 +63,7 @@ export function RelatedTab({ backlinks, pcRelationships, campaignId }: RelatedTa
   };
 
   const handlePCClick = (pcId: string) => {
-    router.push(`/campaigns/${campaignId}/characters?characterId=${pcId}`);
+    router.push(`/campaigns/${campaignId}/characters?selectedId=${pcId}`);
   };
 
   return (

@@ -69,7 +69,7 @@ export function QuestsTab({ storyArcId, quests, campaignId }: QuestsTabProps) {
             <QuestMiniCard
               key={quest.id}
               quest={quest}
-              onClick={() => router.push(`/campaigns/${campaignId}/quests?questId=${quest.id}`)}
+              onClick={() => router.push(`/campaigns/${campaignId}/quests?selectedId=${quest.id}`)}
             />
           ))}
         </div>

@@ -31,6 +31,7 @@ interface TiptapNode {
 const ENTITY_ICONS = {
   location: MapPin,
   npc: User,
+  player_character: User,
   quest: Target,
   session: Calendar,
   story_arc: BookOpen,
@@ -42,6 +43,7 @@ const ENTITY_ICONS = {
 const ENTITY_COLORS = {
   location: 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900 dark:text-emerald-300',
   npc: 'bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300',
+  player_character: 'bg-cyan-100 text-cyan-700 hover:bg-cyan-200 dark:bg-cyan-900 dark:text-cyan-300',
   quest: 'bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900 dark:text-amber-300',
   session: 'bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900 dark:text-purple-300',
   story_arc: 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900 dark:text-indigo-300',
@@ -53,6 +55,7 @@ const ENTITY_COLORS = {
 const ENTITY_ROUTE_MAP = {
   location: 'locations',
   npc: 'npcs',
+  player_character: 'characters',
   quest: 'quests',
   session: 'sessions',
   story_arc: 'story-arcs',
@@ -69,6 +72,7 @@ export function MentionNode(props: NodeViewProps) {
     entityType?:
       | 'location'
       | 'npc'
+      | 'player_character'
       | 'quest'
       | 'session'
       | 'story_arc'
@@ -102,6 +106,14 @@ export function MentionNode(props: NodeViewProps) {
         case 'npc':
           return supabase
             .from('npcs')
+            .select('id, name, biography_json, image_url')
+            .eq('id', id)
+            .single()
+            .then(({ data }) => data);
+
+        case 'player_character':
+          return supabase
+            .from('player_characters')
             .select('id, name, biography_json, image_url')
             .eq('id', id)
             .single()

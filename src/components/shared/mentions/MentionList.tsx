@@ -23,6 +23,7 @@ interface MentionListProps {
 const ENTITY_ICONS = {
   location: MapPin,
   npc: User,
+  player_character: User,
   quest: Target,
   session: Calendar,
   story_arc: BookOpen,
@@ -34,6 +35,7 @@ const ENTITY_ICONS = {
 const ENTITY_COLORS = {
   location: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950',
   npc: 'text-blue-600 bg-blue-50 dark:bg-blue-950',
+  player_character: 'text-cyan-600 bg-cyan-50 dark:bg-cyan-950',
   quest: 'text-amber-600 bg-amber-50 dark:bg-amber-950',
   session: 'text-purple-600 bg-purple-50 dark:bg-purple-950',
   story_arc: 'text-indigo-600 bg-indigo-50 dark:bg-indigo-950',
