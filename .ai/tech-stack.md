@@ -8,6 +8,11 @@ Frontend - Next.js 16 z React 19:
 - Shadcn/ui zapewnia bibliotekę dostępnych komponentów React, na których oprzemy UI
 - Zustand zapewnia globalny state management dla aktywnej kampanii i innych stanów aplikacji
 - TanStack Query (React Query) v5 do zarządzania stanem serwera, cache'owania i synchronizacji danych z backendem
+- Tiptap - headless rich text editor z custom @mentions extension dla linkowania encji
+- React Hook Form + Zod - formularze z walidacją
+- dnd-kit - drag & drop dla hierarchii lokacji i reorder list
+- cmdk - command palette dla szybkiego wyszukiwania (Ctrl+K)
+- react-day-picker - date picker dla sesji i timeline (z fantasy calendar support)
 
 Testy:
 

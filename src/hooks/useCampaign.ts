@@ -3,8 +3,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { getCampaign } from '@/lib/api/campaigns';
-import { getCharacters } from '@/lib/api/characters';
-import type { Campaign, PlayerCharacterDTO } from '@/types';
+import { getCharacterCards } from '@/lib/api/characters';
+import type { Campaign } from '@/types';
+import type { PlayerCharacterCardViewModel } from '@/types/player-characters';
 
 /**
  * React Query hook for fetching a single campaign
@@ -58,13 +59,13 @@ export function useCampaignCharactersQuery(
 
   return useQuery({
     queryKey: ['campaign', campaignId, 'characters'],
-    queryFn: async (): Promise<PlayerCharacterDTO[]> => {
+    queryFn: async (): Promise<PlayerCharacterCardViewModel[]> => {
       if (!campaignId) {
         throw new Error('Campaign ID is required');
       }
 
       try {
-        return await getCharacters(campaignId);
+        return await getCharacterCards(campaignId);
       } catch (error) {
         // If unauthorized, redirect
         if (error instanceof Error && error.message.includes('auth')) {

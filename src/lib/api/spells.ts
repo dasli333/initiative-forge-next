@@ -30,12 +30,8 @@ export async function getSpells(params: FetchSpellsParams = {}): Promise<ListSpe
     offset = 0,
   } = params;
 
-  // Using `any` here is necessary due to TypeScript limitation with Supabase query builder
-  // When chaining multiple conditional .eq()/.ilike() calls with reassignment,
-  // TypeScript's type inference becomes "excessively deep and possibly infinite"
-  // Type safety is maintained through the Promise<ListSpellsResponse> return type
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let queryBuilder: any = supabase.from('spells').select('*', { count: 'exact' });
+  let queryBuilder = supabase.from('spells').select('*', { count: 'exact' }) as any;
 
   // Apply filters
   if (searchQuery && searchQuery.trim()) {
@@ -59,7 +55,7 @@ export async function getSpells(params: FetchSpellsParams = {}): Promise<ListSpe
   }
 
   return {
-    spells: data || [],
+    spells: (data as unknown as SpellDTO[]) || [],
     total: count || 0,
     limit,
     offset,

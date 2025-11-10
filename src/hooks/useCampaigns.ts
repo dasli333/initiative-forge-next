@@ -4,10 +4,33 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { useCampaignStore } from '@/stores/campaignStore';
-import { getCampaigns, createCampaign, updateCampaign, deleteCampaign } from '@/lib/api/campaigns';
+import { getCampaigns, getCampaign, createCampaign, updateCampaign, deleteCampaign } from '@/lib/api/campaigns';
 import { transformToCampaignViewModels } from '@/lib/utils/campaignTransformers';
 import type { Campaign } from '@/types';
 import type { CampaignViewModel } from '@/types/campaigns';
+
+/**
+ * React Query hook for fetching a single campaign by ID
+ */
+export function useCampaignQuery(campaignId: string) {
+  const router = useRouter();
+
+  return useQuery({
+    queryKey: ['campaign', campaignId],
+    queryFn: async (): Promise<Campaign> => {
+      try {
+        return await getCampaign(campaignId);
+      } catch (error) {
+        // If unauthorized, redirect to login
+        if (error instanceof Error && error.message.includes('auth')) {
+          router.push('/login');
+        }
+        throw error;
+      }
+    },
+    enabled: !!campaignId,
+  });
+}
 
 /**
  * React Query hook for fetching campaigns
