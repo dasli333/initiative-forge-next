@@ -6,6 +6,11 @@ import type { ActionDTO } from '@/types';
 // ENTITY TYPES
 // ============================================================================
 
+/**
+ * Player Character Status
+ */
+export type PlayerCharacterStatus = 'active' | 'retired' | 'deceased';
+
 export type PlayerCharacter = Tables<'player_characters'>;
 
 /**
@@ -59,7 +64,7 @@ export interface CreatePlayerCharacterCommand {
   biography_json?: JSONContent | null; // Rich text with @mentions
   personality_json?: JSONContent | null; // Rich text with @mentions
   notes?: JSONContent | null; // DM-only rich text notes with @mentions
-  status?: 'active' | 'retired' | 'deceased';
+  status?: PlayerCharacterStatus;
 }
 
 /**
@@ -80,7 +85,7 @@ export interface UpdatePlayerCharacterCommand {
   biography_json?: JSONContent | null;
   personality_json?: JSONContent | null;
   notes?: JSONContent | null; // DM-only rich text notes with @mentions
-  status?: 'active' | 'retired' | 'deceased';
+  status?: PlayerCharacterStatus;
 }
 
 /**
@@ -121,7 +126,7 @@ export interface UpdateCombatStatsCommand {
  */
 export interface PlayerCharacterFilters {
   faction_id?: string | null; // null = "no faction"
-  status?: 'active' | 'retired' | 'deceased';
+  status?: PlayerCharacterStatus;
   class?: string; // Free text search in class field
   search?: string; // Search by name/class
 }
@@ -141,7 +146,7 @@ export interface PlayerCharacterCardViewModel {
   image_url: string | null;
   faction_id: string | null;
   faction_name: string | null; // From JOIN
-  status: 'active' | 'retired' | 'deceased';
+  status: PlayerCharacterStatus;
   hp_max: number | null; // From combat_stats
   armor_class: number | null; // From combat_stats
 }
@@ -166,7 +171,7 @@ export interface PlayerCharacterDetailsViewModel {
   biography_json: JSONContent | null;
   personality_json: JSONContent | null;
   notes: JSONContent | null; // DM-only rich text notes with @mentions
-  status: 'active' | 'retired' | 'deceased';
+  status: PlayerCharacterStatus;
   combat_stats: PlayerCharacterCombatStatsDTO | null;
   relationships: PCNPCRelationshipViewModel[];
   created_at: string;

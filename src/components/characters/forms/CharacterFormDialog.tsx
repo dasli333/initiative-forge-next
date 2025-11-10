@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { characterFormSchema, type CharacterFormData } from '@/lib/schemas/player-character.schema';
+import type { PlayerCharacterStatus } from '@/types/player-characters';
 
 interface CharacterFormDialogProps {
   isOpen: boolean;
@@ -160,7 +161,7 @@ export function CharacterFormDialog({
             <Label htmlFor="status">Status</Label>
             <Select
               value={selectedStatus}
-              onValueChange={(value: 'active' | 'retired' | 'deceased') => setValue('status', value)}
+              onValueChange={(value: PlayerCharacterStatus) => setValue('status', value)}
               disabled={isSubmitting}
             >
               <SelectTrigger id="status">

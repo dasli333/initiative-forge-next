@@ -26,6 +26,7 @@ import { Badge } from '@/components/ui/badge';
 import type {
   PlayerCharacterDetailsViewModel,
   UpdatePCNPCRelationshipCommand,
+  PlayerCharacterStatus,
 } from '@/types/player-characters';
 import type { JSONContent } from '@tiptap/core';
 import type { ActionDTO } from '@/types';
@@ -55,7 +56,7 @@ interface CharacterDetailPanelProps {
     biography_json: JSONContent | null;
     personality_json: JSONContent | null;
     notes: JSONContent | null;
-    status: 'active' | 'retired' | 'deceased';
+    status: PlayerCharacterStatus;
     combatStats: {
       hp_max: number;
       armor_class: number;

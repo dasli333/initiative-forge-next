@@ -21,7 +21,7 @@ import { CharactersHeader } from './CharactersHeader';
 import { CharactersLayout } from './CharactersLayout';
 import { CharacterFormDialog } from './forms/CharacterFormDialog';
 import { AddPCNPCRelationshipDialog } from './forms/AddPCNPCRelationshipDialog';
-import type { PlayerCharacterFilters } from '@/types/player-characters';
+import type { PlayerCharacterFilters, PlayerCharacterStatus } from '@/types/player-characters';
 import type { JSONContent } from '@tiptap/core';
 import type { ActionDTO } from '@/types';
 import type { CharacterFormData } from '@/lib/schemas/player-character.schema';
@@ -62,7 +62,7 @@ export function CharactersView({ campaignId, campaignName }: CharactersViewProps
     biography_json: JSONContent | null;
     personality_json: JSONContent | null;
     notes: JSONContent | null;
-    status: 'active' | 'retired' | 'deceased';
+    status: PlayerCharacterStatus;
     combatStats: {
       hp_max: number;
       armor_class: number;

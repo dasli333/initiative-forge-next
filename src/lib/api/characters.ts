@@ -29,9 +29,9 @@ interface CharacterCardQueryResult {
   level: number;
   image_url: string | null;
   faction_id: string | null;
-  status: string;
+  status: PlayerCharacterCardViewModel['status'];
   factions: { name: string } | null;
-  player_character_combat_stats: { hp_max: number; armor_class: number }[] | null;
+  player_character_combat_stats: { hp_max: number; armor_class: number } | null;
 }
 
 /**
@@ -121,7 +121,7 @@ interface CharacterDetailsQueryResult {
   biography_json: Json | null;
   personality_json: Json | null;
   notes: Json | null;
-  status: string;
+  status: PlayerCharacterDetailsViewModel['status'];
   created_at: string;
   updated_at: string;
   factions: { name: string } | null;
@@ -223,7 +223,7 @@ export async function getCharacterDetails(
     biography_json: characterWithFaction.biography_json as JSONContent | null,
     personality_json: characterWithFaction.personality_json as JSONContent | null,
     notes: characterWithFaction.notes as JSONContent | null,
-    status: characterWithFaction.status as 'active' | 'inactive' | 'npc',
+    status: characterWithFaction.status,
     combat_stats: combatStats ? {
       player_character_id: combatStats.player_character_id,
       hp_max: combatStats.hp_max,
@@ -235,7 +235,7 @@ export async function getCharacterDetails(
       intelligence: combatStats.intelligence,
       wisdom: combatStats.wisdom,
       charisma: combatStats.charisma,
-      actions_json: combatStats.actions_json as PlayerCharacterCombatStatsDTO['actions_json'],
+      actions_json: combatStats.actions_json as unknown as PlayerCharacterCombatStatsDTO['actions_json'],
       created_at: combatStats.created_at,
       updated_at: combatStats.updated_at,
     } : null,

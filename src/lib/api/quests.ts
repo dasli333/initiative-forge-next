@@ -48,11 +48,14 @@ export function formatRewardsSummary(rewards: QuestRewards | null): string {
 /**
  * Parse JSON fields from raw database response
  */
-function parseQuestDTO(raw: Quest & { story_arcs?: { title: string } | null }): QuestDTO {
+function parseQuestDTO(raw: Quest & {
+  quest_giver?: { id: string; name: string } | null;
+  story_arc?: { id: string; title: string } | null;
+}): QuestDTO {
   return {
     ...raw,
     description_json: raw.description_json as JSONContent | null,
-    objectives_json: raw.objectives_json as QuestObjective[] | null,
+    objectives_json: raw.objectives_json as unknown as QuestObjective[] | null,
     rewards_json: raw.rewards_json as QuestRewards | null,
     // Extract joined names
     quest_giver_name: raw.quest_giver?.name || null,

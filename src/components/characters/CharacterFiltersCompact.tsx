@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import type { PlayerCharacterFilters } from '@/types/player-characters';
+import type { PlayerCharacterFilters, PlayerCharacterStatus } from '@/types/player-characters';
 
 interface CharacterFiltersCompactProps {
   filters: PlayerCharacterFilters;
@@ -66,7 +66,7 @@ export function CharacterFiltersCompact({
               const { status: _status, ...rest } = filters;
               onFiltersChange(rest);
             } else {
-              onFiltersChange({ ...filters, status: value as 'active' | 'retired' | 'deceased' });
+              onFiltersChange({ ...filters, status: value as PlayerCharacterStatus });
             }
           }}
         >

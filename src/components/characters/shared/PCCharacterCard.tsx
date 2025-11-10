@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { User, Target, Calendar, Users, Shield, BookOpen, TrendingUp, Activity } from 'lucide-react';
 import { PCStatField } from './PCStatField';
-import type { PlayerCharacterDetailsViewModel } from '@/types/player-characters';
+import type { PlayerCharacterDetailsViewModel, PlayerCharacterStatus } from '@/types/player-characters';
 import type { JSONContent } from '@tiptap/core';
 
 interface PCCharacterCardProps {
@@ -22,7 +22,7 @@ interface PCCharacterCardProps {
     age: number | null;
     faction_id: string | null;
     image_url: string | null;
-    status: 'active' | 'retired' | 'deceased';
+    status: PlayerCharacterStatus;
     biography_json: JSONContent | null;
     personality_json: JSONContent | null;
     notes: JSONContent | null;
