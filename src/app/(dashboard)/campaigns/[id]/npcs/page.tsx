@@ -19,7 +19,7 @@ import {
   useCreateNPCRelationshipMutation,
   useUpdateNPCRelationshipMutation,
   useDeleteNPCRelationshipMutation,
-} from '@/hooks/useNPCs';
+} from '@/hooks/useNpcs';
 import {
   useNPCTagsQuery,
   useCreateNPCTagMutation,
@@ -28,7 +28,7 @@ import {
   useBulkAssignTagsToNPCMutation,
   useAssignTagToNPCMutation,
   useUnassignTagFromNPCMutation,
-} from '@/hooks/useNPCTags';
+} from '@/hooks/useNpcTags';
 import { useFactionsQuery } from '@/hooks/useFactions';
 import { useLocationsQuery } from '@/hooks/useLocations';
 import type { NPCCardViewModel, NPCFilters } from '@/types/npcs';

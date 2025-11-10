@@ -16,7 +16,7 @@ import {
   useDeletePCNPCRelationshipMutation,
 } from '@/hooks/useCharacters';
 import { useFactionsQuery } from '@/hooks/useFactions';
-import { useNPCsQuery } from '@/hooks/useNPCs';
+import { useNPCsQuery } from '@/hooks/useNpcs';
 import { CharactersHeader } from './CharactersHeader';
 import { CharactersLayout } from './CharactersLayout';
 import { CharacterFormDialog } from './forms/CharacterFormDialog';
