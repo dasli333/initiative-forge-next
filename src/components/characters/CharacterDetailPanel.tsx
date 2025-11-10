@@ -94,7 +94,7 @@ export function CharacterDetailPanel({
   viewModel,
   campaignId,
   factions,
-  availableNPCs,
+  availableNPCs: _availableNPCs,
   isLoading,
   isEditing,
   editedData,

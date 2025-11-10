@@ -22,7 +22,6 @@ import {
 } from '@/hooks/useNPCs';
 import {
   useNPCTagsQuery,
-  useNPCAssignedTagsQuery,
   useCreateNPCTagMutation,
   useUpdateNPCTagMutation,
   useDeleteNPCTagMutation,
@@ -96,7 +95,7 @@ export default function NPCsPage() {
   // Queries
   const { data: npcs, isLoading: npcsLoading } = useNPCsQuery(campaignId, filters);
   const { data: npcDetails, isLoading: detailsLoading } = useNPCDetailsQuery(selectedNPCId);
-  const { data: tags = [], isLoading: tagsLoading } = useNPCTagsQuery(campaignId);
+  const { data: tags = [] } = useNPCTagsQuery(campaignId);
   const { data: factions = [] } = useFactionsQuery(campaignId);
   const { data: locations = [] } = useLocationsQuery(campaignId);
 

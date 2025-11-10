@@ -1,4 +1,4 @@
-import type { Json, Tables } from '@/types/database';
+import type { Tables } from '@/types/database';
 import type { ActionDTO } from '@/types';
 
 // ============================================================================

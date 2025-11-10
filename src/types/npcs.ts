@@ -1,4 +1,4 @@
-import type { Json, Tables } from '@/types/database';
+import type { Tables } from '@/types/database';
 import type { JSONContent } from '@tiptap/react';
 import type { NPCTagDTO } from '@/types/npc-tags';
 

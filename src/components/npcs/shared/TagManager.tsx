@@ -42,8 +42,8 @@ interface TagManagerProps {
  * - Pattern similar to LanguageSelector
  */
 export function TagManager({
-  campaignId,
-  npcId,
+  campaignId: _campaignId,
+  npcId: _npcId,
   assignedTags,
   availableTags,
   onAssign,

@@ -1,4 +1,4 @@
-import type { Location, LocationDTO } from '@/types/locations';
+import type { Location } from '@/types/locations';
 
 /**
  * Type representing the minimal location fields needed for tree operations

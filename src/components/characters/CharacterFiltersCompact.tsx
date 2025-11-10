@@ -63,7 +63,7 @@ export function CharacterFiltersCompact({
           value={filters.status || 'all'}
           onValueChange={(value) => {
             if (value === 'all') {
-              const { status, ...rest } = filters;
+              const { status: _status, ...rest } = filters;
               onFiltersChange(rest);
             } else {
               onFiltersChange({ ...filters, status: value as 'active' | 'retired' | 'deceased' });
@@ -96,7 +96,7 @@ export function CharacterFiltersCompact({
             }
             onValueChange={(value) => {
               if (value === 'all') {
-                const { faction_id, ...rest } = filters;
+                const { faction_id: _faction_id, ...rest } = filters;
                 onFiltersChange(rest);
               } else if (value === 'no-faction') {
                 onFiltersChange({ ...filters, faction_id: null });

@@ -1,7 +1,6 @@
 'use client';
 
 import { RichTextEditor } from '@/components/shared/RichTextEditor';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { FileText } from 'lucide-react';

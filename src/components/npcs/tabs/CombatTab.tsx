@@ -23,7 +23,6 @@ import { ActionBuilder } from '@/components/characters/ActionBuilder';
 import type { NPCDTO } from '@/types/npcs';
 import type { NPCCombatStatsDTO } from '@/types/npc-combat-stats';
 import type { ActionDTO } from '@/types';
-import type { JSONContent } from '@tiptap/core';
 
 interface CombatTabProps {
   npc: NPCDTO;

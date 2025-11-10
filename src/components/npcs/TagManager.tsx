@@ -81,7 +81,7 @@ export function TagManager({
 
   const selectedColor = watch('color');
   const selectedIcon = watch('icon');
-  const IconComponent = (LucideIcons as Record<string, React.ComponentType>)[selectedIcon] || LucideIcons.Tag;
+  const _IconComponent = (LucideIcons as Record<string, React.ComponentType>)[selectedIcon] || LucideIcons.Tag;
 
   const handleCreate = async (data: NPCTagFormData) => {
     await onCreateTag(data);

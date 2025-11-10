@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { getSupabaseClient } from "@/lib/supabase";
-import type { PlayerCharacterDTO } from "@/types";
 
 /**
  * Player character with joined combat stats from Supabase query

@@ -35,7 +35,7 @@ import {
   validateAdvancedNPCForm,
 } from "@/lib/combat-wizard";
 
-import type { PlayerCharacterViewModel, MonsterViewModel } from "./types";
+import type { MonsterViewModel } from "./types";
 import type { SimpleNPCFormData, AdvancedNPCFormData } from "@/lib/schemas";
 
 interface CombatCreationWizardProps {

@@ -27,7 +27,7 @@ export function QuestsList({
   quests,
   selectedQuestId,
   onQuestSelect,
-  npcs,
+  npcs: _npcs,
   storyArcs,
   filters,
   onFiltersChange,

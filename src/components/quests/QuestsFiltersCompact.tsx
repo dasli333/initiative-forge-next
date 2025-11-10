@@ -42,7 +42,7 @@ export function QuestsFiltersCompact({
 
   const handleStatusChange = (value: string) => {
     if (value === 'all') {
-      const { status, ...rest } = filters;
+      const { status: _status, ...rest } = filters;
       onFiltersChange(rest);
     } else {
       onFiltersChange({ ...filters, status: value as 'not_started' | 'active' | 'completed' | 'failed' });
@@ -51,7 +51,7 @@ export function QuestsFiltersCompact({
 
   const handleQuestTypeChange = (value: string) => {
     if (value === 'all') {
-      const { quest_type, ...rest } = filters;
+      const { quest_type: _quest_type, ...rest } = filters;
       onFiltersChange(rest);
     } else {
       onFiltersChange({ ...filters, quest_type: value as 'main' | 'side' });
@@ -60,7 +60,7 @@ export function QuestsFiltersCompact({
 
   const handleStoryArcChange = (value: string) => {
     if (value === 'all') {
-      const { story_arc_id, ...rest } = filters;
+      const { story_arc_id: _story_arc_id, ...rest } = filters;
       onFiltersChange(rest);
     } else {
       onFiltersChange({ ...filters, story_arc_id: value });

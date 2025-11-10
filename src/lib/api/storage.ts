@@ -30,7 +30,7 @@ export async function uploadLocationImage(
 
   // 2. Upload to Supabase Storage
   const fileName = `${campaignId}/${Date.now()}-${file.name.replace(/\.[^/.]+$/, '.webp')}`;
-  const { data, error } = await supabase.storage
+  const { error } = await supabase.storage
     .from('location-images')
     .upload(fileName, compressedFile);
 

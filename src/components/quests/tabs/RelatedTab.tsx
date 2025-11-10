@@ -1,6 +1,5 @@
 'use client';
 
-import { Label } from '@/components/ui/label';
 import type { QuestDetailsViewModel } from '@/types/quests';
 
 interface RelatedTabProps {
@@ -8,7 +7,7 @@ interface RelatedTabProps {
   campaignId: string;
 }
 
-export function RelatedTab({ viewModel, campaignId }: RelatedTabProps) {
+export function RelatedTab({ viewModel, campaignId: _campaignId }: RelatedTabProps) {
   return (
     <div className="space-y-6">
       {/* Related Entities (auto-extracted from @mentions) */}

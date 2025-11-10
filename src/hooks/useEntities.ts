@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { searchCampaignEntities, type EntitySearchResult } from '@/lib/api/entities';
-import { useMemo, useState, useEffect } from 'react';
+import { searchCampaignEntities } from '@/lib/api/entities';
+import { useState, useEffect } from 'react';
 
 interface UseEntitiesSearchOptions {
   enabled?: boolean;

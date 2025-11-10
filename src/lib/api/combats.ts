@@ -7,7 +7,6 @@ import type {
   CreateCombatCommand,
   InitialParticipantCommand,
   MonsterDataDTO,
-  PlayerCharacter,
   ActionDTO,
   CombatSummaryDTO,
   ListCombatsResponseDTO,

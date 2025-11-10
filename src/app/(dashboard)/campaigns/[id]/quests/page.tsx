@@ -33,7 +33,7 @@ export default function QuestsPage() {
   const campaignId = params.id as string;
 
   // Get campaign from store
-  const { selectedCampaign } = useCampaignStore();
+  const { selectedCampaign: _selectedCampaign } = useCampaignStore();
 
   // Local state
   const [selectedQuestId, setSelectedQuestId] = useState<string | null>(

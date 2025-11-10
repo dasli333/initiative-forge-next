@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, type ChangeEvent, type DragEvent } from 'react';
+import { useState, useCallback, type ChangeEvent, type DragEvent } from 'react';
 import { Upload, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';

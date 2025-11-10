@@ -8,7 +8,7 @@ interface RelatedTabProps {
   campaignId: string;
 }
 
-export function RelatedTab({ storyArcId, campaignId }: RelatedTabProps) {
+export function RelatedTab({ storyArcId, campaignId: _campaignId }: RelatedTabProps) {
   const { data: mentions = [], isLoading } = useQuery({
     queryKey: ['entity-mentions', 'story_arc', storyArcId],
     queryFn: () => getMentionsOf('story_arc', storyArcId),

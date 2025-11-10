@@ -23,7 +23,7 @@ interface RelationshipsTabProps {
  * - "Add Relationship" button → open AddRelationshipDialog
  */
 export function RelationshipsTab({
-  npc,
+  npc: _npc,
   relationships,
   onUpdateRelationship,
   onDeleteRelationship,

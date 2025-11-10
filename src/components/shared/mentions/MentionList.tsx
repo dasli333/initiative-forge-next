@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import { forwardRef, useImperativeHandle, useState } from 'react';
 import type { EntitySearchResult } from '@/lib/api/entities';
 import { cn } from '@/lib/utils';
 import {
