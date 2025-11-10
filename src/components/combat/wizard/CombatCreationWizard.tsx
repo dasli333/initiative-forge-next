@@ -111,12 +111,17 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
   }, [state.currentStep]);
 
   // ==================== EFFECTS ====================
-  // Auto-select all player characters on load (only once)
+  // Auto-select player characters with combat stats on load (only once)
   const hasAutoSelectedRef = useRef(false);
 
   useEffect(() => {
     if (!hasAutoSelectedRef.current && playerCharacters.length > 0 && state.selectedPlayerCharacterIds.length === 0) {
-      actions.setSelectedCharacters(playerCharacters.map((pc) => pc.id));
+      // Only auto-select characters that have combat stats (HP and AC)
+      actions.setSelectedCharacters(
+        playerCharacters
+          .filter((pc) => pc.max_hp && pc.armor_class)
+          .map((pc) => pc.id)
+      );
       hasAutoSelectedRef.current = true;
     }
   }, [playerCharacters, state.selectedPlayerCharacterIds.length, actions]);
@@ -150,6 +155,20 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
     } else if (state.currentStep === 2) {
       const validation = validateStep2(state.selectedPlayerCharacterIds);
       if (!validation.valid) return;
+
+      // Cleanup: Remove any selected characters that don't have combat stats
+      const validCharacterIds = playerCharacters
+        .filter((pc) => pc.max_hp && pc.armor_class)
+        .map((pc) => pc.id);
+
+      const cleanedSelectedIds = state.selectedPlayerCharacterIds.filter((id) =>
+        validCharacterIds.includes(id)
+      );
+
+      // Update selection if any invalid characters were removed
+      if (cleanedSelectedIds.length !== state.selectedPlayerCharacterIds.length) {
+        actions.setSelectedCharacters(cleanedSelectedIds);
+      }
     }
 
     // Mark current step as completed
@@ -161,7 +180,7 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
     if (state.currentStep < 5) {
       actions.setStep((state.currentStep + 1) as 1 | 2 | 3 | 4 | 5);
     }
-  }, [state.currentStep, state.combatName, state.selectedPlayerCharacterIds, state.completedSteps, actions]);
+  }, [state.currentStep, state.combatName, state.selectedPlayerCharacterIds, state.completedSteps, actions, playerCharacters]);
 
   const handleBack = useCallback(() => {
     if (state.currentStep > 1) {
