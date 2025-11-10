@@ -34,7 +34,7 @@ import {
 } from '@/components/ui/select';
 import { TagBadge } from './shared/TagBadge';
 import { npcTagSchema, type NPCTagFormData } from '@/lib/schemas/npc-tags';
-import { TAG_COLORS, TAG_ICONS, type NPCTagDTO } from '@/types/npc-tags';
+import { TAG_COLORS, TAG_ICONS, type NPCTagDTO, type TagIcon } from '@/types/npc-tags';
 
 interface TagManagerProps {
   isOpen: boolean;
@@ -75,13 +75,12 @@ export function TagManager({
     defaultValues: {
       name: '',
       color: 'emerald',
-      icon: 'Tag',
+      icon: 'Star',
     },
   });
 
   const selectedColor = watch('color');
   const selectedIcon = watch('icon');
-  const _IconComponent = (LucideIcons as Record<string, React.ComponentType>)[selectedIcon] || LucideIcons.Tag;
 
   const handleCreate = async (data: NPCTagFormData) => {
     await onCreateTag(data);
@@ -165,13 +164,13 @@ export function TagManager({
 
                   <div className="space-y-2">
                     <Label htmlFor="icon">Icon</Label>
-                    <Select value={selectedIcon} onValueChange={(value) => setValue('icon', value)}>
+                    <Select value={selectedIcon} onValueChange={(value) => setValue('icon', value as TagIcon)}>
                       <SelectTrigger id="icon">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {TAG_ICONS.map((icon) => {
-                          const Icon = (LucideIcons as Record<string, React.ComponentType<{ size?: number }>>)[icon] || LucideIcons.Tag;
+                          const Icon = LucideIcons[icon] || LucideIcons.Tag;
                           return (
                             <SelectItem key={icon} value={icon}>
                               <div className="flex items-center gap-2">

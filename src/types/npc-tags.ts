@@ -7,10 +7,44 @@ import type { Tables } from '@/types/database';
 export type NPCTag = Tables<'npc_tags'>;
 export type NPCTagAssignment = Tables<'npc_tag_assignments'>;
 
+// ============================================================================
+// CONSTANTS
+// ============================================================================
+
 /**
- * NPC Tag DTO (no Json fields, direct mapping)
+ * Available icons for tags (lucide-react icon names)
  */
-export type NPCTagDTO = NPCTag;
+export const TAG_ICONS = [
+  'Sword',
+  'Heart',
+  'Star',
+  'Scroll',
+  'Coins',
+  'User',
+  'Users',
+  'Crown',
+  'Shield',
+  'Zap',
+  'Skull',
+  'Target',
+  'Flag',
+  'Book',
+  'Map',
+  'Lock',
+  'Key',
+  'Gift',
+  'MessageCircle',
+  'Eye',
+] as const;
+
+export type TagIcon = (typeof TAG_ICONS)[number];
+
+/**
+ * NPC Tag DTO with typed icon field
+ */
+export type NPCTagDTO = Omit<NPCTag, 'icon'> & {
+  icon: TagIcon;
+};
 
 // ============================================================================
 // COMMAND MODELS
@@ -23,7 +57,7 @@ export type NPCTagDTO = NPCTag;
 export interface CreateNPCTagCommand {
   name: string;
   color: string; // hex or tailwind color (e.g., 'emerald', 'red')
-  icon: string; // lucide-react icon name (e.g., 'Sword', 'Heart')
+  icon: TagIcon; // lucide-react icon name (e.g., 'Sword', 'Heart')
 }
 
 /**
@@ -33,7 +67,7 @@ export interface CreateNPCTagCommand {
 export interface UpdateNPCTagCommand {
   name?: string;
   color?: string;
-  icon?: string;
+  icon?: TagIcon;
 }
 
 /**
@@ -94,31 +128,4 @@ export const TAG_COLORS = [
   'rose',
 ] as const;
 
-/**
- * Available icons for tags (lucide-react icon names)
- */
-export const TAG_ICONS = [
-  'Sword',
-  'Heart',
-  'Star',
-  'Scroll',
-  'Coins',
-  'User',
-  'Users',
-  'Crown',
-  'Shield',
-  'Zap',
-  'Skull',
-  'Target',
-  'Flag',
-  'Book',
-  'Map',
-  'Lock',
-  'Key',
-  'Gift',
-  'MessageCircle',
-  'Eye',
-] as const;
-
 export type TagColor = (typeof TAG_COLORS)[number];
-export type TagIcon = (typeof TAG_ICONS)[number];

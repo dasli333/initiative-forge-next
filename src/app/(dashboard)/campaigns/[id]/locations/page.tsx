@@ -97,7 +97,8 @@ export default function LocationsPage() {
     try {
       await deleteMutation.mutateAsync(locationId);
       toast.success('Location deleted');
-      setSelectedLocationId(null);
+      // Clear selection by removing query param
+      router.push(`/campaigns/${campaignId}/locations`);
     } catch (error) {
       toast.error('Failed to delete location');
       console.error('Delete location error:', error);

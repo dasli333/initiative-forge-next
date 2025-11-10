@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/select';
 import { X, Plus, Loader2 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
-import type { NPCTagDTO } from '@/types/npc-tags';
+import type {NPCTagDTO, TagIcon} from '@/types/npc-tags';
 import { TAG_COLORS, TAG_ICONS } from '@/types/npc-tags';
 
 interface TagManagerProps {
@@ -112,8 +112,8 @@ export function TagManager({
     }
   };
 
-  const getIconComponent = (iconName: string): React.ComponentType<{ size?: number }> => {
-    const IconComponent = (LucideIcons as Record<string, React.ComponentType<{ size?: number }>>)[iconName];
+  const getIconComponent = (iconName: TagIcon) => {
+    const IconComponent = LucideIcons[iconName];
     return IconComponent || LucideIcons.Tag;
   };
 

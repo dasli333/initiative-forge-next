@@ -35,6 +35,7 @@ import type { NPCCardViewModel, NPCFilters } from '@/types/npcs';
 import type { NPCFormData } from '@/lib/schemas/npcs';
 import type { JSONContent } from '@tiptap/core';
 import type { ActionDTO } from '@/types';
+import {TagIcon} from "@/types/npc-tags";
 
 /**
  * Main NPCs page
@@ -393,7 +394,7 @@ export default function NPCsPage() {
     });
   };
 
-  const handleCreateTag = async (name: string, color: string, icon: string) => {
+  const handleCreateTag = async (name: string, color: string, icon: TagIcon) => {
     return await createTagMutation.mutateAsync({ name, color, icon });
   };
 

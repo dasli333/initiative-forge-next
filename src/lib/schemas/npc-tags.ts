@@ -22,9 +22,9 @@ export const npcTagSchema = z.object({
       'Color must be a valid Tailwind color or hex code'
     ),
 
-  icon: z
-    .string()
-    .refine((val): val is TagIcon => TAG_ICONS.includes(val as TagIcon), 'Invalid icon name'),
+  icon: z.enum(TAG_ICONS, {
+    error: () => ({ message: 'Invalid icon name' }),
+  }),
 });
 
 export type NPCTagFormData = z.infer<typeof npcTagSchema>;

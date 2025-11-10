@@ -27,7 +27,7 @@ export function TagBadge({
   className,
 }: TagBadgeProps) {
   // Get icon component from lucide-react
-  const IconComponent = (LucideIcons as Record<string, React.ComponentType<{ size?: number }>>)[tag.icon] || LucideIcons.Tag;
+  const IconComponent = LucideIcons[tag.icon] || LucideIcons.Tag;
 
   // Convert color to Tailwind classes (support both predefined and custom hex)
   const isHex = tag.color.startsWith('#');
