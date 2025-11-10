@@ -93,16 +93,20 @@ export function CharacterListItem({ character, isSelected, onClick }: CharacterL
             </span>
           )}
 
-          {/* Combat ready */}
-          {character.hp_max && character.armor_class && (
+          {/* Combat stats indicator */}
+          {character.hp_max && character.armor_class ? (
             <span
-              className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400"
-              title={`HP ${character.hp_max} · AC ${character.armor_class}`}
+              className="inline-flex items-center text-emerald-600 dark:text-emerald-400"
+              title={`Combat ready · HP ${character.hp_max} · AC ${character.armor_class}`}
             >
               <Swords className="w-3 h-3" />
-              <span className="text-[10px] font-medium">
-                {character.hp_max}/{character.armor_class}
-              </span>
+            </span>
+          ) : (
+            <span
+              className="inline-flex items-center text-amber-500 dark:text-amber-400"
+              title="Missing combat stats"
+            >
+              <Swords className="w-3 h-3" />
             </span>
           )}
         </div>
