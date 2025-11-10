@@ -20,7 +20,7 @@ interface ImageUploadProps {
 
 interface ImageUploadState {
   file: File | null;
-  previewUrl: string | null;
+  uploadedImageUrl: string | null;
   isUploading: boolean;
   progress: number;
   error: string | null;
@@ -38,20 +38,15 @@ export function ImageUpload({
 }: ImageUploadProps) {
   const [state, setState] = useState<ImageUploadState>({
     file: null,
-    previewUrl: value || null,
+    uploadedImageUrl: null,
     isUploading: false,
     progress: 0,
     error: null,
   });
   const [isDragOver, setIsDragOver] = useState(false);
 
-  // Sync previewUrl with value prop
-  useEffect(() => {
-    setState((prev) => ({
-      ...prev,
-      previewUrl: value || null,
-    }));
-  }, [value]);
+  // Compute display URL (uploaded takes precedence over value prop)
+  const displayUrl = state.uploadedImageUrl || value || null;
 
   const validateImage = useCallback(
     (file: File): { valid: boolean; error?: string } => {
@@ -106,7 +101,7 @@ export function ImageUpload({
         setState((prev) => ({
           ...prev,
           file,
-          previewUrl: imageUrl,
+          uploadedImageUrl: imageUrl,
           isUploading: false,
           progress: 100,
           error: null,
@@ -160,25 +155,26 @@ export function ImageUpload({
   );
 
   const handleDelete = useCallback(async () => {
-    if (!state.previewUrl) return;
+    const currentUrl = state.uploadedImageUrl || value;
+    if (!currentUrl) return;
 
     setState((prev) => ({ ...prev, isUploading: true, error: null }));
 
     try {
       // Only delete from storage if it's a Supabase URL (not data URL)
-      if (state.previewUrl.startsWith('http')) {
+      if (currentUrl.startsWith('http')) {
         if (entityType === 'npc') {
-          await deleteNPCImage(state.previewUrl);
+          await deleteNPCImage(currentUrl);
         } else if (entityType === 'player_character') {
-          await deletePlayerCharacterImage(state.previewUrl);
+          await deletePlayerCharacterImage(currentUrl);
         } else {
-          await deleteLocationImage(state.previewUrl);
+          await deleteLocationImage(currentUrl);
         }
       }
 
       setState({
         file: null,
-        previewUrl: null,
+        uploadedImageUrl: null,
         isUploading: false,
         progress: 0,
         error: null,
@@ -192,14 +188,14 @@ export function ImageUpload({
         error: 'Failed to delete image. Please try again.',
       }));
     }
-  }, [state.previewUrl, onChange, entityType]);
+  }, [state.uploadedImageUrl, value, onChange, entityType]);
 
   return (
     <div className={cn('space-y-4', className)}>
-      {state.previewUrl ? (
+      {displayUrl ? (
         <div className="relative">
           <img
-            src={state.previewUrl}
+            src={displayUrl}
             alt="Preview"
             className="w-full h-64 object-cover rounded-lg"
           />
