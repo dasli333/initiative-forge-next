@@ -50,7 +50,7 @@ export function CharactersHeader({
 
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Player Characters</h1>
-        <Button onClick={onAddClick} className="bg-emerald-600 hover:bg-emerald-700">
+        <Button onClick={onAddClick} className="bg-emerald-600 hover:bg-emerald-700" data-testid="create-character-button">
           <Plus className="h-4 w-4 mr-2" />
           Add Character
         </Button>

@@ -23,7 +23,7 @@ export function NoCombatStatsState({ onAddStats }: NoCombatStatsStateProps) {
         This NPC doesn&apos;t have combat statistics yet. Add combat stats to use this NPC in encounters.
       </p>
 
-      <Button onClick={onAddStats} variant="default" size="sm">
+      <Button onClick={onAddStats} variant="default" size="sm" data-testid="add-combat-stats-button">
         Add Combat Stats
       </Button>
     </div>

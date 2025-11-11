@@ -238,7 +238,7 @@ export function CharacterDetailPanel({
           <div className="px-6 pt-4">
             <TabsList className="w-full">
               <TabsTrigger value="story">Story</TabsTrigger>
-              <TabsTrigger value="combat">Combat</TabsTrigger>
+              <TabsTrigger value="combat" data-testid="combat-tab-trigger">Combat</TabsTrigger>
               <TabsTrigger value="relationships">Relationships</TabsTrigger>
               <TabsTrigger value="notes">Notes</TabsTrigger>
               <TabsTrigger value="related">Related</TabsTrigger>

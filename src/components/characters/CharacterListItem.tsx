@@ -39,6 +39,7 @@ export function CharacterListItem({ character, isSelected, onClick }: CharacterL
     <button
       type="button"
       onClick={onClick}
+      data-testid={`character-card-${character.name}`}
       className={cn(
         'w-full px-3 py-2.5 flex items-start gap-3 rounded-lg border transition-all text-left',
         'hover:bg-accent hover:border-accent-foreground/20',

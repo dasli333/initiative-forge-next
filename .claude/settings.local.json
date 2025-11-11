@@ -5,7 +5,8 @@
       "Bash(gh:*)",
       "Bash(npm run lint)",
       "Bash(ls:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(npx playwright test:*)"
     ],
     "deny": [],
     "ask": []

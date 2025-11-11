@@ -106,6 +106,7 @@ export function CombatTab({
               <Label htmlFor="hp-max">HP Max</Label>
               <Input
                 id="hp-max"
+                data-testid="character-max-hp-input"
                 type="number"
                 value={displayStats.hp_max}
                 onChange={(e) => isEditing && onCombatStatsChange('hp_max', parseInt(e.target.value) || 0)}
@@ -118,6 +119,7 @@ export function CombatTab({
               <Label htmlFor="ac">Armor Class</Label>
               <Input
                 id="ac"
+                data-testid="character-ac-input"
                 type="number"
                 value={displayStats.armor_class}
                 onChange={(e) => isEditing && onCombatStatsChange('armor_class', parseInt(e.target.value) || 0)}
@@ -130,6 +132,7 @@ export function CombatTab({
               <Label htmlFor="speed">Speed</Label>
               <Input
                 id="speed"
+                data-testid="character-speed-input"
                 type="number"
                 value={displayStats.speed}
                 onChange={(e) => isEditing && onCombatStatsChange('speed', parseInt(e.target.value) || 0)}
@@ -154,6 +157,7 @@ export function CombatTab({
               <Label htmlFor="str" className="text-xs font-semibold">STR</Label>
               <Input
                 id="str"
+                data-testid="character-str-input"
                 type="number"
                 value={displayStats.strength}
                 onChange={(e) => isEditing && onCombatStatsChange('strength', parseInt(e.target.value) || 0)}
@@ -172,6 +176,7 @@ export function CombatTab({
               <Label htmlFor="dex" className="text-xs font-semibold">DEX</Label>
               <Input
                 id="dex"
+                data-testid="character-dex-input"
                 type="number"
                 value={displayStats.dexterity}
                 onChange={(e) => isEditing && onCombatStatsChange('dexterity', parseInt(e.target.value) || 0)}
@@ -190,6 +195,7 @@ export function CombatTab({
               <Label htmlFor="con" className="text-xs font-semibold">CON</Label>
               <Input
                 id="con"
+                data-testid="character-con-input"
                 type="number"
                 value={displayStats.constitution}
                 onChange={(e) => isEditing && onCombatStatsChange('constitution', parseInt(e.target.value) || 0)}
@@ -208,6 +214,7 @@ export function CombatTab({
               <Label htmlFor="int" className="text-xs font-semibold">INT</Label>
               <Input
                 id="int"
+                data-testid="character-int-input"
                 type="number"
                 value={displayStats.intelligence}
                 onChange={(e) => isEditing && onCombatStatsChange('intelligence', parseInt(e.target.value) || 0)}
@@ -226,6 +233,7 @@ export function CombatTab({
               <Label htmlFor="wis" className="text-xs font-semibold">WIS</Label>
               <Input
                 id="wis"
+                data-testid="character-wis-input"
                 type="number"
                 value={displayStats.wisdom}
                 onChange={(e) => isEditing && onCombatStatsChange('wisdom', parseInt(e.target.value) || 0)}
@@ -244,6 +252,7 @@ export function CombatTab({
               <Label htmlFor="cha" className="text-xs font-semibold">CHA</Label>
               <Input
                 id="cha"
+                data-testid="character-cha-input"
                 type="number"
                 value={displayStats.charisma}
                 onChange={(e) => isEditing && onCombatStatsChange('charisma', parseInt(e.target.value) || 0)}

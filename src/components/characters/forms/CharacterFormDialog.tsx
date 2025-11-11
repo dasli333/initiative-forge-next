@@ -101,6 +101,7 @@ export function CharacterFormDialog({
             </Label>
             <Input
               id="name"
+              data-testid="character-name-input"
               {...register('name')}
               placeholder="Enter character name"
               disabled={isSubmitting}
@@ -184,7 +185,7 @@ export function CharacterFormDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting} data-testid="submit-character-form">
               {isSubmitting ? 'Saving...' : mode === 'create' ? 'Create Character' : 'Save Changes'}
             </Button>
           </DialogFooter>
