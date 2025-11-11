@@ -297,6 +297,7 @@ export function CharactersView({ campaignId, campaignName }: CharactersViewProps
       status: data.status,
     });
     if (result) {
+      setIsCreateDialogOpen(false);
       setSelectedCharacterId(result.id);
       router.push(`/campaigns/${campaignId}/characters?selectedId=${result.id}`, { scroll: false });
     }
