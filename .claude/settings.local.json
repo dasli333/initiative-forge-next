@@ -4,7 +4,9 @@
       "Bash(npm run build:*)",
       "Bash(gh:*)",
       "Bash(npm run lint)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "WebSearch",
+      "Bash(npx playwright test:*)"
     ],
     "deny": [],
     "ask": []

@@ -24,9 +24,13 @@ export function Step2_SelectPlayerCharacters({
 
   const handleToggle = useCallback(
     (characterId: string) => {
-      onToggle(characterId);
+      // Prevent toggling characters without combat stats
+      const character = playerCharacters.find(c => c.id === characterId);
+      if (character && character.max_hp && character.armor_class) {
+        onToggle(characterId);
+      }
     },
-    [onToggle]
+    [onToggle, playerCharacters]
   );
 
   // Loading state
@@ -108,6 +112,8 @@ export function Step2_SelectPlayerCharacters({
   }
 
   // Main content
+  const charactersWithoutStats = playerCharacters.filter(c => !c.max_hp || !c.armor_class);
+
   return (
     <div className="max-w-4xl mx-auto">
       <h2 id="step-2-heading" className="text-2xl font-bold mb-6" tabIndex={-1}>
@@ -116,9 +122,21 @@ export function Step2_SelectPlayerCharacters({
 
       <p className="text-muted-foreground mb-6">Choose which player characters will participate in this combat.</p>
 
+      {charactersWithoutStats.length > 0 && (
+        <Alert className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Missing Combat Stats</AlertTitle>
+          <AlertDescription>
+            {charactersWithoutStats.length} character{charactersWithoutStats.length > 1 ? 's are' : ' is'} missing combat stats and cannot be added to combat.
+            Add HP and AC to these characters to enable them.
+          </AlertDescription>
+        </Alert>
+      )}
+
       <div className="space-y-3 mb-6">
         {playerCharacters.map((character) => {
           const isSelected = selectedIds.includes(character.id);
+          const hasCombatStats = !!(character.max_hp && character.armor_class);
 
           return (
             <div
@@ -127,47 +145,61 @@ export function Step2_SelectPlayerCharacters({
                 group relative flex items-center gap-4 p-4 rounded-lg border
                 transition-all duration-200 ease-out
                 ${
-                  isSelected
+                  !hasCombatStats
+                    ? "bg-muted/30 border-border opacity-60 cursor-not-allowed"
+                    : isSelected
                     ? "bg-gradient-to-r from-card via-card/80 to-emerald-500/5 border-emerald-500 shadow-sm"
                     : "bg-card border-border hover:border-emerald-500/30 hover:shadow-sm"
                 }
               `}
+              title={!hasCombatStats ? "This character is missing combat stats" : ""}
             >
               <Checkbox
                 id={`character-${character.id}`}
                 data-testid={`character-checkbox-${character.name}`}
                 checked={isSelected}
                 onCheckedChange={() => handleToggle(character.id)}
+                disabled={!hasCombatStats}
               />
-              <Label htmlFor={`character-${character.id}`} className="flex-1 cursor-pointer">
+              <Label
+                htmlFor={hasCombatStats ? `character-${character.id}` : undefined}
+                className={hasCombatStats ? "flex-1 cursor-pointer" : "flex-1 cursor-not-allowed"}
+                onClick={!hasCombatStats ? (e) => e.preventDefault() : undefined}
+              >
                 <div className="flex items-center justify-between gap-4">
                   <span className="font-semibold text-base">{character.name}</span>
-                  <div className="flex gap-2">
-                    <Badge
-                      className={`
-                        px-3 py-1 text-sm shadow-sm
-                        ${
-                          isSelected
-                            ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-                            : "bg-secondary text-secondary-foreground"
-                        }
-                      `}
-                    >
-                      HP: {character.max_hp}
+                  {hasCombatStats ? (
+                    <div className="flex gap-2">
+                      <Badge
+                        className={`
+                          px-3 py-1 text-sm shadow-sm
+                          ${
+                            isSelected
+                              ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                              : "bg-secondary text-secondary-foreground"
+                          }
+                        `}
+                      >
+                        HP: {character.max_hp}
+                      </Badge>
+                      <Badge
+                        className={`
+                          px-3 py-1 text-sm shadow-sm
+                          ${
+                            isSelected
+                              ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                              : "bg-secondary text-secondary-foreground"
+                          }
+                        `}
+                      >
+                        AC: {character.armor_class}
+                      </Badge>
+                    </div>
+                  ) : (
+                    <Badge variant="outline" className="px-3 py-1 text-sm text-amber-600 border-amber-400">
+                      Missing combat stats
                     </Badge>
-                    <Badge
-                      className={`
-                        px-3 py-1 text-sm shadow-sm
-                        ${
-                          isSelected
-                            ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-                            : "bg-secondary text-secondary-foreground"
-                        }
-                      `}
-                    >
-                      AC: {character.armor_class}
-                    </Badge>
-                  </div>
+                  )}
                 </div>
               </Label>
             </div>

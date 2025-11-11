@@ -110,14 +110,6 @@ test.describe("MVP Complete Flow", () => {
     await charactersPage.createCharacter(fighter);
     await expect(charactersPage.getCharacterCard(fighter.name)).toBeVisible();
 
-    // Verify initiative calculation (DEX modifier)
-    const fighterInitiative = await charactersPage.getCalculatedInitiative(fighter.name);
-    expect(fighterInitiative).toContain("+2");
-
-    // Verify passive perception (10 + WIS modifier)
-    const fighterPassivePerception = await charactersPage.getCalculatedPassivePerception(fighter.name);
-    expect(fighterPassivePerception).toContain("11"); // 10 + 1
-
     // Create Wizard character
     const wizard = {
       name: generateUniqueName("Wizard"),

@@ -95,6 +95,7 @@ export class CharactersPage {
 
   /**
    * Create a character with the given data
+   * New flow: name only in dialog, then edit combat stats in detail panel
    */
   async createCharacter(data: {
     name: string;
@@ -108,13 +109,80 @@ export class CharactersPage {
     wisdom?: number;
     charisma?: number;
   }) {
+    // Step 1: Open dialog and enter name only
     await this.openCreateCharacterModal();
-    await this.fillCharacterForm(data);
+    await this.characterNameInput.fill(data.name);
     await this.submitButton.click();
 
     // Wait for character card to appear
     const characterCard = this.getCharacterCard(data.name);
     await characterCard.waitFor({ state: "visible", timeout: 10000 });
+
+    // Step 2: Character auto-selects, click Edit button
+    const editButton = this.page.getByRole("button", { name: /edit/i }).first();
+    await editButton.waitFor({ state: "visible", timeout: 5000 });
+    await editButton.click();
+
+    // Step 3: Navigate to Combat tab
+    const combatTab = this.page.getByTestId("combat-tab-trigger");
+    await combatTab.waitFor({ state: "visible", timeout: 5000 });
+    await combatTab.click();
+
+    // Step 4: Click "Add Combat Stats" button
+    const addCombatStatsButton = this.page.getByTestId("add-combat-stats-button");
+    await addCombatStatsButton.waitFor({ state: "visible", timeout: 5000 });
+    await addCombatStatsButton.click();
+
+    // Step 5: Fill combat stats
+    await this.fillCombatStats(data);
+
+    // Step 6: Save
+    const saveButton = this.page.getByRole("button", { name: /save/i }).first();
+    await saveButton.waitFor({ state: "visible", timeout: 5000 });
+    await saveButton.click();
+
+    // Wait for save to complete (edit mode exits)
+    await editButton.waitFor({ state: "visible", timeout: 10000 });
+  }
+
+  /**
+   * Fill combat stats in the Combat tab
+   */
+  async fillCombatStats(data: {
+    maxHp: number;
+    armorClass: number;
+    speed?: number;
+    strength?: number;
+    dexterity?: number;
+    constitution?: number;
+    intelligence?: number;
+    wisdom?: number;
+    charisma?: number;
+  }) {
+    await this.maxHpInput.fill(data.maxHp.toString());
+    await this.armorClassInput.fill(data.armorClass.toString());
+
+    if (data.speed !== undefined) {
+      await this.speedInput.fill(data.speed.toString());
+    }
+    if (data.strength !== undefined) {
+      await this.strengthInput.fill(data.strength.toString());
+    }
+    if (data.dexterity !== undefined) {
+      await this.dexterityInput.fill(data.dexterity.toString());
+    }
+    if (data.constitution !== undefined) {
+      await this.constitutionInput.fill(data.constitution.toString());
+    }
+    if (data.intelligence !== undefined) {
+      await this.intelligenceInput.fill(data.intelligence.toString());
+    }
+    if (data.wisdom !== undefined) {
+      await this.wisdomInput.fill(data.wisdom.toString());
+    }
+    if (data.charisma !== undefined) {
+      await this.charismaInput.fill(data.charisma.toString());
+    }
   }
 
   /**

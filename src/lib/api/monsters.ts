@@ -32,12 +32,8 @@ export async function getMonsters(params: FetchMonstersParams = {}): Promise<Lis
     offset = 0,
   } = params;
 
-  // Using `any` here is necessary due to TypeScript limitation with Supabase query builder
-  // When chaining multiple conditional .eq()/.ilike() calls with reassignment,
-  // TypeScript's type inference becomes "excessively deep and possibly infinite"
-  // Type safety is maintained through the Promise<ListMonstersResponse> return type
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let queryBuilder: any = supabase.from('monsters').select('*', { count: 'exact' });
+  let queryBuilder = supabase.from('monsters').select('type', { count: 'exact' }) as any;
 
   // Apply filters
   if (searchQuery && searchQuery.trim()) {
@@ -65,7 +61,7 @@ export async function getMonsters(params: FetchMonstersParams = {}): Promise<Lis
   }
 
   return {
-    monsters: data || [],
+    monsters: (data as unknown as MonsterDTO[]) || [],
     total: count || 0,
     limit,
     offset,
