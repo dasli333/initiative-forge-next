@@ -14,6 +14,7 @@ import {
 } from '@/hooks/useLocations';
 import { useCampaignQuery } from '@/hooks/useCampaigns';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 import type { CreateLocationCommand, UpdateLocationCommand } from '@/types/locations';
 import type { JSONContent } from '@tiptap/react';
 
@@ -137,8 +138,19 @@ export default function LocationsPage() {
   }
 
   if (!campaign) {
-    router.push('/campaigns');
-    return null;
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="text-center py-12">
+          <h1 className="text-3xl font-bold mb-2">Campaign not found</h1>
+          <p className="text-muted-foreground mb-4">
+            This campaign does not exist or you don&apos;t have access to it.
+          </p>
+          <Button onClick={() => router.push('/campaigns')}>
+            Back to Campaigns
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
