@@ -177,10 +177,37 @@ Initiative Forge MVP focuses on delivering core functionality for D&D 5e session
 
 ### Campaign Management
 - Create and organize multiple campaigns
-- Add simplified player character cards with essential stats:
-  - Name, HP, AC, Speed
-  - Six ability scores (STR, DEX, CON, INT, WIS, CHA)
+- Player character management with essential stats:
+  - Basic info (name, class, level, status)
+  - Optional combat stats (HP, AC, Speed, ability scores)
   - Auto-calculated initiative modifier and passive perception
+  - Biography with rich text editor
+  - Personality traits and relationships
+  - Combat actions builder
+
+### World Building
+- **NPCs** - Create and manage non-player characters with:
+  - Basic info, biography, and personality traits
+  - Optional combat stats for encounters
+  - Faction affiliations and relationships
+  - Rich text editor with @mentions
+- **Locations** - Build your world with detailed locations:
+  - Descriptions and map coordinates
+  - Parent-child location hierarchies (region → city → tavern)
+  - Image uploads and visual references
+  - Connected NPCs and story elements
+- **Factions** - Define organizations and groups:
+  - Goals, beliefs, and motivations
+  - Leadership and member rosters
+  - Inter-faction relationships
+- **Quests** - Track adventures and objectives:
+  - Quest status (not started → completed)
+  - Prerequisites and dependencies
+  - Rewards and outcomes
+- **Story Arcs** - Organize narrative threads:
+  - Main plots and subplots
+  - Story progression tracking
+  - Connected quests and events
 
 ### Global Monster Library
 - Searchable database of SRD monsters
@@ -206,9 +233,10 @@ Initiative Forge MVP focuses on delivering core functionality for D&D 5e session
 ### Out of Scope for MVP
 - Mobile-optimized responsive design
 - Magic item library
-- Session notes and world-building tools
+- Session notes and calendar
 - Automatic combat state snapshots
-- Advanced character sheets (inventory, backstory, etc.)
+- Advanced character sheets (inventory, equipment slots)
+- Map drawing tools
 
 ---
 
@@ -220,10 +248,14 @@ Initiative Forge is currently in the Minimum Viable Product phase. Core features
 
 ### Recent Progress
 - ✅ Authentication system with Supabase
-- ✅ Campaign and character management
+- ✅ Campaign and player character management
+- ✅ World building tools (NPCs, Locations, Factions)
+- ✅ Quest and Story Arc tracking
 - ✅ Monster and spell libraries
 - ✅ Combat tracking with initiative and HP management
 - ✅ Real-time dice rolling mechanics
+- ✅ Rich text editor with entity @mentions
+- ✅ Image uploads with compression
 - ✅ Unit and E2E test infrastructure
 
 ### Roadmap

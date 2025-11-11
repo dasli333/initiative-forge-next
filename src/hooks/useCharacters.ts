@@ -168,7 +168,7 @@ export function useDeleteCharacterMutation(campaignId: string) {
 /**
  * Mutation: Add combat stats
  */
-export function useAddCombatStatsMutation() {
+export function useAddCombatStatsMutation(campaignId?: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -177,6 +177,9 @@ export function useAddCombatStatsMutation() {
 
     onSuccess: (_, { characterId }) => {
       queryClient.invalidateQueries({ queryKey: ['player_character', characterId, 'details'] });
+      if (campaignId) {
+        queryClient.invalidateQueries({ queryKey: ['player_characters', campaignId] });
+      }
       toast.success('Combat stats added');
     },
 
@@ -189,7 +192,7 @@ export function useAddCombatStatsMutation() {
 /**
  * Mutation: Update combat stats
  */
-export function useUpdateCombatStatsMutation() {
+export function useUpdateCombatStatsMutation(campaignId?: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -198,6 +201,9 @@ export function useUpdateCombatStatsMutation() {
 
     onSuccess: (_, { characterId }) => {
       queryClient.invalidateQueries({ queryKey: ['player_character', characterId, 'details'] });
+      if (campaignId) {
+        queryClient.invalidateQueries({ queryKey: ['player_characters', campaignId] });
+      }
       toast.success('Combat stats updated');
     },
 
@@ -210,7 +216,7 @@ export function useUpdateCombatStatsMutation() {
 /**
  * Mutation: Remove combat stats
  */
-export function useRemoveCombatStatsMutation() {
+export function useRemoveCombatStatsMutation(campaignId?: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -218,6 +224,9 @@ export function useRemoveCombatStatsMutation() {
 
     onSuccess: (_, characterId) => {
       queryClient.invalidateQueries({ queryKey: ['player_character', characterId, 'details'] });
+      if (campaignId) {
+        queryClient.invalidateQueries({ queryKey: ['player_characters', campaignId] });
+      }
       toast.success('Combat stats removed');
     },
 

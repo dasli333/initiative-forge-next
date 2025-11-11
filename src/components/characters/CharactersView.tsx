@@ -87,9 +87,9 @@ export function CharactersView({ campaignId, campaignName }: CharactersViewProps
   const createMutation = useCreateCharacterMutation(campaignId);
   const updateMutation = useUpdateCharacterMutation(campaignId);
   const deleteMutation = useDeleteCharacterMutation(campaignId);
-  const addCombatStatsMutation = useAddCombatStatsMutation();
-  const updateCombatStatsMutation = useUpdateCombatStatsMutation();
-  const removeCombatStatsMutation = useRemoveCombatStatsMutation();
+  const addCombatStatsMutation = useAddCombatStatsMutation(campaignId);
+  const updateCombatStatsMutation = useUpdateCombatStatsMutation(campaignId);
+  const removeCombatStatsMutation = useRemoveCombatStatsMutation(campaignId);
   const createRelationshipMutation = useCreatePCNPCRelationshipMutation();
   const updateRelationshipMutation = useUpdatePCNPCRelationshipMutation(selectedCharacterId || '');
   const deleteRelationshipMutation = useDeletePCNPCRelationshipMutation(selectedCharacterId || '');
