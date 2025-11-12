@@ -1,6 +1,6 @@
 'use client';
 
-import { useEditor, EditorContent, type JSONContent, ReactNodeViewRenderer } from '@tiptap/react';
+import { useEditor, EditorContent, type JSONContent, ReactNodeViewRenderer, useEditorState } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
@@ -129,6 +129,22 @@ export function RichTextEditor({
     },
   });
 
+  // Subscribe to editor state changes for toolbar button states
+  const editorState = useEditorState({
+    editor,
+    selector: (ctx) => {
+      if (!ctx.editor) return null;
+      return {
+        isBold: ctx.editor.isActive('bold'),
+        isItalic: ctx.editor.isActive('italic'),
+        isHeading2: ctx.editor.isActive('heading', { level: 2 }),
+        isHeading3: ctx.editor.isActive('heading', { level: 3 }),
+        isBulletList: ctx.editor.isActive('bulletList'),
+        isOrderedList: ctx.editor.isActive('orderedList'),
+      };
+    },
+  });
+
   // Update editor editable state when readonly prop changes
   useEffect(() => {
     if (editor) {
@@ -181,7 +197,7 @@ export function RichTextEditor({
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleBold().run()}
-          className={editor.isActive('bold') ? 'bg-gray-200 dark:bg-gray-700' : ''}
+          className={editorState?.isBold ? 'bg-gray-200 dark:bg-gray-700' : ''}
         >
           <Bold className="h-4 w-4" />
         </Button>
@@ -190,7 +206,7 @@ export function RichTextEditor({
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={editor.isActive('italic') ? 'bg-gray-200 dark:bg-gray-700' : ''}
+          className={editorState?.isItalic ? 'bg-gray-200 dark:bg-gray-700' : ''}
         >
           <Italic className="h-4 w-4" />
         </Button>
@@ -200,11 +216,7 @@ export function RichTextEditor({
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          className={
-            editor.isActive('heading', { level: 2 })
-              ? 'bg-gray-200 dark:bg-gray-700'
-              : ''
-          }
+          className={editorState?.isHeading2 ? 'bg-gray-200 dark:bg-gray-700' : ''}
         >
           <Heading2 className="h-4 w-4" />
         </Button>
@@ -213,11 +225,7 @@ export function RichTextEditor({
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-          className={
-            editor.isActive('heading', { level: 3 })
-              ? 'bg-gray-200 dark:bg-gray-700'
-              : ''
-          }
+          className={editorState?.isHeading3 ? 'bg-gray-200 dark:bg-gray-700' : ''}
         >
           <Heading3 className="h-4 w-4" />
         </Button>
@@ -227,9 +235,7 @@ export function RichTextEditor({
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={
-            editor.isActive('bulletList') ? 'bg-gray-200 dark:bg-gray-700' : ''
-          }
+          className={editorState?.isBulletList ? 'bg-gray-200 dark:bg-gray-700' : ''}
         >
           <List className="h-4 w-4" />
         </Button>
@@ -238,9 +244,7 @@ export function RichTextEditor({
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          className={
-            editor.isActive('orderedList') ? 'bg-gray-200 dark:bg-gray-700' : ''
-          }
+          className={editorState?.isOrderedList ? 'bg-gray-200 dark:bg-gray-700' : ''}
         >
           <ListOrdered className="h-4 w-4" />
         </Button>

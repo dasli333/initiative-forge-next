@@ -96,9 +96,6 @@ export function useCreateCampaignMutation() {
           name: name.trim(),
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-          characterCount: 0,
-          combatCount: 0,
-          hasActiveCombat: false,
         };
 
         queryClient.setQueryData<CampaignViewModel[]>(['campaigns'], [...previousCampaigns, tempCampaign]);

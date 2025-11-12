@@ -49,8 +49,6 @@ export function DeleteCampaignModal({ campaign, onClose, onSuccess, onDelete }: 
     }
   };
 
-  const hasData = (campaign?.characterCount ?? 0) > 0 || (campaign?.combatCount ?? 0) > 0;
-
   return (
     <Dialog open={campaign !== null} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
@@ -60,15 +58,7 @@ export function DeleteCampaignModal({ campaign, onClose, onSuccess, onDelete }: 
             <DialogTitle>Delete Campaign</DialogTitle>
           </div>
           <DialogDescription>
-            {hasData ? (
-              <>
-                This campaign has <span className="font-semibold">{campaign?.characterCount ?? 0} character(s)</span>{' '}
-                and <span className="font-semibold">{campaign?.combatCount ?? 0} combat(s)</span>. Deleting it will also
-                delete all associated data. This action cannot be undone.
-              </>
-            ) : (
-              'Are you sure you want to delete this campaign? This action cannot be undone.'
-            )}
+              Are you sure you want to delete this campaign? This action cannot be undone.
           </DialogDescription>
         </DialogHeader>
 
