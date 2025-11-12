@@ -132,7 +132,10 @@ export default function LocationsPage() {
     return (
       <div className="flex flex-col h-full p-6 space-y-4">
         <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-full w-full" />
+        <div className="grid grid-cols-[300px_1fr] gap-4 flex-1">
+          <Skeleton className="h-full w-full" />
+          <Skeleton className="h-full w-full" />
+        </div>
       </div>
     );
   }

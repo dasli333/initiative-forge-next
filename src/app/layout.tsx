@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { AuthInitializer } from '@/providers/AuthInitializer';
+import { NavigationProgressProvider } from '@/providers/NavigationProgressProvider';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from '@/components/ui/sonner';
+import { NetworkProgressBar } from '@/components/shared/NetworkProgressBar';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -20,10 +22,13 @@ export default function RootLayout({
       <body>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <QueryProvider>
-            <AuthInitializer>
-              {children}
-              <Toaster />
-            </AuthInitializer>
+            <NavigationProgressProvider>
+              <NetworkProgressBar />
+              <AuthInitializer>
+                {children}
+                <Toaster />
+              </AuthInitializer>
+            </NavigationProgressProvider>
           </QueryProvider>
         </ThemeProvider>
       </body>

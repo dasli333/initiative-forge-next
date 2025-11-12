@@ -4,6 +4,7 @@ import Link from 'next/link';
 import type { LucideIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { useNavigationProgress } from '@/providers/NavigationProgressProvider';
 
 interface NavItemProps {
   icon: LucideIcon;
@@ -19,6 +20,8 @@ interface NavItemProps {
 }
 
 export function NavItem({ icon: Icon, label, href, isActive, isDisabled, badge }: NavItemProps) {
+const { navigate } = useNavigationProgress();
+
   const baseClasses = cn(
     'flex items-center gap-3 px-4 py-2 text-sm transition-colors relative',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900'
@@ -65,6 +68,10 @@ export function NavItem({ icon: Icon, label, href, isActive, isDisabled, badge }
     <li>
       <Link
         href={href}
+        onClick={(e) => {
+          e.preventDefault();
+          navigate(href);
+        }}
         className={cn(baseClasses, stateClasses)}
         data-testid={testId}
         aria-current={isActive ? 'page' : undefined}
