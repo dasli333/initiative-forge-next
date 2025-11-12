@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreVertical, Users, Swords, CircleDot, Edit, Trash2 } from 'lucide-react';
+import { MoreVertical, Edit, Trash2 } from 'lucide-react';
 import type { CampaignViewModel } from '@/types/campaigns';
 import { EditableTitle } from './EditableTitle';
 
@@ -65,8 +65,8 @@ export function CampaignCard({ campaign, onUpdate, onDelete, onSelect }: Campaig
   };
 
   return (
-    <Card data-testid={`campaign-card-${campaign.name}`} className="hover:shadow-lg transition-shadow">
-      <CardHeader className="pb-3">
+    <Card data-testid={`campaign-card-${campaign.name}`} className="hover:shadow-lg transition-shadow flex flex-col">
+      <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
             <EditableTitle
@@ -105,33 +105,14 @@ export function CampaignCard({ campaign, onUpdate, onDelete, onSelect }: Campaig
         </div>
       </CardHeader>
 
-      <CardContent className="pb-3">
-        <div className="space-y-3">
-          {/* Stats */}
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-1.5">
-              <Users className="h-4 w-4" />
-              <span>{campaign.characterCount ?? 0} characters</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Swords className="h-4 w-4" />
-              <span>{campaign.combatCount ?? 0} combats</span>
-            </div>
-          </div>
-
-          {/* Active Combat Badge */}
-          {campaign.hasActiveCombat && (
-            <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
-              <CircleDot className="h-3 w-3 mr-1.5 fill-emerald-600" />
-              Active combat
-            </Badge>
-          )}
+      <CardContent className="flex-1 pb-2">
+        <div className="text-xs text-muted-foreground">
+          Last modified: {formatDate(campaign.updated_at)}
         </div>
       </CardContent>
 
-      <CardFooter className="flex flex-col items-stretch gap-3 pt-3">
-        <div className="text-xs text-muted-foreground">Last modified: {formatDate(campaign.updated_at)}</div>
-        <Button data-testid="select-campaign-button" onClick={() => onSelect(campaign.id)} className="w-full bg-emerald-600 hover:bg-emerald-700">
+      <CardFooter className="pt-0">
+        <Button data-testid="select-campaign-button" onClick={() => onSelect(campaign.id)} className="w-full bg-emerald-600 hover:bg-emerald-700 h-9">
           Select Campaign
         </Button>
       </CardFooter>
