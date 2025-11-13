@@ -41,11 +41,11 @@ export function CharacterListItem({ character, isSelected, onClick }: CharacterL
       onClick={onClick}
       data-testid={`character-card-${character.name}`}
       className={cn(
-        'w-full px-3 py-2.5 flex items-start gap-3 rounded-lg border transition-all text-left',
-        'hover:bg-accent hover:border-accent-foreground/20',
+        'w-full px-3 py-2.5 flex items-start gap-3 rounded-lg border transition-colors text-left',
+        'hover:bg-accent/50',
         isSelected
-          ? 'bg-accent border-accent-foreground/30 shadow-sm'
-          : 'bg-background border-border'
+          ? 'bg-primary/10 border-primary'
+          : 'bg-card'
       )}
     >
       {/* Avatar */}
