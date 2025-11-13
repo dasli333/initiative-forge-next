@@ -101,7 +101,6 @@ export class CharactersPage {
     name: string;
     maxHp: number;
     armorClass: number;
-    speed?: number;
     strength?: number;
     dexterity?: number;
     constitution?: number;
@@ -151,7 +150,6 @@ export class CharactersPage {
   async fillCombatStats(data: {
     maxHp: number;
     armorClass: number;
-    speed?: number;
     strength?: number;
     dexterity?: number;
     constitution?: number;
@@ -162,9 +160,6 @@ export class CharactersPage {
     await this.maxHpInput.fill(data.maxHp.toString());
     await this.armorClassInput.fill(data.armorClass.toString());
 
-    if (data.speed !== undefined) {
-      await this.speedInput.fill(data.speed.toString());
-    }
     if (data.strength !== undefined) {
       await this.strengthInput.fill(data.strength.toString());
     }

@@ -49,7 +49,7 @@ export function StoryTab({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
 
       {/* Languages Row */}
       {!isEditing && displayData.languages && displayData.languages.length > 0 && (
@@ -105,11 +105,11 @@ export function StoryTab({
       )}
 
       {/* Secrets RichTextEditor */}
-      <div>
-        <label className="text-sm font-medium mb-2 block flex items-center gap-2">
-          <FileText className="w-4 h-4" />
+      <div className="rounded-lg bg-muted/30 p-4 space-y-3">
+        <h3 className="text-lg font-semibold mb-3 pb-2 border-b border-border/50 flex items-center gap-2">
+          <FileText className="w-5 h-5" />
           Secrets (GM Only)
-        </label>
+        </h3>
         <RichTextEditor
           value={displayData.secrets}
           onChange={(content) => isEditing && onEditedDataChange('secrets', content)}
@@ -118,14 +118,14 @@ export function StoryTab({
           readonly={!isEditing}
           className="border-amber-300 dark:border-amber-700"
         />
-        <p className="text-xs text-muted-foreground mt-1">
+        <p className="text-xs text-muted-foreground">
           This information is for the GM only and should not be shared with players
         </p>
       </div>
 
       {/* Biography RichTextEditor */}
-      <div>
-        <label className="text-sm font-medium mb-2 block">Biography</label>
+      <div className="rounded-lg bg-muted/30 p-4 space-y-3">
+        <h3 className="text-lg font-semibold mb-3 pb-2 border-b border-border/50">Biography</h3>
         <RichTextEditor
           value={displayData.biography_json}
           onChange={(content) => isEditing && onEditedDataChange('biography_json', content)}
@@ -136,8 +136,8 @@ export function StoryTab({
       </div>
 
       {/* Personality RichTextEditor */}
-      <div>
-        <label className="text-sm font-medium mb-2 block">Personality</label>
+      <div className="rounded-lg bg-muted/30 p-4 space-y-3">
+        <h3 className="text-lg font-semibold mb-3 pb-2 border-b border-border/50">Personality</h3>
         <RichTextEditor
           value={displayData.personality_json}
           onChange={(content) => isEditing && onEditedDataChange('personality_json', content)}

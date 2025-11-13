@@ -25,9 +25,10 @@ export function QuestListItem({ quest, isSelected, onClick }: QuestListItemProps
       variant="ghost"
       className={cn(
         'relative flex h-auto w-full items-start gap-3 border-l-4 px-3 py-2.5 transition-colors',
+        'hover:bg-accent/50',
         isSelected
-          ? 'border-l-primary bg-accent shadow-sm'
-          : 'border-l-transparent bg-background hover:border-l-accent-foreground/20 hover:bg-accent'
+          ? 'border-l-primary bg-primary/10'
+          : 'border-l-transparent bg-card'
       )}
       onClick={onClick}
     >

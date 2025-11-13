@@ -96,9 +96,6 @@ export function useCreateCampaignMutation() {
           name: name.trim(),
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-          characterCount: 0,
-          combatCount: 0,
-          hasActiveCombat: false,
         };
 
         queryClient.setQueryData<CampaignViewModel[]>(['campaigns'], [...previousCampaigns, tempCampaign]);
@@ -228,7 +225,7 @@ export function useUpdateCampaignMutation() {
 export function useDeleteCampaignMutation() {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const { selectedCampaignId, setSelectedCampaignId } = useCampaignStore();
+  const { selectedCampaignId, clearSelection } = useCampaignStore();
 
   return useMutation({
     mutationFn: async (id: string): Promise<void> => {
@@ -260,7 +257,7 @@ export function useDeleteCampaignMutation() {
       // Clear selection if deleted campaign was selected
       const previousSelectedId = selectedCampaignId;
       if (selectedCampaignId === id) {
-        setSelectedCampaignId(null);
+        clearSelection();
       }
 
       // Return context with snapshots
@@ -272,8 +269,11 @@ export function useDeleteCampaignMutation() {
         queryClient.setQueryData(['campaigns'], context.previousCampaigns);
       }
 
-      // Rollback selected campaign ID
+      // Rollback selected campaign (will be re-fetched by invalidateQueries)
       if (context?.previousSelectedId === id) {
+        // Note: Campaign object will be restored via query invalidation
+        // We only need to restore the ID here
+        const { setSelectedCampaignId } = useCampaignStore.getState();
         setSelectedCampaignId(id);
       }
 

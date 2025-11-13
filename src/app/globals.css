@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -81,6 +82,20 @@
     sans-serif;
   --font-mono:
     "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  @keyframes network-progress {
+    0% {
+      transform: translateX(-100%) scaleX(0.3);
+    }
+    40% {
+      transform: translateX(0%) scaleX(0.4);
+    }
+    100% {
+      transform: translateX(100%) scaleX(0.3);
+    }
+  }
+
+  --animate-network-progress: network-progress 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 @layer base {

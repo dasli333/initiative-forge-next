@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { TAG_COLORS, TAG_ICONS, type TagColor, type TagIcon } from '@/types/npc-tags';
+import { TAG_COLORS, TAG_ICONS, type TagColor } from '@/types/npc-tags';
 
 // ============================================================================
 // NPC TAG SCHEMA

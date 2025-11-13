@@ -39,10 +39,18 @@ export function CharactersView({ campaignId, campaignName }: CharactersViewProps
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // Local state
+  // Local state - sync with URL params
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(
     searchParams.get('selectedId') || null
   );
+
+  // Sync selectedCharacterId with URL changes
+  useEffect(() => {
+    const urlSelectedId = searchParams.get('selectedId');
+    if (urlSelectedId !== selectedCharacterId) {
+      setSelectedCharacterId(urlSelectedId);
+    }
+  }, [searchParams, selectedCharacterId]);
   const [filters, setFilters] = useState<PlayerCharacterFilters>({});
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isAddRelationshipOpen, setIsAddRelationshipOpen] = useState(false);

@@ -99,7 +99,6 @@ test.describe("MVP Complete Flow", () => {
       name: generateUniqueName("Fighter"),
       maxHp: 30,
       armorClass: 16,
-      speed: 30,
       strength: 16, // +3 modifier
       dexterity: 14, // +2 modifier (initiative)
       constitution: 14,
@@ -115,7 +114,6 @@ test.describe("MVP Complete Flow", () => {
       name: generateUniqueName("Wizard"),
       maxHp: 20,
       armorClass: 12,
-      speed: 30,
       strength: 8,
       dexterity: 12, // +1 modifier (initiative)
       constitution: 10,
@@ -131,7 +129,6 @@ test.describe("MVP Complete Flow", () => {
       name: generateUniqueName("Rogue"),
       maxHp: 25,
       armorClass: 15,
-      speed: 30,
       strength: 10,
       dexterity: 18, // +4 modifier (initiative)
       constitution: 12,

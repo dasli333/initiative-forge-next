@@ -35,10 +35,18 @@ export default function QuestsPage() {
   // Get campaign from store
   const { selectedCampaign: _selectedCampaign } = useCampaignStore();
 
-  // Local state
+  // Local state - sync with URL params
   const [selectedQuestId, setSelectedQuestId] = useState<string | null>(
     searchParams.get('selectedId') || null
   );
+
+  // Sync selectedQuestId with URL changes
+  useEffect(() => {
+    const urlSelectedId = searchParams.get('selectedId');
+    if (urlSelectedId !== selectedQuestId) {
+      setSelectedQuestId(urlSelectedId);
+    }
+  }, [searchParams, selectedQuestId]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [filters, setFilters] = useState<QuestFilters>({});
 
