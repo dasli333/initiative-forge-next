@@ -16,7 +16,9 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Trash2, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { NoCombatStatsState } from '@/components/npcs/shared/NoCombatStatsState';
 import { ActionBuilder } from '@/components/characters/ActionBuilder';
 import type { PlayerCharacterCombatStatsDTO } from '@/types/player-characters';
@@ -93,176 +95,180 @@ export function CombatTab({
     return mod >= 0 ? `+${mod}` : mod.toString();
   };
 
+  const getModifierColor = (score: number) => {
+    const mod = Math.floor((score - 10) / 2);
+    if (mod > 0) return 'text-emerald-600 dark:text-emerald-400';
+    if (mod < 0) return 'text-red-600 dark:text-red-400';
+    return 'text-muted-foreground';
+  };
+
   return (
     <div className="space-y-6">
-      {/* Basic Stats */}
+      {/* Combat Statistics */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Basic Stats</CardTitle>
+          <CardTitle className="text-base">Combat Statistics</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <Label htmlFor="hp-max">HP Max</Label>
-              <Input
-                id="hp-max"
-                data-testid="character-max-hp-input"
-                type="number"
-                value={displayStats.hp_max}
-                onChange={(e) => isEditing && onCombatStatsChange('hp_max', parseInt(e.target.value) || 0)}
-                disabled={!isEditing}
-                min={1}
-                max={999}
-              />
-            </div>
-            <div>
-              <Label htmlFor="ac">Armor Class</Label>
-              <Input
-                id="ac"
-                data-testid="character-ac-input"
-                type="number"
-                value={displayStats.armor_class}
-                onChange={(e) => isEditing && onCombatStatsChange('armor_class', parseInt(e.target.value) || 0)}
-                disabled={!isEditing}
-                min={0}
-                max={30}
-              />
-            </div>
-            <div>
-              <Label htmlFor="speed">Speed</Label>
-              <Input
-                id="speed"
-                data-testid="character-speed-input"
-                type="number"
-                value={displayStats.speed}
-                onChange={(e) => isEditing && onCombatStatsChange('speed', parseInt(e.target.value) || 0)}
-                disabled={!isEditing}
-                min={0}
-                max={999}
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Ability Scores */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Ability Scores</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {/* STR */}
-            <div className="text-center space-y-2">
-              <Label htmlFor="str" className="text-xs font-semibold">STR</Label>
-              <Input
-                id="str"
-                data-testid="character-str-input"
-                type="number"
-                value={displayStats.strength}
-                onChange={(e) => isEditing && onCombatStatsChange('strength', parseInt(e.target.value) || 0)}
-                disabled={!isEditing}
-                min={1}
-                max={30}
-                className="text-center"
-              />
-              <div className="text-xs text-muted-foreground">
-                {getModifier(displayStats.strength)}
+          <div className="grid grid-cols-[auto_1fr] gap-8 items-start">
+            {/* Basic Stats - Left Column */}
+            <div className="space-y-4 min-w-[180px]">
+              <div>
+                <Label htmlFor="hp-max">HP Max</Label>
+                <Input
+                  id="hp-max"
+                  data-testid="character-max-hp-input"
+                  type="number"
+                  value={displayStats.hp_max}
+                  onChange={(e) => isEditing && onCombatStatsChange('hp_max', parseInt(e.target.value) || 0)}
+                  disabled={!isEditing}
+                  min={1}
+                  max={999}
+                  className="max-w-[120px] text-center"
+                />
+              </div>
+              <div>
+                <Label htmlFor="ac">Armor Class</Label>
+                <Input
+                  id="ac"
+                  data-testid="character-ac-input"
+                  type="number"
+                  value={displayStats.armor_class}
+                  onChange={(e) => isEditing && onCombatStatsChange('armor_class', parseInt(e.target.value) || 0)}
+                  disabled={!isEditing}
+                  min={0}
+                  max={30}
+                  className="max-w-[120px] text-center"
+                />
               </div>
             </div>
 
-            {/* DEX */}
-            <div className="text-center space-y-2">
-              <Label htmlFor="dex" className="text-xs font-semibold">DEX</Label>
-              <Input
-                id="dex"
-                data-testid="character-dex-input"
-                type="number"
-                value={displayStats.dexterity}
-                onChange={(e) => isEditing && onCombatStatsChange('dexterity', parseInt(e.target.value) || 0)}
-                disabled={!isEditing}
-                min={1}
-                max={30}
-                className="text-center"
-              />
-              <div className="text-xs text-muted-foreground">
-                {getModifier(displayStats.dexterity)}
-              </div>
-            </div>
+            {/* Ability Scores Table - Right Column */}
+            <div className="max-w-2xl">
+              <div className="rounded-lg overflow-hidden border border-border/50">
+                <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/50 hover:bg-muted/50">
+                  <TableHead className="text-center font-semibold">STR</TableHead>
+                  <TableHead className="text-center font-semibold">DEX</TableHead>
+                  <TableHead className="text-center font-semibold">CON</TableHead>
+                  <TableHead className="text-center font-semibold">INT</TableHead>
+                  <TableHead className="text-center font-semibold">WIS</TableHead>
+                  <TableHead className="text-center font-semibold">CHA</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow className="hover:bg-muted/30 transition-colors">
+                  {/* STR */}
+                  <TableCell className="text-center">
+                    <Input
+                      id="str"
+                      data-testid="character-str-input"
+                      type="number"
+                      value={displayStats.strength}
+                      onChange={(e) => isEditing && onCombatStatsChange('strength', parseInt(e.target.value) || 0)}
+                      disabled={!isEditing}
+                      min={1}
+                      max={30}
+                      className="text-center max-w-[70px] mx-auto mb-1"
+                    />
+                    <div className={cn("text-xs font-medium", getModifierColor(displayStats.strength))}>
+                      ({getModifier(displayStats.strength)})
+                    </div>
+                  </TableCell>
 
-            {/* CON */}
-            <div className="text-center space-y-2">
-              <Label htmlFor="con" className="text-xs font-semibold">CON</Label>
-              <Input
-                id="con"
-                data-testid="character-con-input"
-                type="number"
-                value={displayStats.constitution}
-                onChange={(e) => isEditing && onCombatStatsChange('constitution', parseInt(e.target.value) || 0)}
-                disabled={!isEditing}
-                min={1}
-                max={30}
-                className="text-center"
-              />
-              <div className="text-xs text-muted-foreground">
-                {getModifier(displayStats.constitution)}
-              </div>
-            </div>
+                  {/* DEX */}
+                  <TableCell className="text-center">
+                    <Input
+                      id="dex"
+                      data-testid="character-dex-input"
+                      type="number"
+                      value={displayStats.dexterity}
+                      onChange={(e) => isEditing && onCombatStatsChange('dexterity', parseInt(e.target.value) || 0)}
+                      disabled={!isEditing}
+                      min={1}
+                      max={30}
+                      className="text-center max-w-[70px] mx-auto mb-1"
+                    />
+                    <div className={cn("text-xs font-medium", getModifierColor(displayStats.dexterity))}>
+                      ({getModifier(displayStats.dexterity)})
+                    </div>
+                  </TableCell>
 
-            {/* INT */}
-            <div className="text-center space-y-2">
-              <Label htmlFor="int" className="text-xs font-semibold">INT</Label>
-              <Input
-                id="int"
-                data-testid="character-int-input"
-                type="number"
-                value={displayStats.intelligence}
-                onChange={(e) => isEditing && onCombatStatsChange('intelligence', parseInt(e.target.value) || 0)}
-                disabled={!isEditing}
-                min={1}
-                max={30}
-                className="text-center"
-              />
-              <div className="text-xs text-muted-foreground">
-                {getModifier(displayStats.intelligence)}
-              </div>
-            </div>
+                  {/* CON */}
+                  <TableCell className="text-center">
+                    <Input
+                      id="con"
+                      data-testid="character-con-input"
+                      type="number"
+                      value={displayStats.constitution}
+                      onChange={(e) => isEditing && onCombatStatsChange('constitution', parseInt(e.target.value) || 0)}
+                      disabled={!isEditing}
+                      min={1}
+                      max={30}
+                      className="text-center max-w-[70px] mx-auto mb-1"
+                    />
+                    <div className={cn("text-xs font-medium", getModifierColor(displayStats.constitution))}>
+                      ({getModifier(displayStats.constitution)})
+                    </div>
+                  </TableCell>
 
-            {/* WIS */}
-            <div className="text-center space-y-2">
-              <Label htmlFor="wis" className="text-xs font-semibold">WIS</Label>
-              <Input
-                id="wis"
-                data-testid="character-wis-input"
-                type="number"
-                value={displayStats.wisdom}
-                onChange={(e) => isEditing && onCombatStatsChange('wisdom', parseInt(e.target.value) || 0)}
-                disabled={!isEditing}
-                min={1}
-                max={30}
-                className="text-center"
-              />
-              <div className="text-xs text-muted-foreground">
-                {getModifier(displayStats.wisdom)}
-              </div>
-            </div>
+                  {/* INT */}
+                  <TableCell className="text-center">
+                    <Input
+                      id="int"
+                      data-testid="character-int-input"
+                      type="number"
+                      value={displayStats.intelligence}
+                      onChange={(e) => isEditing && onCombatStatsChange('intelligence', parseInt(e.target.value) || 0)}
+                      disabled={!isEditing}
+                      min={1}
+                      max={30}
+                      className="text-center max-w-[70px] mx-auto mb-1"
+                    />
+                    <div className={cn("text-xs font-medium", getModifierColor(displayStats.intelligence))}>
+                      ({getModifier(displayStats.intelligence)})
+                    </div>
+                  </TableCell>
 
-            {/* CHA */}
-            <div className="text-center space-y-2">
-              <Label htmlFor="cha" className="text-xs font-semibold">CHA</Label>
-              <Input
-                id="cha"
-                data-testid="character-cha-input"
-                type="number"
-                value={displayStats.charisma}
-                onChange={(e) => isEditing && onCombatStatsChange('charisma', parseInt(e.target.value) || 0)}
-                disabled={!isEditing}
-                min={1}
-                max={30}
-                className="text-center"
-              />
-              <div className="text-xs text-muted-foreground">
-                {getModifier(displayStats.charisma)}
+                  {/* WIS */}
+                  <TableCell className="text-center">
+                    <Input
+                      id="wis"
+                      data-testid="character-wis-input"
+                      type="number"
+                      value={displayStats.wisdom}
+                      onChange={(e) => isEditing && onCombatStatsChange('wisdom', parseInt(e.target.value) || 0)}
+                      disabled={!isEditing}
+                      min={1}
+                      max={30}
+                      className="text-center max-w-[70px] mx-auto mb-1"
+                    />
+                    <div className={cn("text-xs font-medium", getModifierColor(displayStats.wisdom))}>
+                      ({getModifier(displayStats.wisdom)})
+                    </div>
+                  </TableCell>
+
+                  {/* CHA */}
+                  <TableCell className="text-center">
+                    <Input
+                      id="cha"
+                      data-testid="character-cha-input"
+                      type="number"
+                      value={displayStats.charisma}
+                      onChange={(e) => isEditing && onCombatStatsChange('charisma', parseInt(e.target.value) || 0)}
+                      disabled={!isEditing}
+                      min={1}
+                      max={30}
+                      className="text-center max-w-[70px] mx-auto mb-1"
+                    />
+                    <div className={cn("text-xs font-medium", getModifierColor(displayStats.charisma))}>
+                      ({getModifier(displayStats.charisma)})
+                    </div>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
               </div>
             </div>
           </div>
@@ -277,7 +283,7 @@ export function CombatTab({
             {actions.length} / {MAX_ACTIONS} actions
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="max-w-4xl space-y-4">
           {/* Actions List */}
           {actions.length > 0 && (
             <div className="space-y-2">

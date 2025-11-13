@@ -43,7 +43,7 @@ export function StoryTab({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Languages */}
       <div>
         <Label>Languages</Label>
@@ -71,31 +71,27 @@ export function StoryTab({
       </div>
 
       {/* Biography RichTextEditor */}
-      <div>
-        <Label>Biography</Label>
-        <div className="mt-2">
-          <RichTextEditor
-            value={displayData.biography_json}
-            onChange={(content) => isEditing && onFieldChange('biography_json', content)}
-            campaignId={campaignId}
-            placeholder="Write the character's backstory and biography..."
-            readonly={!isEditing}
-          />
-        </div>
+      <div className="rounded-lg bg-muted/30 p-4 space-y-3">
+        <h3 className="text-lg font-semibold mb-3 pb-2 border-b border-border/50">Biography</h3>
+        <RichTextEditor
+          value={displayData.biography_json}
+          onChange={(content) => isEditing && onFieldChange('biography_json', content)}
+          campaignId={campaignId}
+          placeholder="Write the character's backstory and biography..."
+          readonly={!isEditing}
+        />
       </div>
 
       {/* Personality RichTextEditor */}
-      <div>
-        <Label>Personality</Label>
-        <div className="mt-2">
-          <RichTextEditor
-            value={displayData.personality_json}
-            onChange={(content) => isEditing && onFieldChange('personality_json', content)}
-            campaignId={campaignId}
-            placeholder="Describe personality traits, quirks, speech patterns..."
-            readonly={!isEditing}
-          />
-        </div>
+      <div className="rounded-lg bg-muted/30 p-4 space-y-3">
+        <h3 className="text-lg font-semibold mb-3 pb-2 border-b border-border/50">Personality</h3>
+        <RichTextEditor
+          value={displayData.personality_json}
+          onChange={(content) => isEditing && onFieldChange('personality_json', content)}
+          campaignId={campaignId}
+          placeholder="Describe personality traits, quirks, speech patterns..."
+          readonly={!isEditing}
+        />
       </div>
     </div>
   );
