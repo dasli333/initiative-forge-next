@@ -3,7 +3,6 @@
 import { useEditor, EditorContent, type JSONContent, ReactNodeViewRenderer, useEditorState } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
-import Link from '@tiptap/extension-link';
 import {
   Bold,
   Italic,
@@ -12,14 +11,14 @@ import {
   Heading2,
   Heading3,
   LinkIcon,
-  ImageIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { createMentionExtension } from './mentions/MentionExtension';
 import { MentionNode } from './mentions/MentionNode';
 import { searchCampaignEntities } from '@/lib/api/entities';
+import { LinkPopover } from './LinkPopover';
 
 interface RichTextEditorProps {
   value: JSONContent | null;
@@ -44,16 +43,15 @@ export function RichTextEditor({
     immediatelyRender: false,
     editable: !readonly,
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        link: {
+           openOnClick: false,
+           autolink: false
+        }
+      }),
       Image.configure({
         HTMLAttributes: {
           class: 'rounded-lg max-w-full h-auto',
-        },
-      }),
-      Link.configure({
-        openOnClick: !readonly,
-        HTMLAttributes: {
-          class: 'text-emerald-600 dark:text-emerald-400 underline',
         },
       }),
       // @mentions extension (only if campaignId provided)
@@ -145,6 +143,10 @@ export function RichTextEditor({
     },
   });
 
+  // State for link and image dialogs
+  const [linkPopoverOpen, setLinkPopoverOpen] = useState(false);
+  const [hasSelection, setHasSelection] = useState(false);
+
   // Update editor editable state when readonly prop changes
   useEffect(() => {
     if (editor) {
@@ -167,21 +169,35 @@ export function RichTextEditor({
     }
   }, [editor, value]);
 
-  const addImage = useCallback(() => {
-    if (!editor) return;
-    const url = window.prompt('Enter image URL:');
-    if (url) {
-      editor.chain().focus().setImage({ src: url }).run();
-    }
-  }, [editor]);
-
   const addLink = useCallback(() => {
     if (!editor) return;
-    const url = window.prompt('Enter URL:');
-    if (url) {
-      editor.chain().focus().setLink({ href: url }).run();
-    }
+    const { from, to } = editor.state.selection;
+    const hasText = from !== to;
+    setHasSelection(hasText);
+    setLinkPopoverOpen(true);
   }, [editor]);
+
+  // Keyboard shortcut for Ctrl+K / Cmd+K to open link popover
+  useEffect(() => {
+    if (!editor || readonly) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        const { from, to } = editor.state.selection;
+        const hasText = from !== to;
+        setHasSelection(hasText);
+        setLinkPopoverOpen(true);
+      }
+    };
+
+    const editorElement = editor.view.dom;
+    editorElement.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      editorElement.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [editor, readonly]);
 
   if (!editor) {
     return null;
@@ -252,9 +268,6 @@ export function RichTextEditor({
         <Button type="button" variant="ghost" size="sm" onClick={addLink}>
           <LinkIcon className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={addImage}>
-          <ImageIcon className="h-4 w-4" />
-        </Button>
         </div>
       )}
 
@@ -264,6 +277,18 @@ export function RichTextEditor({
         className={readonly ? '' : 'bg-white dark:bg-gray-950'}
         placeholder={placeholder}
       />
+
+      {/* Link Dialog */}
+      {!readonly && (
+        <>
+          <LinkPopover
+            editor={editor}
+            open={linkPopoverOpen}
+            onOpenChange={setLinkPopoverOpen}
+            hasSelection={hasSelection}
+          />
+        </>
+      )}
     </div>
   );
 }
