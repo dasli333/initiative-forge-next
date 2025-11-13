@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,16 +22,6 @@ export function LinkPopover({ editor, open, onOpenChange, hasSelection }: LinkPo
   const [url, setUrl] = useState(previousUrl);
   const [linkText, setLinkText] = useState('');
   const [openInNewTab, setOpenInNewTab] = useState(false);
-
-  // Update URL when popover opens
-  useEffect(() => {
-    if (open) {
-      const currentUrl = editor.getAttributes('link').href || '';
-      setUrl(currentUrl);
-      setLinkText('');
-      setOpenInNewTab(editor.getAttributes('link').target === '_blank');
-    }
-  }, [open, editor]);
 
   const handleSetLink = () => {
     if (!url) {
@@ -94,7 +84,13 @@ export function LinkPopover({ editor, open, onOpenChange, hasSelection }: LinkPo
   };
 
   const handleOpenChange = (newOpen: boolean) => {
-    if (!newOpen && !url && !previousUrl) {
+    if (newOpen) {
+      // Initialize state when popover opens
+      const currentUrl = editor.getAttributes('link').href || '';
+      setUrl(currentUrl);
+      setLinkText('');
+      setOpenInNewTab(editor.getAttributes('link').target === '_blank');
+    } else if (!url && !previousUrl) {
       // Closed without URL on new link - ensure no link mark active
       editor.chain().focus().unsetLink().run();
     }
