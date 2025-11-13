@@ -138,7 +138,7 @@ export function MentionNode(props: NodeViewProps) {
         case 'story_arc':
           return supabase
             .from('story_arcs')
-            .select('id, name, description_json')
+            .select('id, title, description_json')
             .eq('id', id)
             .single()
             .then(({ data }) => data);

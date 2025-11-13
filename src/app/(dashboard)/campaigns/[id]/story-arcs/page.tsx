@@ -32,10 +32,18 @@ export default function StoryArcsPage() {
   const searchParams = useSearchParams();
   const { selectedCampaign } = useCampaignStore();
 
-  // Selection state
+  // Selection state - sync with URL params
   const [selectedStoryArcId, setSelectedStoryArcId] = useState<string | null>(
-    searchParams.get('storyArcId')
+    searchParams.get('selectedId')
   );
+
+  // Sync selectedStoryArcId with URL changes
+  useEffect(() => {
+    const urlSelectedId = searchParams.get('selectedId');
+    if (urlSelectedId !== selectedStoryArcId) {
+      setSelectedStoryArcId(urlSelectedId);
+    }
+  }, [searchParams, selectedStoryArcId]);
 
   // Filter state
   const [filters, setFilters] = useState<StoryArcFilters>({});
@@ -60,7 +68,7 @@ export default function StoryArcsPage() {
   const handleStoryArcSelect = useCallback(
     (storyArcId: string) => {
       setSelectedStoryArcId(storyArcId);
-      router.push(`/campaigns/${campaignId}/story-arcs?storyArcId=${storyArcId}`);
+      router.push(`/campaigns/${campaignId}/story-arcs?selectedId=${storyArcId}`);
     },
     [campaignId, router]
   );

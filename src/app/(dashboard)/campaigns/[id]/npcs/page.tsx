@@ -53,10 +53,18 @@ export default function NPCsPage() {
   // Get campaign from store
   const { selectedCampaign } = useCampaignStore();
 
-  // Local state
+  // Local state - sync with URL params
   const [selectedNPCId, setSelectedNPCId] = useState<string | null>(
     searchParams.get('selectedId') || null
   );
+
+  // Sync selectedNPCId with URL changes
+  useEffect(() => {
+    const urlSelectedId = searchParams.get('selectedId');
+    if (urlSelectedId !== selectedNPCId) {
+      setSelectedNPCId(urlSelectedId);
+    }
+  }, [searchParams, selectedNPCId]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isAddRelationshipOpen, setIsAddRelationshipOpen] = useState(false);
   const [isTagManagerOpen, setIsTagManagerOpen] = useState(false);
