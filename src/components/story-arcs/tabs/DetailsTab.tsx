@@ -44,20 +44,6 @@ export function DetailsTab({
 }: DetailsTabProps) {
   return (
     <div className="space-y-6 p-6">
-      {/* Title */}
-      <div>
-        <Label>Title</Label>
-        {isEditing && editedData ? (
-          <Input
-            value={editedData.title}
-            onChange={(e) => onEditedDataChange('title', e.target.value)}
-            placeholder="Enter story arc title"
-          />
-        ) : (
-          <h2 className="text-2xl font-bold mt-1">{storyArc.title}</h2>
-        )}
-      </div>
-
       {/* Status */}
       <div>
         <Label>Status</Label>
