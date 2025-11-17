@@ -62,7 +62,7 @@ export function QuestDetailPanel({
   viewModel,
   campaignId,
   npcs,
-  storyArcs: _storyArcs,
+  storyArcs,
   isLoading,
   isEditing,
   editedData,
@@ -228,6 +228,7 @@ export function QuestDetailPanel({
               viewModel={viewModel}
               campaignId={campaignId}
               npcs={npcs}
+              storyArcs={storyArcs}
               isEditing={isEditing}
               editedData={editedData}
               onEditedDataChange={onEditedDataChange}

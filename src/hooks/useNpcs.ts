@@ -229,6 +229,7 @@ export function useUpdateNPCMutation(campaignId: string) {
     onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({ queryKey: ['npcs', campaignId] });
       queryClient.invalidateQueries({ queryKey: ['npc', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['entity-preview', 'npc', variables.id] });
     },
   });
 }

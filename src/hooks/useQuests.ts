@@ -200,6 +200,7 @@ export function useUpdateQuestMutation(campaignId: string) {
     onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({ queryKey: ['quests', campaignId] });
       queryClient.invalidateQueries({ queryKey: ['quest', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['entity-preview', 'quest', variables.id] });
     },
   });
 }

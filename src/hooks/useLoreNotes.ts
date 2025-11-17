@@ -95,6 +95,7 @@ export function useUpdateLoreNoteMutation(campaignId: string) {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['lore-notes', campaignId] });
       queryClient.invalidateQueries({ queryKey: ['lore-note', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['entity-preview', 'lore_note', variables.id] });
       toast.success('Lore note updated');
     },
     onError: (err) => {

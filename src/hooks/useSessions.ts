@@ -95,6 +95,7 @@ export function useUpdateSessionMutation(campaignId: string) {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['sessions', campaignId] });
       queryClient.invalidateQueries({ queryKey: ['session', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['entity-preview', 'session', variables.id] });
       toast.success('Session updated');
     },
     onError: (err) => {
