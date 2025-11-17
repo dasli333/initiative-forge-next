@@ -59,21 +59,25 @@ const ENTITY_ROUTE_MAP = {
 
 // Generate metadata text based on entity type and data
 function getEntityMetadata(
-  preview: Record<string, unknown>,
+  preview: unknown,
   entityType: string
 ): string | null {
+  if (!preview || typeof preview !== 'object') return null;
+
+  const data = preview as Record<string, unknown>;
+
   switch (entityType) {
     case 'player_character': {
-      const race = preview.race as string | null;
-      const charClass = preview.class as string | null;
+      const race = data.race as string | null;
+      const charClass = data.class as string | null;
       const parts = [race, charClass].filter(Boolean);
       return parts.length > 0 ? parts.join(' ') : null;
     }
 
     case 'npc': {
-      const race = preview.race as string | null;
-      const role = preview.role as string | null;
-      const factions = preview.factions as { name: string } | null;
+      const race = data.race as string | null;
+      const role = data.role as string | null;
+      const factions = data.factions as { name: string } | null;
       const parts = [race, role].filter(Boolean);
       if (parts.length === 0) return null;
       const base = parts.join(' ');
@@ -81,13 +85,13 @@ function getEntityMetadata(
     }
 
     case 'quest':
-      return preview.status ? 'Status: ' + String(preview.status) : null;
+      return data.status ? 'Status: ' + String(data.status) : null;
 
     case 'story_arc':
-      return preview.status ? 'Status: ' + String(preview.status) : null;
+      return data.status ? 'Status: ' + String(data.status) : null;
 
     case 'location':
-      return preview.location_type ? String(preview.location_type) : null;
+      return data.location_type ? String(data.location_type) : null;
 
     default:
       return null;
