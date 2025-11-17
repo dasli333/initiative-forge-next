@@ -95,6 +95,7 @@ export function useUpdateStoryItemMutation(campaignId: string) {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['story-items', campaignId] });
       queryClient.invalidateQueries({ queryKey: ['story-item', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['entity-preview', 'story_item', variables.id] });
       toast.success('Story item updated');
     },
     onError: (err) => {

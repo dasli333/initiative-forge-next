@@ -194,6 +194,7 @@ export function useUpdateFactionMutation(campaignId: string) {
     onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({ queryKey: ['factions', campaignId] });
       queryClient.invalidateQueries({ queryKey: ['faction', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['entity-preview', 'faction', variables.id] });
     },
   });
 }

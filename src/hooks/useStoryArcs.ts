@@ -194,6 +194,7 @@ export function useUpdateStoryArcMutation(campaignId: string) {
     onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({ queryKey: ['story-arcs', campaignId] });
       queryClient.invalidateQueries({ queryKey: ['story-arc', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['entity-preview', 'story_arc', variables.id] });
     },
   });
 }

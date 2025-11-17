@@ -231,6 +231,7 @@ export function useUpdateLocationMutation(campaignId: string) {
       // Always refetch after error or success to ensure consistency
       queryClient.invalidateQueries({ queryKey: ['locations', campaignId] });
       queryClient.invalidateQueries({ queryKey: ['location', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['entity-preview', 'location', variables.id] });
     },
   });
 }

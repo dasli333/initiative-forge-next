@@ -128,6 +128,7 @@ export function useUpdateCharacterMutation(campaignId: string) {
     onSuccess: (data, { characterId }) => {
       queryClient.invalidateQueries({ queryKey: ['player_characters', campaignId] });
       queryClient.invalidateQueries({ queryKey: ['player_character', characterId] });
+      queryClient.invalidateQueries({ queryKey: ['entity-preview', 'player_character', characterId] });
       toast.success('Character updated');
     },
 
