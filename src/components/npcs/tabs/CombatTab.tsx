@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,7 +17,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Swords, Trash2, X } from 'lucide-react';
+import { Trash2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { NoCombatStatsState } from '../shared/NoCombatStatsState';
 import { ActionBuilder } from '@/components/characters/ActionBuilder';
@@ -64,7 +63,7 @@ const MAX_ACTIONS = 20;
 export function CombatTab({
   npc,
   combatStats,
-  campaignId,
+  campaignId: _campaignId,
   isEditing,
   editedCombatStats,
   onCombatStatsChange,
@@ -72,8 +71,6 @@ export function CombatTab({
   onRemoveStats,
   isUpdating = false,
 }: CombatTabProps) {
-  const router = useRouter();
-
   if (!combatStats && !editedCombatStats) {
     return <NoCombatStatsState onAddStats={onAddStats} />;
   }
@@ -99,10 +96,6 @@ export function CombatTab({
       const newActions = actions.filter((_, i) => i !== index);
       onCombatStatsChange('actions_json', newActions);
     }
-  };
-
-  const handleUseInCombat = () => {
-    router.push(`/campaigns/${campaignId}/combats/new`);
   };
 
   const getModifier = (score: number) => {
@@ -352,44 +345,37 @@ export function CombatTab({
         </CardContent>
       </Card>
 
-      {/* Action Buttons */}
-      <div className="flex items-center gap-3">
-        <Button
-          onClick={handleUseInCombat}
-          variant="default"
-          className="bg-emerald-600 hover:bg-emerald-700"
-        >
-          <Swords className="h-4 w-4 mr-2" />
-          Use in Combat
-        </Button>
-
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="destructive" disabled={isUpdating}>
-              <Trash2 className="h-4 w-4 mr-2" />
-              Remove Combat Stats
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Remove Combat Stats</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to remove all combat statistics for {npc.name}? This will
-                delete HP, AC, ability scores, and all actions. This action cannot be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={onRemoveStats}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              >
-                Remove Stats
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
+      {/* Remove Combat Stats Button */}
+      {isEditing && (
+        <div className="flex items-center gap-3">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive">
+                <Trash2 className="h-4 w-4 mr-2" />
+                Remove Combat Stats
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Remove Combat Stats</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to remove all combat statistics for {npc.name}? This will
+                  delete HP, AC, ability scores, and all actions. This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={onRemoveStats}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  Remove Stats
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      )}
     </div>
   );
 }
