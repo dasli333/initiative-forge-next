@@ -21,13 +21,6 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { getSupabaseClient } from '@/lib/supabase';
 
-interface TiptapNode {
-  type?: string;
-  text?: string;
-  content?: TiptapNode[];
-  [key: string]: unknown;
-}
-
 const ENTITY_ICONS = {
   location: MapPin,
   npc: User,
@@ -64,6 +57,43 @@ const ENTITY_ROUTE_MAP = {
   lore_note: 'lore-notes',
 };
 
+// Generate metadata text based on entity type and data
+function getEntityMetadata(
+  preview: Record<string, unknown>,
+  entityType: string
+): string | null {
+  switch (entityType) {
+    case 'player_character': {
+      const race = preview.race as string | null;
+      const charClass = preview.class as string | null;
+      const parts = [race, charClass].filter(Boolean);
+      return parts.length > 0 ? parts.join(' ') : null;
+    }
+
+    case 'npc': {
+      const race = preview.race as string | null;
+      const role = preview.role as string | null;
+      const factions = preview.factions as { name: string } | null;
+      const parts = [race, role].filter(Boolean);
+      if (parts.length === 0) return null;
+      const base = parts.join(' ');
+      return factions?.name ? `${base} (${factions.name})` : base;
+    }
+
+    case 'quest':
+      return preview.status ? 'Status: ' + String(preview.status) : null;
+
+    case 'story_arc':
+      return preview.status ? 'Status: ' + String(preview.status) : null;
+
+    case 'location':
+      return preview.location_type ? String(preview.location_type) : null;
+
+    default:
+      return null;
+  }
+}
+
 export function MentionNode(props: NodeViewProps) {
   const router = useRouter();
   const { id, label, entityType = 'location' } = props.node.attrs as {
@@ -98,7 +128,7 @@ export function MentionNode(props: NodeViewProps) {
         case 'location':
           return supabase
             .from('locations')
-            .select('id, name, description_json, image_url')
+            .select('id, name, location_type, image_url')
             .eq('id', id)
             .single()
             .then(({ data }) => data);
@@ -106,7 +136,7 @@ export function MentionNode(props: NodeViewProps) {
         case 'npc':
           return supabase
             .from('npcs')
-            .select('id, name, biography_json, image_url')
+            .select('id, name, race, role, faction_id, image_url, factions(name)')
             .eq('id', id)
             .single()
             .then(({ data }) => data);
@@ -114,7 +144,7 @@ export function MentionNode(props: NodeViewProps) {
         case 'player_character':
           return supabase
             .from('player_characters')
-            .select('id, name, biography_json, image_url')
+            .select('id, name, race, class, image_url')
             .eq('id', id)
             .single()
             .then(({ data }) => data);
@@ -122,7 +152,7 @@ export function MentionNode(props: NodeViewProps) {
         case 'quest':
           return supabase
             .from('quests')
-            .select('id, title, description_json')
+            .select('id, title, status')
             .eq('id', id)
             .single()
             .then(({ data }) => data);
@@ -138,7 +168,7 @@ export function MentionNode(props: NodeViewProps) {
         case 'story_arc':
           return supabase
             .from('story_arcs')
-            .select('id, title, description_json')
+            .select('id, title, status')
             .eq('id', id)
             .single()
             .then(({ data }) => data);
@@ -217,24 +247,9 @@ export function MentionNode(props: NodeViewProps) {
                 </p>
               </div>
             </div>
-            {preview && (
+            {preview && getEntityMetadata(preview, validEntityType) && (
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                {/* Extract excerpt from preview data */}
-                {'description_json' in preview && preview.description_json && typeof preview.description_json === 'object' && (
-                  <p className="line-clamp-3">
-                    {extractTextFromJSON(preview.description_json as TiptapNode)}
-                  </p>
-                )}
-                {'biography_json' in preview && preview.biography_json && typeof preview.biography_json === 'object' && (
-                  <p className="line-clamp-3">
-                    {extractTextFromJSON(preview.biography_json as TiptapNode)}
-                  </p>
-                )}
-                {'content_json' in preview && preview.content_json && typeof preview.content_json === 'object' && (
-                  <p className="line-clamp-3">
-                    {extractTextFromJSON(preview.content_json as TiptapNode)}
-                  </p>
-                )}
+                <p>{getEntityMetadata(preview, validEntityType)}</p>
               </div>
             )}
           </div>
@@ -242,24 +257,4 @@ export function MentionNode(props: NodeViewProps) {
       </HoverCard>
     </NodeViewWrapper>
   );
-}
-
-// Extract plain text from Tiptap JSON
-function extractTextFromJSON(json: TiptapNode): string {
-  if (!json || typeof json !== 'object') return '';
-
-  let text = '';
-
-  const extractText = (node: TiptapNode): void => {
-    if (node.text) {
-      text += node.text;
-    }
-    if (node.content && Array.isArray(node.content)) {
-      node.content.forEach(extractText);
-    }
-  };
-
-  extractText(json);
-
-  return text.trim().slice(0, 150);
 }
