@@ -117,10 +117,10 @@ export function RichTextEditor({
     editorProps: {
       attributes: {
         class: cn(
-          'prose dark:prose-invert max-w-none focus:outline-none',
+          'prose dark:prose-invert max-w-none focus:outline-none leading-snug',
           readonly ? 'p-0' : 'min-h-[200px] p-4',
-          'prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100',
-          'prose-p:text-gray-700 dark:prose-p:text-gray-300',
+          'prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-headings:leading-normal',
+          'prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:mb-2',
           'prose-a:text-emerald-600 dark:prose-a:text-emerald-400'
         ),
       },
