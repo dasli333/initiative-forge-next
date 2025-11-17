@@ -64,6 +64,34 @@ export function DetailsTab({
         />
       </div>
 
+      {/* Status */}
+      <div className="space-y-2">
+        <Label>Status</Label>
+        {isEditing && editedData ? (
+          <Select
+            value={editedData.status}
+            onValueChange={(value) =>
+              onEditedDataChange(
+                'status',
+                value as 'not_started' | 'active' | 'completed' | 'failed'
+              )
+            }
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="not_started">Not Started</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="failed">Failed</SelectItem>
+            </SelectContent>
+          </Select>
+        ) : (
+          <div className="text-sm capitalize">{viewModel.quest.status.replace('_', ' ')}</div>
+        )}
+      </div>
+
       {/* Quest Giver */}
       <div className="space-y-2">
         <Label>Quest Giver</Label>
