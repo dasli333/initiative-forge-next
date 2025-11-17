@@ -112,8 +112,8 @@ export function DetailsTab({
       </div>
 
       {/* Description */}
-      <div>
-        <Label>Description</Label>
+      <div className="rounded-lg bg-muted/30 p-4 space-y-3">
+        <h3 className="text-lg font-semibold mb-3 pb-2 border-b border-border/50">Description</h3>
         <RichTextEditor
           value={
             isEditing && editedData

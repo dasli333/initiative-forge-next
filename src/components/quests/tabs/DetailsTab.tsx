@@ -52,8 +52,8 @@ export function DetailsTab({
   return (
     <div className="space-y-6">
       {/* Description */}
-      <div className="space-y-2">
-        <Label>Description</Label>
+      <div className="rounded-lg bg-muted/30 p-4 space-y-3">
+        <h3 className="text-lg font-semibold mb-3 pb-2 border-b border-border/50">Description</h3>
         <RichTextEditor
           value={
             isEditing && editedData
