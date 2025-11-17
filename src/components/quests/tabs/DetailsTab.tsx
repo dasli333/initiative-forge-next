@@ -14,6 +14,7 @@ import { RichTextEditor } from '@/components/shared/RichTextEditor';
 import { User } from 'lucide-react';
 import type { QuestDetailsViewModel } from '@/types/quests';
 import type { NPCDTO } from '@/types/npcs';
+import type { StoryArcDTO } from '@/types/story-arcs';
 import type { JSONContent } from '@tiptap/core';
 import type { QuestObjective, QuestRewards } from '@/types/quests';
 
@@ -21,6 +22,7 @@ interface DetailsTabProps {
   viewModel: QuestDetailsViewModel;
   campaignId: string;
   npcs: NPCDTO[];
+  storyArcs: StoryArcDTO[];
   isEditing: boolean;
   editedData: {
     title: string;
@@ -42,6 +44,7 @@ export function DetailsTab({
   viewModel,
   campaignId,
   npcs,
+  storyArcs,
   isEditing,
   editedData,
   onEditedDataChange,
@@ -123,6 +126,37 @@ export function DetailsTab({
               </>
             ) : (
               <span className="text-sm text-muted-foreground">No quest giver assigned</span>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Story Arc */}
+      <div className="space-y-2">
+        <Label>Story Arc</Label>
+        {isEditing && editedData ? (
+          <Select
+            value={editedData.story_arc_id || 'none'}
+            onValueChange={(value) =>
+              onEditedDataChange('story_arc_id', value === 'none' ? null : value)
+            }
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select Story Arc" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">None</SelectItem>
+              {storyArcs.map((arc) => (
+                <SelectItem key={arc.id} value={arc.id}>
+                  {arc.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <div className="text-sm">
+            {viewModel.quest.story_arc_name || (
+              <span className="text-muted-foreground">No story arc assigned</span>
             )}
           </div>
         )}
