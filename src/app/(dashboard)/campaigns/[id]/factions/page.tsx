@@ -40,18 +40,8 @@ export default function FactionsPage() {
   // Get campaign from store
   const { selectedCampaign } = useCampaignStore();
 
-  // Local state - sync with URL params
-  const [selectedFactionId, setSelectedFactionId] = useState<string | null>(
-    searchParams.get('selectedId') || null
-  );
-
-  // Sync selectedFactionId with URL changes
-  useEffect(() => {
-    const urlSelectedId = searchParams.get('selectedId');
-    if (urlSelectedId !== selectedFactionId) {
-      setSelectedFactionId(urlSelectedId);
-    }
-  }, [searchParams, selectedFactionId]);
+  // Derive selected faction from URL params (no effect needed)
+  const selectedFactionId = searchParams.get('selectedId') || null;
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isAddRelationshipOpen, setIsAddRelationshipOpen] = useState(false);
@@ -100,7 +90,6 @@ export default function FactionsPage() {
 
   // Handlers
   const handleCardClick = (factionId: string) => {
-    setSelectedFactionId(factionId);
     router.push(`/campaigns/${campaignId}/factions?selectedId=${factionId}`, { scroll: false });
   };
 
@@ -162,7 +151,6 @@ export default function FactionsPage() {
     if (selectedFactionId) {
       deleteMutation.mutate(selectedFactionId, {
         onSuccess: () => {
-          setSelectedFactionId(null);
           router.push(`/campaigns/${campaignId}/factions`, { scroll: false });
         },
       });
@@ -191,7 +179,6 @@ export default function FactionsPage() {
       createMutation.mutate(data, {
         onSuccess: (newFaction) => {
           // Auto-select newly created faction
-          setSelectedFactionId(newFaction.id);
           router.push(`/campaigns/${campaignId}/factions?selectedId=${newFaction.id}`, { scroll: false });
         },
       });
