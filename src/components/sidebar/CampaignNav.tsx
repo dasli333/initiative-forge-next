@@ -32,6 +32,7 @@ export function CampaignNav({ selectedCampaignId, currentPath }: CampaignNavProp
   const npcsHref = `/campaigns/${selectedCampaignId}/npcs`;
   const questsHref = `/campaigns/${selectedCampaignId}/quests`;
   const storyArcsHref = `/campaigns/${selectedCampaignId}/story-arcs`;
+  const factionsHref = `/campaigns/${selectedCampaignId}/factions`;
 
   return (
     <div className="mt-6 space-y-1" data-testid="campaign-nav">
@@ -88,10 +89,8 @@ export function CampaignNav({ selectedCampaignId, currentPath }: CampaignNavProp
         <NavItem
           icon={Shield}
           label="Factions"
-          href="#"
-          isActive={false}
-          isDisabled
-          badge={{ text: 'Soon', variant: 'default' }}
+          href={factionsHref}
+          isActive={currentPath === factionsHref || currentPath.startsWith(factionsHref + '/')}
         />
         <NavItem
           icon={BookOpen}
