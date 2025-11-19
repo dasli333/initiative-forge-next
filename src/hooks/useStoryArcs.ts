@@ -122,6 +122,7 @@ export function useCreateStoryArcMutation(campaignId: string) {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['story-arcs', campaignId] });
+      queryClient.invalidateQueries({ queryKey: ['entity-mentions'], refetchType: 'active' });
     },
   });
 }
@@ -195,6 +196,7 @@ export function useUpdateStoryArcMutation(campaignId: string) {
       queryClient.invalidateQueries({ queryKey: ['story-arcs', campaignId] });
       queryClient.invalidateQueries({ queryKey: ['story-arc', variables.id] });
       queryClient.invalidateQueries({ queryKey: ['entity-preview', 'story_arc', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['entity-mentions'], refetchType: 'active' });
     },
   });
 }

@@ -124,6 +124,7 @@ export function useCreateFactionMutation(campaignId: string) {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['factions', campaignId] });
+      queryClient.invalidateQueries({ queryKey: ['entity-mentions'], refetchType: 'active' });
     },
   });
 }
@@ -197,6 +198,7 @@ export function useUpdateFactionMutation(campaignId: string) {
       queryClient.invalidateQueries({ queryKey: ['factions', campaignId] });
       queryClient.invalidateQueries({ queryKey: ['faction', variables.id] });
       queryClient.invalidateQueries({ queryKey: ['entity-preview', 'faction', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['entity-mentions'], refetchType: 'active' });
     },
   });
 }

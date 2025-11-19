@@ -268,7 +268,7 @@ export function FactionDetailPanel({
 
             <TabsContent value="related" className="mt-0 h-full">
               <RelatedTab
-                backlinks={backlinks}
+                factionId={factionId!}
                 campaignId={campaignId}
               />
             </TabsContent>

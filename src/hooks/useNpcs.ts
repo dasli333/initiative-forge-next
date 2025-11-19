@@ -157,6 +157,7 @@ export function useCreateNPCMutation(campaignId: string) {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['npcs', campaignId] });
+      queryClient.invalidateQueries({ queryKey: ['entity-mentions'], refetchType: 'active' });
     },
   });
 }
@@ -230,6 +231,7 @@ export function useUpdateNPCMutation(campaignId: string) {
       queryClient.invalidateQueries({ queryKey: ['npcs', campaignId] });
       queryClient.invalidateQueries({ queryKey: ['npc', variables.id] });
       queryClient.invalidateQueries({ queryKey: ['entity-preview', 'npc', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['entity-mentions'], refetchType: 'active' });
     },
   });
 }

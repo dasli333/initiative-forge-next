@@ -57,7 +57,7 @@ export function RelatedTab({ characterId, campaignId }: RelatedTabProps) {
 
   // Query for backlinks (entities mentioning this player character)
   const { data: backlinks = [], isLoading } = useQuery({
-    queryKey: ['player_character', characterId, 'mentions'],
+    queryKey: ['entity-mentions', 'player_character', characterId],
     queryFn: () => getMentionsOf('player_character', characterId),
     enabled: !!characterId,
   });

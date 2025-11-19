@@ -1,13 +1,15 @@
 'use client';
 
+import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, User, Target, Calendar, BookOpen, Package, Users, FileText } from 'lucide-react';
+import { MapPin, User, Target, Calendar, BookOpen, Package, Users, FileText, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { BacklinkItem, PCRelationshipViewModel } from '@/types/npcs';
+import { getMentionsOf } from '@/lib/api/entity-mentions';
+import type { PCRelationshipViewModel } from '@/types/npcs';
 
 interface RelatedTabProps {
-  backlinks?: BacklinkItem[];
+  npcId: string;
   pcRelationships?: PCRelationshipViewModel[];
   campaignId: string;
 }
@@ -52,10 +54,17 @@ const ENTITY_ROUTE_MAP = {
  * Related tab for NPC details
  * Shows PC relationships and backlinks ("Mentioned In") sections
  */
-export function RelatedTab({ backlinks, pcRelationships, campaignId }: RelatedTabProps) {
+export function RelatedTab({ npcId, pcRelationships, campaignId }: RelatedTabProps) {
   const router = useRouter();
 
-  const handleBacklinkClick = (backlink: BacklinkItem) => {
+  // Query for backlinks (entities mentioning this NPC)
+  const { data: backlinks = [], isLoading } = useQuery({
+    queryKey: ['entity-mentions', 'npc', npcId],
+    queryFn: () => getMentionsOf('npc', npcId),
+    enabled: !!npcId,
+  });
+
+  const handleBacklinkClick = (backlink: { source_type: string; source_id: string }) => {
     const route = ENTITY_ROUTE_MAP[backlink.source_type as keyof typeof ENTITY_ROUTE_MAP];
     if (route) {
       router.push(`/campaigns/${campaignId}/${route}?selectedId=${backlink.source_id}`);
@@ -131,15 +140,19 @@ export function RelatedTab({ backlinks, pcRelationships, campaignId }: RelatedTa
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {!backlinks || backlinks.length === 0 ? (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : backlinks.length === 0 ? (
             <p className="text-sm text-muted-foreground py-4">
               No mentions yet. Use @mentions in other entities to reference this NPC.
             </p>
           ) : (
             <div className="space-y-2">
               {backlinks.map((backlink) => {
-                const Icon = ENTITY_ICONS[backlink.source_type as keyof typeof ENTITY_ICONS];
-                const colorClass = ENTITY_COLORS[backlink.source_type as keyof typeof ENTITY_COLORS];
+                const Icon = ENTITY_ICONS[backlink.source_type as keyof typeof ENTITY_ICONS] || FileText;
+                const colorClass = ENTITY_COLORS[backlink.source_type as keyof typeof ENTITY_COLORS] || ENTITY_COLORS.lore_note;
 
                 return (
                   <button
@@ -154,9 +167,9 @@ export function RelatedTab({ backlinks, pcRelationships, campaignId }: RelatedTa
                       <Icon className="h-4 w-4" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{backlink.source_name}</p>
+                      <p className="font-medium truncate capitalize">{backlink.source_type.replace('_', ' ')}</p>
                       <p className="text-xs text-muted-foreground truncate mt-0.5">
-                        {backlink.source_field}
+                        Field: {backlink.source_field}
                       </p>
                     </div>
                   </button>
