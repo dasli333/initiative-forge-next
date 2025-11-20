@@ -66,7 +66,7 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
   const selectedLanguage = useLanguageStore((state) => state.selectedLanguage);
 
   // ==================== DERIVED STATE ====================
-  const playerCharacters = playerCharactersQuery.data || [];
+  const playerCharacters = useMemo(() => playerCharactersQuery.data || [], [playerCharactersQuery.data]);
 
   const monsters = useMemo(() => {
     if (!monstersQuery.data) return [];

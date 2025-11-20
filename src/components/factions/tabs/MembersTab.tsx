@@ -1,12 +1,12 @@
 'use client';
 
+import Image from 'next/image';
 import { Users, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { NPCDTO } from '@/types/npcs';
 
 interface MembersTabProps {
   members: NPCDTO[];
-  campaignId: string;
   onAssignMembersClick: () => void;
   onUnassignMember: (npcId: string) => void;
   isUpdating?: boolean;
@@ -14,7 +14,6 @@ interface MembersTabProps {
 
 export function MembersTab({
   members,
-  campaignId,
   onAssignMembersClick,
   onUnassignMember,
   isUpdating = false,
@@ -50,9 +49,11 @@ export function MembersTab({
               className="group relative flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
             >
               {npc.image_url ? (
-                <img
+                <Image
                   src={npc.image_url}
                   alt={npc.name}
+                  width={40}
+                  height={40}
                   className="w-10 h-10 rounded-md object-cover"
                 />
               ) : (

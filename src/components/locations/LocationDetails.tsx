@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -107,11 +108,13 @@ export function LocationDetails({
     <div className="space-y-6">
       {/* Image */}
       {location.image_url && (
-        <div className="w-full h-96 rounded-lg overflow-hidden">
-          <img
+        <div className="relative w-full h-96 rounded-lg overflow-hidden">
+          <Image
             src={location.image_url}
             alt={location.name}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            sizes="100vw"
           />
         </div>
       )}

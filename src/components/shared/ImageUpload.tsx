@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, type ChangeEvent, type DragEvent } from 'react';
+import Image from 'next/image';
 import { Upload, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -197,11 +198,13 @@ export function ImageUpload({
   return (
     <div className={cn('space-y-4', className)}>
       {displayUrl ? (
-        <div className="relative">
-          <img
+        <div className="relative w-full h-64 rounded-lg overflow-hidden">
+          <Image
             src={displayUrl}
             alt="Preview"
-            className="w-full h-64 object-cover rounded-lg"
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 672px"
           />
           <Button
             type="button"

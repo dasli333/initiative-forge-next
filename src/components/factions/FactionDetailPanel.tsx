@@ -242,14 +242,12 @@ export function FactionDetailPanel({
                 isEditing={isEditing}
                 editedData={editedData}
                 onEditedDataChange={onEditedDataChange}
-                isUpdating={isUpdating}
               />
             </TabsContent>
 
             <TabsContent value="members" className="mt-0 h-full">
               <MembersTab
                 members={members}
-                campaignId={campaignId}
                 onAssignMembersClick={onAssignMembers}
                 onUnassignMember={onUnassignMember}
                 isUpdating={isUpdating}
@@ -269,7 +267,6 @@ export function FactionDetailPanel({
             <TabsContent value="related" className="mt-0 h-full">
               <RelatedTab
                 factionId={factionId!}
-                campaignId={campaignId}
               />
             </TabsContent>
           </div>

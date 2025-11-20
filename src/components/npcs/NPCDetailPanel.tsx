@@ -164,7 +164,7 @@ export function NPCDetailPanel({
     );
   }
 
-  const { npc, combatStats, relationships, backlinks, factionName, locationName, tags } = viewModel;
+  const { npc, combatStats, relationships, factionName, locationName, tags } = viewModel;
 
   const getStatusBadgeVariant = (status: string): 'default' | 'destructive' | 'secondary' => {
     if (status === 'alive') return 'default';

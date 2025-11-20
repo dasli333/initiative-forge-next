@@ -38,7 +38,7 @@ export function AssignNPCsDialog({
   onClose,
   onSubmit,
   factionId,
-  currentMembers,
+  currentMembers: _currentMembers,
   availableNPCs,
   isSubmitting = false,
 }: AssignNPCsDialogProps) {
@@ -47,8 +47,6 @@ export function AssignNPCsDialog({
 
   // Filter NPCs: show only unassigned OR current faction members
   const filteredNPCs = useMemo(() => {
-    const currentMemberIds = new Set(currentMembers.map(m => m.id));
-
     return availableNPCs.filter(npc => {
       // Include if: no faction OR current faction
       const isEligible = !npc.faction_id || npc.faction_id === factionId;
@@ -63,7 +61,7 @@ export function AssignNPCsDialog({
 
       return true;
     });
-  }, [availableNPCs, factionId, currentMembers, searchQuery]);
+  }, [availableNPCs, factionId, searchQuery]);
 
   const handleToggle = (npcId: string) => {
     setSelectedNpcIds(prev =>

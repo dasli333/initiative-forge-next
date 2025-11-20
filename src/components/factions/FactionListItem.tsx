@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Users, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { FactionCardViewModel } from '@/types/factions';
@@ -59,9 +60,11 @@ export function FactionListItem({ faction, isSelected, onClick }: FactionListIte
       {/* Avatar/Image */}
       <div className="shrink-0">
         {faction.faction.image_url ? (
-          <img
+          <Image
             src={faction.faction.image_url}
             alt={faction.faction.name}
+            width={48}
+            height={48}
             className="w-12 h-12 rounded-md object-cover"
           />
         ) : (

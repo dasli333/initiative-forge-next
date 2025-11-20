@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPin, User, Target, Calendar, BookOpen, Package, Users, FileText, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -133,9 +134,11 @@ export function RelatedTab({ npcId, pcRelationships, campaignId }: RelatedTabPro
                   {/* Avatar */}
                   <div className="relative shrink-0">
                     {rel.player_character_image_url ? (
-                      <img
+                      <Image
                         src={rel.player_character_image_url}
                         alt={rel.player_character_name}
+                        width={40}
+                        height={40}
                         className="w-10 h-10 rounded-full object-cover"
                       />
                     ) : (

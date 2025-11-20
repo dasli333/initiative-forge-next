@@ -8,7 +8,6 @@ import { formatFieldName } from '@/lib/utils/mentionUtils';
 
 interface RelatedTabProps {
   factionId: string;
-  campaignId: string;
 }
 
 const entityTypeIcons: Record<string, string> = {
@@ -23,7 +22,7 @@ const entityTypeIcons: Record<string, string> = {
   player_character: '⚔️',
 };
 
-export function RelatedTab({ factionId, campaignId }: RelatedTabProps) {
+export function RelatedTab({ factionId }: RelatedTabProps) {
   // Query for backlinks (entities mentioning this faction)
   const { data: backlinks = [], isLoading } = useQuery({
     queryKey: ['entity-mentions', 'faction', factionId],

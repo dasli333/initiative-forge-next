@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Shield, Plus, Edit2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -56,9 +57,11 @@ export function RelationshipsTab({
                 className="flex items-start gap-3 p-4 rounded-lg border bg-card"
               >
                 {rel.other_faction_image_url ? (
-                  <img
+                  <Image
                     src={rel.other_faction_image_url}
                     alt={rel.other_faction_name}
+                    width={48}
+                    height={48}
                     className="w-12 h-12 rounded-md object-cover"
                   />
                 ) : (

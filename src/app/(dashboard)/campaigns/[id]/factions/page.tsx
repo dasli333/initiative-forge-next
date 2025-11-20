@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { FactionsHeader } from '@/components/factions/FactionsHeader';
 import { FactionsLayout } from '@/components/factions/FactionsLayout';

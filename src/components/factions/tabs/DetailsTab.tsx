@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { RichTextEditor } from '@/components/shared/RichTextEditor';
 import { ImageUpload } from '@/components/shared/ImageUpload';
 import type { FactionDTO } from '@/types/factions';
@@ -15,7 +16,6 @@ interface DetailsTabProps {
     image_url: string | null;
   } | null;
   onEditedDataChange: (field: string, value: unknown) => void;
-  isUpdating?: boolean;
 }
 
 /**
@@ -28,7 +28,6 @@ export function DetailsTab({
   isEditing,
   editedData,
   onEditedDataChange,
-  isUpdating = false,
 }: DetailsTabProps) {
   const displayData = isEditing && editedData ? editedData : {
     description_json: faction.description_json,
@@ -50,12 +49,15 @@ export function DetailsTab({
             maxSizeMB={5}
           />
         ) : displayData.image_url ? (
-          <img
-            src={displayData.image_url}
-            alt={faction.name}
-            className="w-full max-w-2xl rounded-lg object-cover"
-            style={{ aspectRatio: '16/9' }}
-          />
+          <div className="relative w-full max-w-2xl rounded-lg overflow-hidden" style={{ aspectRatio: '16/9' }}>
+            <Image
+              src={displayData.image_url}
+              alt={faction.name}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 672px"
+            />
+          </div>
         ) : (
           <div className="w-full max-w-2xl rounded-lg bg-muted flex items-center justify-center text-muted-foreground" style={{ aspectRatio: '16/9' }}>
             No image
