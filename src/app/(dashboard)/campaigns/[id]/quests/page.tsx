@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import { QuestsHeader } from '@/components/quests/QuestsHeader';
 import { QuestsLayout } from '@/components/quests/QuestsLayout';
 import { QuestFormDialog } from '@/components/quests/forms/QuestFormDialog';
@@ -16,6 +17,7 @@ import {
 import { useNPCsQuery } from '@/hooks/useNpcs';
 import { useStoryArcsQuery } from '@/hooks/useStoryArcs';
 import { calculateObjectivesProgress, formatRewardsSummary } from '@/lib/api/quests';
+import { getMentionsOf, enrichMentionsWithNames } from '@/lib/api/entity-mentions';
 import type { QuestCardViewModel, QuestFilters } from '@/types/quests';
 import type { QuestFormData } from '@/lib/schemas/quests';
 import type { JSONContent } from '@tiptap/core';
@@ -72,6 +74,17 @@ export default function QuestsPage() {
   const { data: npcs = [] } = useNPCsQuery(campaignId);
   const { data: storyArcs = [] } = useStoryArcsQuery(campaignId);
 
+  // Fetch backlinks for selected quest
+  const { data: backlinks = [] } = useQuery({
+    queryKey: ['entity-mentions', 'quest', selectedQuestId],
+    queryFn: async () => {
+      if (!selectedQuestId) return [];
+      const mentions = await getMentionsOf('quest', selectedQuestId);
+      return enrichMentionsWithNames(mentions);
+    },
+    enabled: !!selectedQuestId,
+  });
+
   // Mutations
   const createMutation = useCreateQuestMutation(campaignId);
   const updateMutation = useUpdateQuestMutation(campaignId);
@@ -94,9 +107,14 @@ export default function QuestsPage() {
       objectivesProgress: calculateObjectivesProgress(questDetails.objectives_json),
       rewardsSummary: formatRewardsSummary(questDetails.rewards_json),
       relatedEntities: [], // TODO: Extract from @mentions
-      backlinks: [], // TODO: Fetch backlinks
+      backlinks: backlinks.map((mention) => ({
+        source_type: mention.source_type as 'npc' | 'quest' | 'session' | 'location' | 'faction' | 'story_arc' | 'lore_note',
+        source_id: mention.source_id,
+        source_name: mention.source_name || '',
+        source_field: mention.source_field,
+      })),
     };
-  }, [questDetails]);
+  }, [questDetails, backlinks]);
 
   // Handlers
   const handleQuestSelect = useCallback((questId: string) => {

@@ -2,6 +2,10 @@ import type { Tables } from '@/types/database';
 
 export type EntityMention = Tables<'entity_mentions'>;
 
+export interface EntityMentionWithName extends EntityMention {
+  source_name?: string; // Name of source entity (enriched)
+}
+
 export interface CreateEntityMentionCommand {
   source_type: string; // npc, location, quest, session, etc.
   source_id: string;

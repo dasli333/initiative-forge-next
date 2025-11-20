@@ -1,11 +1,13 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPin, User, Target, Calendar, BookOpen, Package, Users, FileText, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { getMentionsOf } from '@/lib/api/entity-mentions';
+import { getMentionsOf, enrichMentionsWithNames } from '@/lib/api/entity-mentions';
+import { formatFieldName } from '@/lib/utils/mentionUtils';
 
 interface RelatedTabProps {
   characterId: string;
@@ -58,9 +60,40 @@ export function RelatedTab({ characterId, campaignId }: RelatedTabProps) {
   // Query for backlinks (entities mentioning this player character)
   const { data: backlinks = [], isLoading } = useQuery({
     queryKey: ['entity-mentions', 'player_character', characterId],
-    queryFn: () => getMentionsOf('player_character', characterId),
+    queryFn: async () => {
+      const mentions = await getMentionsOf('player_character', characterId);
+      return enrichMentionsWithNames(mentions);
+    },
     enabled: !!characterId,
   });
+
+  // Group backlinks by source entity and collect unique fields
+  const groupedBacklinks = useMemo(() => {
+    const groups = new Map<string, {
+      source_type: string;
+      source_id: string;
+      source_name?: string;
+      fields: Set<string>;
+    }>();
+
+    backlinks.forEach((backlink) => {
+      const key = `${backlink.source_type}-${backlink.source_id}`;
+      const existing = groups.get(key);
+
+      if (existing) {
+        existing.fields.add(backlink.source_field);
+      } else {
+        groups.set(key, {
+          source_type: backlink.source_type,
+          source_id: backlink.source_id,
+          source_name: backlink.source_name,
+          fields: new Set([backlink.source_field]),
+        });
+      }
+    });
+
+    return Array.from(groups.values());
+  }, [backlinks]);
 
   const handleBacklinkClick = (backlink: { source_type: string; source_id: string }) => {
     const route = ENTITY_ROUTE_MAP[backlink.source_type as keyof typeof ENTITY_ROUTE_MAP];
@@ -88,15 +121,17 @@ export function RelatedTab({ characterId, campaignId }: RelatedTabProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {backlinks.length === 0 ? (
+          {groupedBacklinks.length === 0 ? (
             <p className="text-sm text-muted-foreground py-4">
               No mentions yet. Use @mentions in other entities to reference this character.
             </p>
           ) : (
             <div className="space-y-2">
-              {backlinks.map((backlink) => {
+              {groupedBacklinks.map((backlink) => {
                 const Icon = ENTITY_ICONS[backlink.source_type as keyof typeof ENTITY_ICONS] || FileText;
                 const colorClass = ENTITY_COLORS[backlink.source_type as keyof typeof ENTITY_COLORS] || ENTITY_COLORS.lore_note;
+                const fieldsArray = Array.from(backlink.fields).map(formatFieldName);
+                const fieldsLabel = fieldsArray.length === 1 ? 'Field' : 'Fields';
 
                 return (
                   <button
@@ -111,9 +146,11 @@ export function RelatedTab({ characterId, campaignId }: RelatedTabProps) {
                       <Icon className="h-4 w-4" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate capitalize">{backlink.source_type.replace('_', ' ')}</p>
-                      <p className="text-xs text-muted-foreground truncate mt-0.5">
-                        Field: {backlink.source_field}
+                      <p className="font-medium truncate">
+                        {backlink.source_name || 'Unknown'}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate capitalize">
+                        {backlink.source_type.replace('_', ' ')} · {fieldsLabel}: {fieldsArray.join(', ')}
                       </p>
                     </div>
                   </button>

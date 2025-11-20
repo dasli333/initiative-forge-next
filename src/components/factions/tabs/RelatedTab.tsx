@@ -1,8 +1,10 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, Loader2 } from 'lucide-react';
-import { getMentionsOf } from '@/lib/api/entity-mentions';
+import { getMentionsOf, enrichMentionsWithNames } from '@/lib/api/entity-mentions';
+import { formatFieldName } from '@/lib/utils/mentionUtils';
 
 interface RelatedTabProps {
   factionId: string;
@@ -25,17 +27,49 @@ export function RelatedTab({ factionId, campaignId }: RelatedTabProps) {
   // Query for backlinks (entities mentioning this faction)
   const { data: backlinks = [], isLoading } = useQuery({
     queryKey: ['entity-mentions', 'faction', factionId],
-    queryFn: () => getMentionsOf('faction', factionId),
+    queryFn: async () => {
+      const mentions = await getMentionsOf('faction', factionId);
+      return enrichMentionsWithNames(mentions);
+    },
     enabled: !!factionId,
   });
 
-  const groupedBacklinks = backlinks.reduce((acc, backlink) => {
+  // First, deduplicate backlinks by source entity
+  const deduplicatedBacklinks = useMemo(() => {
+    const groups = new Map<string, {
+      source_type: string;
+      source_id: string;
+      source_name?: string;
+      fields: Set<string>;
+    }>();
+
+    backlinks.forEach((backlink) => {
+      const key = `${backlink.source_type}-${backlink.source_id}`;
+      const existing = groups.get(key);
+
+      if (existing) {
+        existing.fields.add(backlink.source_field);
+      } else {
+        groups.set(key, {
+          source_type: backlink.source_type,
+          source_id: backlink.source_id,
+          source_name: backlink.source_name,
+          fields: new Set([backlink.source_field]),
+        });
+      }
+    });
+
+    return Array.from(groups.values());
+  }, [backlinks]);
+
+  // Then group by type for display
+  const groupedBacklinks = deduplicatedBacklinks.reduce((acc, backlink) => {
     if (!acc[backlink.source_type]) {
       acc[backlink.source_type] = [];
     }
     acc[backlink.source_type].push(backlink);
     return acc;
-  }, {} as Record<string, typeof backlinks>);
+  }, {} as Record<string, typeof deduplicatedBacklinks>);
 
   return (
     <div className="space-y-4">
@@ -60,17 +94,22 @@ export function RelatedTab({ factionId, campaignId }: RelatedTabProps) {
                 {entityTypeIcons[type] || '📄'} {type.replace('_', ' ')}s ({items.length})
               </h4>
               <div className="space-y-1">
-                {items.map((item) => (
-                  <div
-                    key={`${item.source_type}-${item.source_id}`}
-                    className="text-sm p-2 rounded border bg-card hover:bg-accent/50 transition-colors"
-                  >
-                    <div className="font-medium capitalize">{item.source_type.replace('_', ' ')}</div>
-                    <div className="text-xs text-muted-foreground capitalize">
-                      Field: {item.source_field.replace('_', ' ')}
+                {items.map((item) => {
+                  const fieldsArray = Array.from(item.fields).map(formatFieldName);
+                  const fieldsLabel = fieldsArray.length === 1 ? 'Field' : 'Fields';
+
+                  return (
+                    <div
+                      key={`${item.source_type}-${item.source_id}`}
+                      className="text-sm p-2 rounded border bg-card hover:bg-accent/50 transition-colors"
+                    >
+                      <div className="font-medium">{item.source_name || 'Unknown'}</div>
+                      <div className="text-xs text-muted-foreground capitalize">
+                        {item.source_type.replace('_', ' ')} · {fieldsLabel}: {fieldsArray.join(', ')}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           ))}

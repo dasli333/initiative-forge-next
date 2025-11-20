@@ -9,7 +9,7 @@ import type {
 import type { NPCDTO } from '@/types/npcs';
 import type { Json } from '@/types/database';
 import { extractMentionsFromJson } from '@/lib/utils/mentionUtils';
-import { batchCreateEntityMentions, deleteMentionsBySource, getMentionsOf } from '@/lib/api/entity-mentions';
+import { batchCreateEntityMentions, deleteMentionsBySource, getMentionsOf, enrichMentionsWithNames } from '@/lib/api/entity-mentions';
 import { getFactionRelationships } from '@/lib/api/faction-relationships';
 
 /**
@@ -305,11 +305,12 @@ export async function getFactionDetails(factionId: string): Promise<FactionDetai
 
   // Fetch backlinks (mentions from other entities)
   const backlinks = await getMentionsOf('faction', factionId);
+  const enrichedBacklinks = await enrichMentionsWithNames(backlinks);
 
-  const backlinkItems = backlinks.map((mention) => ({
+  const backlinkItems = enrichedBacklinks.map((mention) => ({
     source_type: mention.source_type as 'npc' | 'quest' | 'session' | 'location' | 'faction' | 'story_arc' | 'lore_note' | 'story_item' | 'player_character',
     source_id: mention.source_id,
-    source_name: '', // Will be enriched in component if needed
+    source_name: mention.source_name || '',
     source_field: mention.source_field,
   }));
 
