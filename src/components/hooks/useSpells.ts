@@ -57,8 +57,8 @@ export function useSpells(params: UseSpellsParams) {
           query = query.eq('data->>level', String(params.level));
         }
         if (params.class) {
-          // Filter by class using JSONB contains operator
-          query = query.contains('data->classes', [params.class]);
+          // Filter by class using JSONB contains operator with JSON array
+          query = query.filter('data->classes', 'cs', JSON.stringify([params.class]));
         }
 
         // Apply pagination

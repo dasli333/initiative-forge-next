@@ -59,6 +59,7 @@ describe('LocationCard', () => {
     render(<LocationCard location={locationWithImage} childrenCount={0} onClick={vi.fn()} />);
     const img = screen.getByAltText('Waterdeep');
     expect(img).toBeInTheDocument();
-    expect(img).toHaveAttribute('src', 'https://example.com/image.jpg');
+    // Next.js Image component generates optimized URLs
+    expect(img.getAttribute('src')).toContain(encodeURIComponent('https://example.com/image.jpg'));
   });
 });

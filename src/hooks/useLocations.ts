@@ -134,6 +134,7 @@ export function useCreateLocationMutation(campaignId: string) {
     onSettled: () => {
       // Always refetch after error or success to ensure consistency
       queryClient.invalidateQueries({ queryKey: ['locations', campaignId] });
+      queryClient.invalidateQueries({ queryKey: ['entity-mentions'], refetchType: 'active' });
     },
   });
 }
@@ -232,6 +233,7 @@ export function useUpdateLocationMutation(campaignId: string) {
       queryClient.invalidateQueries({ queryKey: ['locations', campaignId] });
       queryClient.invalidateQueries({ queryKey: ['location', variables.id] });
       queryClient.invalidateQueries({ queryKey: ['entity-preview', 'location', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['entity-mentions'], refetchType: 'active' });
     },
   });
 }

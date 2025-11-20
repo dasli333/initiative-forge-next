@@ -9,8 +9,10 @@ import {
   createFaction,
   updateFaction,
   deleteFaction,
+  getFactionDetails,
+  bulkUpdateNPCFactions,
 } from '@/lib/api/factions';
-import type { FactionDTO, CreateFactionCommand, UpdateFactionCommand } from '@/types/factions';
+import type { FactionDTO, CreateFactionCommand, UpdateFactionCommand, FactionDetailsViewModel } from '@/types/factions';
 
 /**
  * React Query hook for fetching factions for a campaign
@@ -122,6 +124,7 @@ export function useCreateFactionMutation(campaignId: string) {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['factions', campaignId] });
+      queryClient.invalidateQueries({ queryKey: ['entity-mentions'], refetchType: 'active' });
     },
   });
 }
@@ -195,6 +198,7 @@ export function useUpdateFactionMutation(campaignId: string) {
       queryClient.invalidateQueries({ queryKey: ['factions', campaignId] });
       queryClient.invalidateQueries({ queryKey: ['faction', variables.id] });
       queryClient.invalidateQueries({ queryKey: ['entity-preview', 'faction', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['entity-mentions'], refetchType: 'active' });
     },
   });
 }
@@ -253,6 +257,73 @@ export function useDeleteFactionMutation(campaignId: string) {
     onSettled: (_data, _error, id) => {
       queryClient.invalidateQueries({ queryKey: ['factions', campaignId] });
       queryClient.invalidateQueries({ queryKey: ['faction', id] });
+    },
+  });
+}
+
+/**
+ * React Query hook for fetching faction details (with members, relationships, backlinks)
+ */
+export function useFactionDetailsQuery(factionId: string | null) {
+  const router = useRouter();
+
+  return useQuery({
+    queryKey: ['faction', factionId, 'details'],
+    queryFn: async (): Promise<FactionDetailsViewModel> => {
+      if (!factionId) throw new Error('Faction ID required');
+
+      try {
+        return await getFactionDetails(factionId);
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('auth')) {
+          router.push('/login');
+        }
+        throw error;
+      }
+    },
+    enabled: !!factionId,
+  });
+}
+
+/**
+ * Mutation hook for bulk updating NPC factions (assign/unassign)
+ */
+export function useBulkUpdateNPCFactionsMutation() {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: async ({ npcIds, factionId }: { npcIds: string[]; factionId: string | null }): Promise<void> => {
+      try {
+        await bulkUpdateNPCFactions(npcIds, factionId);
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('auth')) {
+          router.push('/login');
+        }
+        throw error;
+      }
+    },
+    onSuccess: (_data, variables) => {
+      const action = variables.factionId ? 'assigned' : 'unassigned';
+      toast.success(`NPCs ${action}`, {
+        description: `${variables.npcIds.length} NPC(s) successfully ${action}.`,
+      });
+
+      // Invalidate all faction and NPC queries
+      queryClient.invalidateQueries({ queryKey: ['npcs'] });
+      queryClient.invalidateQueries({ queryKey: ['faction'] });
+    },
+    onError: (err) => {
+      const errorMessage =
+        err instanceof TypeError && err.message === 'Failed to fetch'
+          ? 'Network error. Please check your connection.'
+          : err instanceof Error
+            ? err.message
+            : 'Failed to update NPCs. Please try again.';
+
+      toast.error('Error', {
+        description: errorMessage,
+      });
     },
   });
 }

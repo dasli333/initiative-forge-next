@@ -36,7 +36,7 @@ export function NPCStatField({
             {displayValue}
           </Badge>
         ) : (
-          <div className="text-sm font-medium truncate text-muted-foreground/50">
+          <div className="text-sm font-medium truncate text-foreground">
             {displayValue}
           </div>
         )}

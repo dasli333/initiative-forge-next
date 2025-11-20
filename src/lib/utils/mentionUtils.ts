@@ -38,3 +38,16 @@ export function extractMentionsFromJson(
 
   return mentions;
 }
+
+/**
+ * Format field name for display
+ * Removes _json suffix, replaces underscores with spaces, capitalizes first letter
+ * @param field - Raw field name (e.g., "description_json", "start_date")
+ * @returns Formatted field name (e.g., "Description", "Start date")
+ */
+export function formatFieldName(field: string): string {
+  return field
+    .replace(/_json$/, '') // Remove _json suffix
+    .replace(/_/g, ' ') // Replace underscores with spaces
+    .replace(/^\w/, (c) => c.toUpperCase()); // Capitalize first letter
+}

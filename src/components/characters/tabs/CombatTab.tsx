@@ -121,7 +121,7 @@ export function CombatTab({
                   type="number"
                   value={displayStats.hp_max}
                   onChange={(e) => isEditing && onCombatStatsChange('hp_max', parseInt(e.target.value) || 0)}
-                  disabled={!isEditing}
+                  readOnly={!isEditing}
                   min={1}
                   max={999}
                   className="max-w-[120px] text-center"
@@ -135,7 +135,7 @@ export function CombatTab({
                   type="number"
                   value={displayStats.armor_class}
                   onChange={(e) => isEditing && onCombatStatsChange('armor_class', parseInt(e.target.value) || 0)}
-                  disabled={!isEditing}
+                  readOnly={!isEditing}
                   min={0}
                   max={30}
                   className="max-w-[120px] text-center"
@@ -167,7 +167,7 @@ export function CombatTab({
                       type="number"
                       value={displayStats.strength}
                       onChange={(e) => isEditing && onCombatStatsChange('strength', parseInt(e.target.value) || 0)}
-                      disabled={!isEditing}
+                      readOnly={!isEditing}
                       min={1}
                       max={30}
                       className="text-center max-w-[70px] mx-auto mb-1"
@@ -185,7 +185,7 @@ export function CombatTab({
                       type="number"
                       value={displayStats.dexterity}
                       onChange={(e) => isEditing && onCombatStatsChange('dexterity', parseInt(e.target.value) || 0)}
-                      disabled={!isEditing}
+                      readOnly={!isEditing}
                       min={1}
                       max={30}
                       className="text-center max-w-[70px] mx-auto mb-1"
@@ -203,7 +203,7 @@ export function CombatTab({
                       type="number"
                       value={displayStats.constitution}
                       onChange={(e) => isEditing && onCombatStatsChange('constitution', parseInt(e.target.value) || 0)}
-                      disabled={!isEditing}
+                      readOnly={!isEditing}
                       min={1}
                       max={30}
                       className="text-center max-w-[70px] mx-auto mb-1"
@@ -221,7 +221,7 @@ export function CombatTab({
                       type="number"
                       value={displayStats.intelligence}
                       onChange={(e) => isEditing && onCombatStatsChange('intelligence', parseInt(e.target.value) || 0)}
-                      disabled={!isEditing}
+                      readOnly={!isEditing}
                       min={1}
                       max={30}
                       className="text-center max-w-[70px] mx-auto mb-1"
@@ -239,7 +239,7 @@ export function CombatTab({
                       type="number"
                       value={displayStats.wisdom}
                       onChange={(e) => isEditing && onCombatStatsChange('wisdom', parseInt(e.target.value) || 0)}
-                      disabled={!isEditing}
+                      readOnly={!isEditing}
                       min={1}
                       max={30}
                       className="text-center max-w-[70px] mx-auto mb-1"
@@ -257,7 +257,7 @@ export function CombatTab({
                       type="number"
                       value={displayStats.charisma}
                       onChange={(e) => isEditing && onCombatStatsChange('charisma', parseInt(e.target.value) || 0)}
-                      disabled={!isEditing}
+                      readOnly={!isEditing}
                       min={1}
                       max={30}
                       className="text-center max-w-[70px] mx-auto mb-1"

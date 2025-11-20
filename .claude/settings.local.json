@@ -6,7 +6,8 @@
       "Bash(npm run lint)",
       "Bash(ls:*)",
       "WebSearch",
-      "Bash(npx playwright test:*)"
+      "Bash(npx playwright test:*)",
+      "Bash(git grep:*)"
     ],
     "deny": [],
     "ask": []

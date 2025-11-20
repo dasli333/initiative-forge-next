@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { ImageUpload } from '@/components/shared/ImageUpload';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -108,9 +109,11 @@ export function PCCharacterCard({
               />
             </div>
           ) : displayData.image_url ? (
-            <img
+            <Image
               src={displayData.image_url}
               alt={viewModel.name}
+              width={160}
+              height={160}
               className="w-40 h-40 rounded-lg object-cover border-2 border-border"
             />
           ) : (

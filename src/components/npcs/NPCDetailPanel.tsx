@@ -164,7 +164,7 @@ export function NPCDetailPanel({
     );
   }
 
-  const { npc, combatStats, relationships, backlinks, factionName, locationName, tags } = viewModel;
+  const { npc, combatStats, relationships, factionName, locationName, tags } = viewModel;
 
   const getStatusBadgeVariant = (status: string): 'default' | 'destructive' | 'secondary' => {
     if (status === 'alive') return 'default';
@@ -334,7 +334,7 @@ export function NPCDetailPanel({
 
             <TabsContent value="related" className="mt-0 h-full">
               <RelatedTab
-                backlinks={backlinks}
+                npcId={npcId!}
                 pcRelationships={viewModel?.pcRelationships}
                 campaignId={campaignId}
               />

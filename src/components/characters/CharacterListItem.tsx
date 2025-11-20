@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { User, Users, Swords, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { PlayerCharacterCardViewModel } from '@/types/player-characters';
@@ -51,9 +52,11 @@ export function CharacterListItem({ character, isSelected, onClick }: CharacterL
       {/* Avatar */}
       <div className="relative shrink-0">
         {character.image_url ? (
-          <img
+          <Image
             src={character.image_url}
             alt={character.name}
+            width={48}
+            height={48}
             className="w-12 h-12 rounded-md object-cover"
           />
         ) : (

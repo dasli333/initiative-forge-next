@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useCallback, type ChangeEvent, type DragEvent } from 'react';
+import Image from 'next/image';
 import { Upload, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import { uploadLocationImage, deleteLocationImage, uploadNPCImage, deleteNPCImage, uploadPlayerCharacterImage, deletePlayerCharacterImage } from '@/lib/api/storage';
+import { uploadLocationImage, deleteLocationImage, uploadNPCImage, deleteNPCImage, uploadPlayerCharacterImage, deletePlayerCharacterImage, uploadFactionImage, deleteFactionImage } from '@/lib/api/storage';
 
-type EntityType = 'location' | 'npc' | 'player_character';
+type EntityType = 'location' | 'npc' | 'player_character' | 'faction';
 
 interface ImageUploadProps {
   value?: string | null;
@@ -93,6 +94,8 @@ export function ImageUpload({
           imageUrl = await uploadNPCImage(campaignId, file);
         } else if (entityType === 'player_character') {
           imageUrl = await uploadPlayerCharacterImage(campaignId, file);
+        } else if (entityType === 'faction') {
+          imageUrl = await uploadFactionImage(campaignId, file);
         } else {
           imageUrl = await uploadLocationImage(campaignId, file);
         }
@@ -167,6 +170,8 @@ export function ImageUpload({
           await deleteNPCImage(currentUrl);
         } else if (entityType === 'player_character') {
           await deletePlayerCharacterImage(currentUrl);
+        } else if (entityType === 'faction') {
+          await deleteFactionImage(currentUrl);
         } else {
           await deleteLocationImage(currentUrl);
         }
@@ -193,11 +198,13 @@ export function ImageUpload({
   return (
     <div className={cn('space-y-4', className)}>
       {displayUrl ? (
-        <div className="relative">
-          <img
+        <div className="relative w-full h-64 rounded-lg overflow-hidden">
+          <Image
             src={displayUrl}
             alt="Preview"
-            className="w-full h-64 object-cover rounded-lg"
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 672px"
           />
           <Button
             type="button"

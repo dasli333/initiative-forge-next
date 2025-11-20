@@ -128,6 +128,7 @@ export function useCreateQuestMutation(campaignId: string) {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['quests', campaignId] });
+      queryClient.invalidateQueries({ queryKey: ['entity-mentions'], refetchType: 'active' });
     },
   });
 }
@@ -201,6 +202,7 @@ export function useUpdateQuestMutation(campaignId: string) {
       queryClient.invalidateQueries({ queryKey: ['quests', campaignId] });
       queryClient.invalidateQueries({ queryKey: ['quest', variables.id] });
       queryClient.invalidateQueries({ queryKey: ['entity-preview', 'quest', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['entity-mentions'], refetchType: 'active' });
     },
   });
 }

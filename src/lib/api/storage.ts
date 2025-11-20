@@ -189,3 +189,62 @@ export async function deletePlayerCharacterImage(imageUrl: string): Promise<void
     throw error;
   }
 }
+
+/**
+ * Upload faction image to Supabase Storage with WebP compression
+ * @param campaignId - Campaign ID for folder structure
+ * @param file - Image file to upload
+ * @returns Public URL of uploaded image
+ */
+export async function uploadFactionImage(
+  campaignId: string,
+  file: File
+): Promise<string> {
+  const supabase = getSupabaseClient();
+
+  // 1. Client-side compression to WebP (max 5 MB)
+  const compressedFile = await compressImageToWebP(file, 5);
+
+  // 2. Upload to Supabase Storage
+  const fileName = `${campaignId}/${Date.now()}-${file.name.replace(/\.[^/.]+$/, '.webp')}`;
+  const { data, error } = await supabase.storage
+    .from('faction-images')
+    .upload(fileName, compressedFile);
+
+  if (error) {
+    console.error('Failed to upload faction image:', error);
+    throw error;
+  }
+
+  // 3. Get public URL
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from('faction-images').getPublicUrl(data?.path || fileName);
+
+  return publicUrl;
+}
+
+/**
+ * Delete faction image from Supabase Storage
+ * @param imageUrl - Full public URL of the image
+ */
+export async function deleteFactionImage(imageUrl: string): Promise<void> {
+  const supabase = getSupabaseClient();
+
+  // Extract file path from URL
+  const fileName = imageUrl.split('/faction-images/')[1];
+
+  if (!fileName) {
+    console.error('Invalid faction image URL:', imageUrl);
+    throw new Error('Invalid image URL');
+  }
+
+  const { error } = await supabase.storage
+    .from('faction-images')
+    .remove([fileName]);
+
+  if (error) {
+    console.error('Failed to delete faction image:', error);
+    throw error;
+  }
+}

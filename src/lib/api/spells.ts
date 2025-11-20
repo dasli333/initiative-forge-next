@@ -35,15 +35,17 @@ export async function getSpells(params: FetchSpellsParams = {}): Promise<ListSpe
 
   // Apply filters
   if (searchQuery && searchQuery.trim()) {
-    queryBuilder = queryBuilder.ilike('name', `%${searchQuery.trim()}%`);
+    // Search in both name column and JSONB name fields
+    queryBuilder = queryBuilder.or(`name.ilike.%${searchQuery.trim()}%,data->name->>en.ilike.%${searchQuery.trim()}%,data->name->>pl.ilike.%${searchQuery.trim()}%`);
   }
 
   if (level !== null && level !== undefined) {
-    queryBuilder = queryBuilder.eq('level', level);
+    queryBuilder = queryBuilder.eq('data->>level', String(level));
   }
 
   if (className && className.trim()) {
-    queryBuilder = queryBuilder.contains('classes', [className.trim()]);
+    // Filter by class using JSONB contains operator with JSON array
+    queryBuilder = queryBuilder.filter('data->classes', 'cs', JSON.stringify([className.trim()]));
   }
 
   // Apply pagination and execute query

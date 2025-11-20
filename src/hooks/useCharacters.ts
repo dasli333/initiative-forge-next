@@ -98,6 +98,7 @@ export function useCreateCharacterMutation(campaignId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['player_characters', campaignId] });
+      queryClient.invalidateQueries({ queryKey: ['entity-mentions'], refetchType: 'active' });
       toast.success('Character created');
     },
     onError: (error: Error) => {
@@ -129,6 +130,7 @@ export function useUpdateCharacterMutation(campaignId: string) {
       queryClient.invalidateQueries({ queryKey: ['player_characters', campaignId] });
       queryClient.invalidateQueries({ queryKey: ['player_character', characterId] });
       queryClient.invalidateQueries({ queryKey: ['entity-preview', 'player_character', characterId] });
+      queryClient.invalidateQueries({ queryKey: ['entity-mentions'], refetchType: 'active' });
       toast.success('Character updated');
     },
 

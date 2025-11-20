@@ -22,7 +22,7 @@ import {
   updateNPCRelationship,
   deleteNPCRelationship,
 } from '@/lib/api/npc-relationships';
-import { getMentionsOf } from '@/lib/api/entity-mentions';
+import { getMentionsOf, enrichMentionsWithNames } from '@/lib/api/entity-mentions';
 import { getNPCAssignedTags } from '@/lib/api/npc-tags';
 import type {
   NPCDTO,
@@ -157,6 +157,7 @@ export function useCreateNPCMutation(campaignId: string) {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['npcs', campaignId] });
+      queryClient.invalidateQueries({ queryKey: ['entity-mentions'], refetchType: 'active' });
     },
   });
 }
@@ -230,6 +231,7 @@ export function useUpdateNPCMutation(campaignId: string) {
       queryClient.invalidateQueries({ queryKey: ['npcs', campaignId] });
       queryClient.invalidateQueries({ queryKey: ['npc', variables.id] });
       queryClient.invalidateQueries({ queryKey: ['entity-preview', 'npc', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['entity-mentions'], refetchType: 'active' });
     },
   });
 }
@@ -341,11 +343,12 @@ export function useNPCDetailsQuery(npcId: string | null): UseQueryResult<NPCDeta
         })
       );
 
-      // Map backlinks to BacklinkItem format
-      const backlinkItems = backlinks.map((mention) => ({
+      // Enrich backlinks with source names
+      const enrichedBacklinks = await enrichMentionsWithNames(backlinks);
+      const backlinkItems = enrichedBacklinks.map((mention) => ({
         source_type: mention.source_type as 'npc' | 'quest' | 'session' | 'location' | 'faction' | 'story_arc' | 'lore_note' | 'story_item',
         source_id: mention.source_id,
-        source_name: '', // TODO: Fetch source name (needs additional API)
+        source_name: mention.source_name || '',
         source_field: mention.source_field,
       }));
 

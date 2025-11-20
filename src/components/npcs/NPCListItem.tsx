@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Users, MapPin, Swords } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { TagBadge } from './shared/TagBadge';
@@ -41,9 +42,11 @@ export function NPCListItem({ npc, isSelected, onClick }: NPCListItemProps) {
       {/* Avatar */}
       <div className="relative shrink-0">
         {npc.npc.image_url ? (
-          <img
+          <Image
             src={npc.npc.image_url}
             alt={npc.npc.name}
+            width={48}
+            height={48}
             className="w-12 h-12 rounded-md object-cover"
           />
         ) : (

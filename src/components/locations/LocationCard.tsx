@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { LocationTypeBadge } from './LocationTypeBadge';
@@ -24,10 +25,12 @@ export function LocationCard({
       <CardContent className="p-0">
         {location.image_url && (
           <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
-            <img
+            <Image
               src={location.image_url}
               alt={location.name}
-              className="h-full w-full object-cover"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           </div>
         )}
