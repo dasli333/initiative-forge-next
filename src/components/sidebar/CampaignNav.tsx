@@ -33,6 +33,7 @@ export function CampaignNav({ selectedCampaignId, currentPath }: CampaignNavProp
   const questsHref = `/campaigns/${selectedCampaignId}/quests`;
   const storyArcsHref = `/campaigns/${selectedCampaignId}/story-arcs`;
   const factionsHref = `/campaigns/${selectedCampaignId}/factions`;
+  const loreNotesHref = `/campaigns/${selectedCampaignId}/lore-notes`;
 
   return (
     <div className="mt-6 space-y-1" data-testid="campaign-nav">
@@ -95,10 +96,8 @@ export function CampaignNav({ selectedCampaignId, currentPath }: CampaignNavProp
         <NavItem
           icon={BookOpen}
           label="Lore Notes"
-          href="#"
-          isActive={false}
-          isDisabled
-          badge={{ text: 'Soon', variant: 'default' }}
+          href={loreNotesHref}
+          isActive={currentPath === loreNotesHref || currentPath.startsWith(loreNotesHref + '/')}
         />
         <NavItem
           icon={Package}

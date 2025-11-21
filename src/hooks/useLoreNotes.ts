@@ -9,6 +9,7 @@ import {
   createLoreNote,
   updateLoreNote,
   deleteLoreNote,
+  searchLoreNotes,
 } from '@/lib/api/lore-notes';
 import type { LoreNoteDTO, CreateLoreNoteCommand, UpdateLoreNoteCommand, LoreNoteFilters } from '@/types/lore-notes';
 
@@ -49,6 +50,28 @@ export function useLoreNoteQuery(loreNoteId: string | undefined) {
       }
     },
     enabled: !!loreNoteId,
+  });
+}
+
+/**
+ * React Query hook for searching lore notes
+ */
+export function useSearchLoreNotesQuery(campaignId: string, searchQuery: string) {
+  const router = useRouter();
+
+  return useQuery({
+    queryKey: ['lore-notes-search', campaignId, searchQuery],
+    queryFn: async (): Promise<LoreNoteDTO[]> => {
+      try {
+        return await searchLoreNotes(campaignId, searchQuery);
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('auth')) {
+          router.push('/login');
+        }
+        throw error;
+      }
+    },
+    enabled: !!campaignId,
   });
 }
 

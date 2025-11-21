@@ -1,6 +1,8 @@
 import { getSupabaseClient } from '@/lib/supabase';
 import type { LoreNoteDTO, CreateLoreNoteCommand, UpdateLoreNoteCommand, LoreNoteFilters } from '@/types/lore-notes';
 import type { Json } from '@/types/database';
+import { extractMentionsFromJson } from '@/lib/utils/mentionUtils';
+import { batchCreateEntityMentions, deleteMentionsBySource } from '@/lib/api/entity-mentions';
 
 export async function getLoreNotes(
   campaignId: string,
@@ -53,6 +55,35 @@ export async function getLoreNote(loreNoteId: string): Promise<LoreNoteDTO> {
   return data as unknown as LoreNoteDTO;
 }
 
+/**
+ * Search lore notes by title
+ * Uses case-insensitive ILIKE search on title
+ */
+export async function searchLoreNotes(
+  campaignId: string,
+  searchQuery: string
+): Promise<LoreNoteDTO[]> {
+  if (!searchQuery.trim()) {
+    return getLoreNotes(campaignId);
+  }
+
+  const supabase = getSupabaseClient();
+
+  const { data, error } = await supabase
+    .from('lore_notes')
+    .select('*')
+    .eq('campaign_id', campaignId)
+    .ilike('title', `%${searchQuery}%`)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Failed to search lore notes:', error);
+    throw new Error(error.message);
+  }
+
+  return data as unknown as LoreNoteDTO[];
+}
+
 export async function createLoreNote(
   campaignId: string,
   command: CreateLoreNoteCommand
@@ -66,10 +97,11 @@ export async function createLoreNote(
     .from('lore_notes')
     .insert({
       campaign_id: campaignId,
+      user_id: user.id,
       title: command.title,
       content_json: (command.content_json as unknown as Json) || null,
       category: command.category,
-      tags: command.tags || null,
+      tags: command.tags || [],
     })
     .select()
     .single();
@@ -79,7 +111,32 @@ export async function createLoreNote(
     throw new Error(error.message);
   }
 
-  return data as unknown as LoreNoteDTO;
+  const note = data as unknown as LoreNoteDTO;
+
+  // Sync mentions from content_json (non-blocking)
+  try {
+    const contentMentions = command.content_json
+      ? extractMentionsFromJson(command.content_json)
+      : [];
+
+    if (contentMentions.length > 0) {
+      await batchCreateEntityMentions(
+        campaignId,
+        contentMentions.map((m) => ({
+          source_type: 'lore_note',
+          source_id: note.id,
+          source_field: 'content_json',
+          mentioned_type: m.entityType,
+          mentioned_id: m.id,
+        }))
+      );
+    }
+  } catch (mentionError) {
+    console.error('Failed to sync mentions on create:', mentionError);
+    // Don't fail the creation if mention sync fails
+  }
+
+  return note;
 }
 
 export async function updateLoreNote(
@@ -109,7 +166,38 @@ export async function updateLoreNote(
     throw new Error(error.message);
   }
 
-  return data as unknown as LoreNoteDTO;
+  const note = data as unknown as LoreNoteDTO;
+
+  // If content_json was updated, re-sync mentions
+  if (command.content_json !== undefined) {
+    try {
+      // Delete old mentions from content_json
+      await deleteMentionsBySource('lore_note', loreNoteId, 'content_json');
+
+      // Create new mentions
+      const contentMentions = command.content_json
+        ? extractMentionsFromJson(command.content_json)
+        : [];
+
+      if (contentMentions.length > 0) {
+        await batchCreateEntityMentions(
+          note.campaign_id,
+          contentMentions.map((m) => ({
+            source_type: 'lore_note',
+            source_id: note.id,
+            source_field: 'content_json',
+            mentioned_type: m.entityType,
+            mentioned_id: m.id,
+          }))
+        );
+      }
+    } catch (mentionError) {
+      console.error('Failed to sync mentions on update:', mentionError);
+      // Don't fail the update if mention sync fails
+    }
+  }
+
+  return note;
 }
 
 export async function deleteLoreNote(loreNoteId: string): Promise<void> {
