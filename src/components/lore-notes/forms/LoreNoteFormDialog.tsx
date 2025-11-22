@@ -54,7 +54,6 @@ export function LoreNoteFormDialog({
       title: '',
       category: 'Other' as const,
       content_json: null,
-      tags: [],
     },
   });
 
@@ -123,29 +122,6 @@ export function LoreNoteFormDialog({
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Tags */}
-            <FormField
-              control={form.control}
-              name="tags"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tags (comma separated)</FormLabel>
-                  <FormControl>
-                    <Input
-                      value={field.value.join(', ')}
-                      onChange={(e) => {
-                        const tagsStr = e.target.value;
-                        const tags = tagsStr.split(',').map(t => t.trim()).filter(t => t.length > 0);
-                        field.onChange(tags);
-                      }}
-                      placeholder="tag1, tag2, tag3"
-                    />
-                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

@@ -298,36 +298,110 @@ export type Database = {
           },
         ]
       }
-      lore_notes: {
+      lore_note_tag_assignments: {
         Row: {
-          campaign_id: string
-          category: string
-          content_json: Json | null
           created_at: string
           id: string
-          tags: string[] | null
-          title: string
+          lore_note_id: string
+          tag_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lore_note_id: string
+          tag_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lore_note_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lore_note_tag_assignments_lore_note_id_fkey"
+            columns: ["lore_note_id"]
+            isOneToOne: false
+            referencedRelation: "lore_notes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lore_note_tag_assignments_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "lore_note_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lore_note_tags: {
+        Row: {
+          campaign_id: string
+          color: string
+          created_at: string
+          icon: string
+          id: string
+          name: string
           updated_at: string
         }
         Insert: {
           campaign_id: string
-          category: string
-          content_json?: Json | null
+          color: string
           created_at?: string
+          icon: string
           id?: string
-          tags?: string[] | null
-          title: string
+          name: string
           updated_at?: string
         }
         Update: {
           campaign_id?: string
-          category?: string
-          content_json?: Json | null
+          color?: string
+          created_at?: string
+          icon?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lore_note_tags_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lore_notes: {
+        Row: {
+          campaign_id: string
+          category: string
+          content_json: Json
+          created_at: string
+          id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          campaign_id: string
+          category: string
+          content_json?: Json
           created_at?: string
           id?: string
-          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string
+          category?: string
+          content_json?: Json
+          created_at?: string
+          id?: string
           title?: string
           updated_at?: string
+          user_id?: string
         }
         Relationships: [
           {

@@ -9,26 +9,35 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Filter, X } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 import { LORE_NOTE_CATEGORIES, type LoreNoteCategory, type LoreNoteFilters } from '@/types/lore-notes';
+import type { LoreNoteTagDTO } from '@/types/lore-note-tags';
+import { TagBadge } from '@/components/lore-notes/shared/TagBadge';
 
 interface LoreNoteFiltersCompactProps {
   filters: LoreNoteFilters;
   onFiltersChange: (filters: LoreNoteFilters) => void;
-  availableTags: string[]; // All unique tags from campaign's lore notes
+  tags: LoreNoteTagDTO[]; // All tags from campaign
 }
 
 export function LoreNoteFiltersCompact({
   filters,
   onFiltersChange,
-  availableTags,
+  tags,
 }: LoreNoteFiltersCompactProps) {
   const activeFilterCount = useMemo(() => {
     let count = 0;
     if (filters.category) count++;
-    if (filters.tags && filters.tags.length > 0) count += filters.tags.length;
+    if (filters.tag_ids && filters.tag_ids.length > 0) count++;
     return count;
   }, [filters]);
 
@@ -41,33 +50,18 @@ export function LoreNoteFiltersCompact({
     }
   };
 
-  const handleTagToggle = (tag: string, checked: boolean) => {
-    const currentTags = filters.tags || [];
-    if (checked) {
-      onFiltersChange({ ...filters, tags: [...currentTags, tag] });
-    } else {
-      onFiltersChange({ ...filters, tags: currentTags.filter((t) => t !== tag) });
-    }
-  };
-
-  const removeFilter = (key: keyof LoreNoteFilters, value?: string) => {
-    if (key === 'tags' && value) {
-      const newTags = (filters.tags || []).filter((t) => t !== value);
-      if (newTags.length === 0) {
-        const { tags: _tags, ...rest } = filters;
-        onFiltersChange(rest);
-      } else {
-        onFiltersChange({ ...filters, tags: newTags });
-      }
-    } else {
-      const { [key]: _, ...rest } = filters;
-      onFiltersChange(rest);
-    }
+  const handleRemoveFilter = (filterKey: keyof LoreNoteFilters) => {
+    onFiltersChange({ ...filters, [filterKey]: undefined });
   };
 
   const clearAllFilters = () => {
     onFiltersChange({});
   };
+
+  // Get selected tag for display
+  const selectedTag = filters.tag_ids?.[0]
+    ? tags.find((t) => t.id === filters.tag_ids![0])
+    : null;
 
   return (
     <Popover>
@@ -107,26 +101,37 @@ export function LoreNoteFiltersCompact({
           </RadioGroup>
         </div>
 
-        {/* Tags filter */}
-        {availableTags.length > 0 && (
-          <div className="mt-4 space-y-2">
-            <Label>Tags</Label>
-            <div className="max-h-40 space-y-2 overflow-y-auto">
-              {availableTags.map((tag) => (
-                <div key={tag} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`tag-${tag}`}
-                    checked={(filters.tags || []).includes(tag)}
-                    onCheckedChange={(checked) => handleTagToggle(tag, checked as boolean)}
-                  />
-                  <Label htmlFor={`tag-${tag}`} className="font-normal cursor-pointer">
-                    {tag}
-                  </Label>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Tag Filter */}
+        <div className="mt-4 space-y-2">
+          <Label htmlFor="tag-filter">Tag</Label>
+          <Select
+            value={filters.tag_ids?.[0] || 'all'}
+            onValueChange={(value) =>
+              onFiltersChange({
+                ...filters,
+                tag_ids: value === 'all' ? undefined : [value],
+              })
+            }
+          >
+            <SelectTrigger id="tag-filter" className="h-9">
+              <SelectValue placeholder="All tags" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All tags</SelectItem>
+              {tags.map((tag) => {
+                const Icon = LucideIcons[tag.icon] || LucideIcons.Tag;
+                return (
+                  <SelectItem key={tag.id} value={tag.id}>
+                    <div className="flex items-center gap-2">
+                      <Icon className="w-3 h-3" />
+                      <span>{tag.name}</span>
+                    </div>
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
+        </div>
 
         {/* Active filters chips */}
         {activeFilterCount > 0 && (
@@ -138,19 +143,22 @@ export function LoreNoteFiltersCompact({
                   {filters.category}
                   <X
                     className="h-3 w-3 cursor-pointer"
-                    onClick={() => removeFilter('category')}
+                    onClick={() => handleRemoveFilter('category')}
                   />
                 </Badge>
               )}
-              {filters.tags?.map((tag) => (
-                <Badge key={tag} variant="secondary" className="gap-1">
-                  {tag}
-                  <X
-                    className="h-3 w-3 cursor-pointer"
-                    onClick={() => removeFilter('tags', tag)}
-                  />
-                </Badge>
-              ))}
+              {selectedTag && (
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-md bg-accent border">
+                  <span className="text-muted-foreground">Tag:</span>
+                  <TagBadge tag={selectedTag} size="sm" />
+                  <button
+                    onClick={() => handleRemoveFilter('tag_ids')}
+                    className="hover:opacity-70"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
             </div>
             <Button variant="ghost" size="sm" onClick={clearAllFilters} className="w-full">
               Clear all filters

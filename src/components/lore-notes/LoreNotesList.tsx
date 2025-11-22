@@ -7,9 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Search, Plus } from 'lucide-react';
 import { LoreNoteListItem } from './LoreNoteListItem';
 import { LoreNoteFiltersCompact } from './LoreNoteFiltersCompact';
+import { useLoreNoteTagsQuery } from '@/hooks/useLoreNoteTags';
 import type { LoreNoteDTO, LoreNoteFilters } from '@/types/lore-notes';
 
 interface LoreNotesListProps {
+  campaignId: string;
   notes: LoreNoteDTO[];
   selectedNoteId: string | null;
   onNoteSelect: (noteId: string) => void;
@@ -22,6 +24,7 @@ interface LoreNotesListProps {
 type SortOption = 'recent' | 'name-asc' | 'name-desc' | 'category';
 
 export function LoreNotesList({
+  campaignId,
   notes,
   selectedNoteId,
   onNoteSelect,
@@ -33,14 +36,8 @@ export function LoreNotesList({
   const [localSearch, setLocalSearch] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('recent');
 
-  // Extract all unique tags for filter
-  const availableTags = useMemo(() => {
-    const tagSet = new Set<string>();
-    notes.forEach((note) => {
-      note.tags.forEach((tag) => tagSet.add(tag));
-    });
-    return Array.from(tagSet).sort();
-  }, [notes]);
+  // Fetch tags for filters
+  const { data: tags = [] } = useLoreNoteTagsQuery(campaignId);
 
   // Client-side search & sort
   const filteredAndSortedNotes = useMemo(() => {
@@ -114,7 +111,7 @@ export function LoreNotesList({
       <div className="border-b px-3 pb-3">
         <LoreNoteFiltersCompact
           filters={filters}
-          availableTags={availableTags}
+          tags={tags}
           onFiltersChange={onFiltersChange}
         />
       </div>

@@ -1,5 +1,6 @@
 import type { Tables } from '@/types/database';
 import type { JSONContent } from '@tiptap/react';
+import type { LoreNoteTagDTO } from '@/types/lore-note-tags';
 
 // ============================================================================
 // ENUMS
@@ -30,6 +31,16 @@ export interface LoreNoteDTO extends Omit<LoreNote, 'content_json'> {
   content_json: JSONContent | null;
 }
 
+/**
+ * Enriched Lore Note with joined data from Supabase query
+ * Used internally in API layer before flattening to LoreNoteDTO
+ */
+export interface LoreNoteWithJoins extends LoreNoteDTO {
+  lore_note_tag_assignments?: Array<{
+    lore_note_tags: LoreNoteTagDTO | null;
+  }> | null;
+}
+
 // ============================================================================
 // COMMAND MODELS
 // ============================================================================
@@ -38,14 +49,12 @@ export interface CreateLoreNoteCommand {
   title: string;
   content_json?: JSONContent | null;
   category: LoreNoteCategory;
-  tags?: string[];
 }
 
 export interface UpdateLoreNoteCommand {
   title?: string;
   content_json?: JSONContent | null;
   category?: LoreNoteCategory;
-  tags?: string[];
 }
 
 // ============================================================================
@@ -54,5 +63,5 @@ export interface UpdateLoreNoteCommand {
 
 export interface LoreNoteFilters {
   category?: LoreNoteCategory;
-  tags?: string[]; // Filter by any of these tags (OR logic)
+  tag_ids?: string[]; // Filter by any of these tag IDs (OR logic)
 }

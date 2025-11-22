@@ -1,5 +1,5 @@
 import { getSupabaseClient } from '@/lib/supabase';
-import type { LoreNoteDTO, CreateLoreNoteCommand, UpdateLoreNoteCommand, LoreNoteFilters } from '@/types/lore-notes';
+import type { LoreNoteDTO, LoreNoteWithJoins, CreateLoreNoteCommand, UpdateLoreNoteCommand, LoreNoteFilters } from '@/types/lore-notes';
 import type { Json } from '@/types/database';
 import { extractMentionsFromJson } from '@/lib/utils/mentionUtils';
 import { batchCreateEntityMentions, deleteMentionsBySource } from '@/lib/api/entity-mentions';
@@ -12,17 +12,17 @@ export async function getLoreNotes(
 
   let query = supabase
     .from('lore_notes')
-    .select('*')
+    .select(`
+      *,
+      lore_note_tag_assignments(
+        lore_note_tags(*)
+      )
+    `)
     .eq('campaign_id', campaignId)
     .order('created_at', { ascending: false });
 
   if (filters?.category) {
     query = query.eq('category', filters.category);
-  }
-
-  if (filters?.tags && filters.tags.length > 0) {
-    // PostgreSQL array overlap operator: tags && ARRAY['tag1', 'tag2']
-    query = query.overlaps('tags', filters.tags);
   }
 
   const { data, error } = await query;
@@ -32,7 +32,19 @@ export async function getLoreNotes(
     throw new Error(error.message);
   }
 
-  return data as unknown as LoreNoteDTO[];
+  // Filter by tags if specified (client-side filtering after fetch)
+  // Note: Tag filtering requires client-side logic due to many-to-many relationship
+  let loreNotes = data as LoreNoteWithJoins[];
+
+  if (filters?.tag_ids && filters.tag_ids.length > 0) {
+    loreNotes = loreNotes.filter((note) => {
+      const noteTagIds = note.lore_note_tag_assignments?.map((assignment) => assignment.lore_note_tags?.id).filter(Boolean) || [];
+      // OR logic: note has at least one of the selected tags
+      return filters.tag_ids!.some((tagId) => noteTagIds.includes(tagId));
+    });
+  }
+
+  return loreNotes as unknown as LoreNoteDTO[];
 }
 
 export async function getLoreNote(loreNoteId: string): Promise<LoreNoteDTO> {
@@ -101,7 +113,6 @@ export async function createLoreNote(
       title: command.title,
       content_json: (command.content_json as unknown as Json) || null,
       category: command.category,
-      tags: command.tags || [],
     })
     .select()
     .single();
@@ -149,7 +160,6 @@ export async function updateLoreNote(
   if (command.title !== undefined) updateData.title = command.title;
   if (command.content_json !== undefined) updateData.content_json = command.content_json;
   if (command.category !== undefined) updateData.category = command.category;
-  if (command.tags !== undefined) updateData.tags = command.tags;
 
   const { data, error } = await supabase
     .from('lore_notes')

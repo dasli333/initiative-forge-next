@@ -22,12 +22,6 @@ export const loreNoteFormSchema = z.object({
 
   // Rich content
   content_json: z.any().nullable().optional(),
-
-  // Tags
-  tags: z
-    .array(z.string().max(50, 'Tag must be less than 50 characters'))
-    .max(20, 'Maximum 20 tags per note')
-    .default([]),
 });
 
 export type LoreNoteFormData = z.infer<typeof loreNoteFormSchema>;
@@ -43,5 +37,4 @@ export const updateLoreNoteFieldSchema = z.object({
   title: z.string().min(1).max(255).trim().optional(),
   category: z.enum(LORE_NOTE_CATEGORIES).optional(),
   content_json: z.any().nullable().optional(),
-  tags: z.array(z.string().max(50)).max(20).optional(),
 });

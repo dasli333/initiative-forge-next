@@ -24,8 +24,10 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Scroll, Edit, Save, X, Trash2 } from 'lucide-react';
 import { RichTextEditor } from '@/components/shared/RichTextEditor';
+import { TagManager } from './shared/TagManager';
 import { getCategoryIcon, getCategoryColor } from '@/lib/utils/loreNoteUtils';
 import { LORE_NOTE_CATEGORIES, type LoreNoteDTO, type LoreNoteCategory } from '@/types/lore-notes';
+import type { LoreNoteTagDTO, TagIcon } from '@/types/lore-note-tags';
 import type { JSONContent } from '@tiptap/react';
 
 interface LoreNoteDetailPanelProps {
@@ -38,7 +40,6 @@ interface LoreNoteDetailPanelProps {
     title: string;
     category: LoreNoteCategory;
     content_json: JSONContent | null;
-    tags: string[];
   } | null;
   onEdit: () => void;
   onSave: () => void;
@@ -47,6 +48,11 @@ interface LoreNoteDetailPanelProps {
   onEditedDataChange: (field: string, value: unknown) => void;
   isUpdating?: boolean;
   isDeleting?: boolean;
+  availableTags: LoreNoteTagDTO[];
+  assignedTags: LoreNoteTagDTO[];
+  onAssignTag: (tagId: string) => Promise<void>;
+  onUnassignTag: (tagId: string) => Promise<void>;
+  onCreateTag: (name: string, color: string, icon: TagIcon) => Promise<LoreNoteTagDTO>;
 }
 
 export function LoreNoteDetailPanel({
@@ -63,6 +69,11 @@ export function LoreNoteDetailPanel({
   onEditedDataChange,
   isUpdating,
   isDeleting,
+  availableTags,
+  assignedTags,
+  onAssignTag,
+  onUnassignTag,
+  onCreateTag,
 }: LoreNoteDetailPanelProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
@@ -219,37 +230,21 @@ export function LoreNoteDetailPanel({
           </div>
         </div>
 
-        {/* Tags */}
-        <div className="mt-3">
-          {isEditing && editedData ? (
-            <div className="space-y-1">
-              <Label>Tags (comma separated)</Label>
-              <Input
-                value={editedData.tags.join(', ')}
-                onChange={(e) => {
-                  const tagsStr = e.target.value;
-                  const tags = tagsStr.split(',').map(t => t.trim()).filter(t => t.length > 0);
-                  onEditedDataChange('tags', tags);
-                }}
-                placeholder="tag1, tag2, tag3"
-              />
-            </div>
-          ) : note.tags.length > 0 ? (
-            <div className="flex flex-wrap gap-1.5">
-              {note.tags.map((tag) => (
-                <Badge
-                  key={tag}
-                  variant="outline"
-                  className="border-blue-200 bg-blue-50 text-blue-600"
-                >
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">No tags</p>
-          )}
-        </div>
+        {/* Tags - always visible and editable */}
+        {note && (
+          <div className="mt-4">
+            <TagManager
+              campaignId={campaignId}
+              loreNoteId={noteId!}
+              assignedTags={assignedTags}
+              availableTags={availableTags}
+              onAssign={onAssignTag}
+              onUnassign={onUnassignTag}
+              onCreate={onCreateTag}
+              maxTags={20}
+            />
+          </div>
+        )}
       </div>
 
       {/* Content */}

@@ -1,7 +1,6 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { getCategoryIcon, getCategoryColor, extractExcerpt } from '@/lib/utils/loreNoteUtils';
 import type { LoreNoteDTO } from '@/types/lore-notes';
@@ -14,10 +13,6 @@ interface LoreNoteListItemProps {
 
 export function LoreNoteListItem({ note, isSelected, onClick }: LoreNoteListItemProps) {
   const excerpt = extractExcerpt(note.content_json, 100);
-
-  // Show max 2 tags + "+N more"
-  const visibleTags = note.tags.slice(0, 2);
-  const remainingCount = note.tags.length - 2;
 
   // Render icon inline
   const renderCategoryIcon = () => {
@@ -57,26 +52,6 @@ export function LoreNoteListItem({ note, isSelected, onClick }: LoreNoteListItem
           <p className="line-clamp-2 text-xs text-muted-foreground">
             {excerpt}
           </p>
-        )}
-
-        {/* Tags */}
-        {note.tags.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1">
-            {visibleTags.map((tag) => (
-              <Badge
-                key={tag}
-                variant="outline"
-                className="border-blue-200 bg-blue-50 text-blue-600 text-xs"
-              >
-                {tag}
-              </Badge>
-            ))}
-            {remainingCount > 0 && (
-              <span className="text-xs text-muted-foreground">
-                +{remainingCount} more
-              </span>
-            )}
-          </div>
         )}
       </div>
     </Button>

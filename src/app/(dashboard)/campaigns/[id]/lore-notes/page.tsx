@@ -13,9 +13,17 @@ import {
   useUpdateLoreNoteMutation,
   useDeleteLoreNoteMutation,
 } from '@/hooks/useLoreNotes';
+import {
+  useLoreNoteTagsQuery,
+  useLoreNoteAssignedTagsQuery,
+  useAssignTagToLoreNoteMutation,
+  useUnassignTagFromLoreNoteMutation,
+  useCreateLoreNoteTagMutation,
+} from '@/hooks/useLoreNoteTags';
 import type { LoreNoteFilters, LoreNoteCategory } from '@/types/lore-notes';
 import type { LoreNoteFormData } from '@/lib/schemas/lore-notes';
 import type { JSONContent } from '@tiptap/react';
+import type { TagIcon } from '@/types/lore-note-tags';
 
 /**
  * Main Lore Notes page - 30/70 split view
@@ -43,17 +51,21 @@ export default function LoreNotesPage() {
     title: string;
     category: LoreNoteCategory;
     content_json: JSONContent | null;
-    tags: string[];
   } | null>(null);
 
   // Queries
   const { data: notes = [], isLoading: notesLoading } = useLoreNotesQuery(campaignId, filters);
   const { data: noteDetails, isLoading: detailsLoading } = useLoreNoteQuery(selectedNoteId || undefined);
+  const { data: tags = [] } = useLoreNoteTagsQuery(campaignId);
+  const { data: assignedTags = [] } = useLoreNoteAssignedTagsQuery(selectedNoteId || undefined);
 
   // Mutations
   const createMutation = useCreateLoreNoteMutation(campaignId);
   const updateMutation = useUpdateLoreNoteMutation(campaignId);
   const deleteMutation = useDeleteLoreNoteMutation(campaignId);
+  const assignTagMutation = useAssignTagToLoreNoteMutation();
+  const unassignTagMutation = useUnassignTagFromLoreNoteMutation();
+  const createTagMutation = useCreateLoreNoteTagMutation(campaignId);
 
   // Handlers
   const handleNoteSelect = useCallback(
@@ -73,7 +85,6 @@ export default function LoreNotesPage() {
         title: noteDetails.title,
         category: noteDetails.category as LoreNoteCategory,
         content_json: noteDetails.content_json,
-        tags: noteDetails.tags,
       });
       setIsEditing(true);
     }
@@ -94,7 +105,6 @@ export default function LoreNotesPage() {
           title: editedData.title !== noteDetails.title ? editedData.title : undefined,
           category: editedData.category !== noteDetails.category ? editedData.category : undefined,
           content_json: editedData.content_json,
-          tags: editedData.tags,
         },
       });
       setIsEditing(false);
@@ -129,7 +139,6 @@ export default function LoreNotesPage() {
           title: data.title,
           category: data.category,
           content_json: data.content_json || null,
-          tags: data.tags || [],
         });
         setIsCreateDialogOpen(false);
         // Select newly created note via URL
@@ -139,6 +148,35 @@ export default function LoreNotesPage() {
       }
     },
     [createMutation, router, campaignId]
+  );
+
+  const handleAssignTag = useCallback(
+    async (tagId: string) => {
+      if (!selectedNoteId) return;
+      await assignTagMutation.mutateAsync({
+        lore_note_id: selectedNoteId,
+        tag_id: tagId,
+      });
+    },
+    [selectedNoteId, assignTagMutation]
+  );
+
+  const handleUnassignTag = useCallback(
+    async (tagId: string) => {
+      if (!selectedNoteId) return;
+      await unassignTagMutation.mutateAsync({
+        lore_note_id: selectedNoteId,
+        tag_id: tagId,
+      });
+    },
+    [selectedNoteId, unassignTagMutation]
+  );
+
+  const handleCreateTag = useCallback(
+    async (name: string, color: string, icon: TagIcon) => {
+      return await createTagMutation.mutateAsync({ name, color, icon });
+    },
+    [createTagMutation]
   );
 
   // Loading campaign
@@ -181,6 +219,11 @@ export default function LoreNotesPage() {
         campaignId={campaignId}
         isUpdating={updateMutation.isPending}
         isDeleting={deleteMutation.isPending}
+        availableTags={tags}
+        assignedTags={assignedTags}
+        onAssignTag={handleAssignTag}
+        onUnassignTag={handleUnassignTag}
+        onCreateTag={handleCreateTag}
       />
 
       {/* Create Dialog */}

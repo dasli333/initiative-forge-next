@@ -4,10 +4,12 @@ import { SplitLayout } from '@/components/shared/SplitLayout';
 import { LoreNotesList } from './LoreNotesList';
 import { LoreNoteDetailPanel } from './LoreNoteDetailPanel';
 import type { LoreNoteDTO, LoreNoteFilters, LoreNoteCategory } from '@/types/lore-notes';
+import type { LoreNoteTagDTO, TagIcon } from '@/types/lore-note-tags';
 import type { JSONContent } from '@tiptap/react';
 
 interface LoreNotesLayoutProps {
   // List props
+  campaignId: string;
   notes: LoreNoteDTO[];
   selectedNoteId: string | null;
   onNoteSelect: (noteId: string) => void;
@@ -24,22 +26,28 @@ interface LoreNotesLayoutProps {
     title: string;
     category: LoreNoteCategory;
     content_json: JSONContent | null;
-    tags: string[];
   } | null;
   onEdit: () => void;
   onSave: () => void;
   onCancelEdit: () => void;
   onDelete: () => void;
   onEditedDataChange: (field: string, value: unknown) => void;
-  campaignId: string;
   isUpdating?: boolean;
   isDeleting?: boolean;
+
+  // Tag props
+  availableTags: LoreNoteTagDTO[];
+  assignedTags: LoreNoteTagDTO[];
+  onAssignTag: (tagId: string) => Promise<void>;
+  onUnassignTag: (tagId: string) => Promise<void>;
+  onCreateTag: (name: string, color: string, icon: TagIcon) => Promise<LoreNoteTagDTO>;
 }
 
 /**
  * Split view layout: 30% list | 70% detail panel
  */
 export function LoreNotesLayout({
+  campaignId,
   notes,
   selectedNoteId,
   onNoteSelect,
@@ -56,14 +64,19 @@ export function LoreNotesLayout({
   onCancelEdit,
   onDelete,
   onEditedDataChange,
-  campaignId,
   isUpdating,
   isDeleting,
+  availableTags,
+  assignedTags,
+  onAssignTag,
+  onUnassignTag,
+  onCreateTag,
 }: LoreNotesLayoutProps) {
   return (
     <SplitLayout
       leftPanel={
         <LoreNotesList
+          campaignId={campaignId}
           notes={notes}
           selectedNoteId={selectedNoteId}
           onNoteSelect={onNoteSelect}
@@ -88,6 +101,11 @@ export function LoreNotesLayout({
           onEditedDataChange={onEditedDataChange}
           isUpdating={isUpdating}
           isDeleting={isDeleting}
+          availableTags={availableTags}
+          assignedTags={assignedTags}
+          onAssignTag={onAssignTag}
+          onUnassignTag={onUnassignTag}
+          onCreateTag={onCreateTag}
         />
       }
     />
