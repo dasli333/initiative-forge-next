@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { LoreNotesLayout } from '@/components/lore-notes/LoreNotesLayout';
@@ -20,7 +20,7 @@ import {
   useUnassignTagFromLoreNoteMutation,
   useCreateLoreNoteTagMutation,
 } from '@/hooks/useLoreNoteTags';
-import type { LoreNoteFilters, LoreNoteCategory } from '@/types/lore-notes';
+import type { LoreNoteFilters, LoreNoteCategory, LoreNoteCardViewModel } from '@/types/lore-notes';
 import type { LoreNoteFormData } from '@/lib/schemas/lore-notes';
 import type { JSONContent } from '@tiptap/react';
 import type { TagIcon } from '@/types/lore-note-tags';
@@ -58,6 +58,21 @@ export default function LoreNotesPage() {
   const { data: noteDetails, isLoading: detailsLoading } = useLoreNoteQuery(selectedNoteId || undefined);
   const { data: tags = [] } = useLoreNoteTagsQuery(campaignId);
   const { data: assignedTags = [] } = useLoreNoteAssignedTagsQuery(selectedNoteId || undefined);
+
+  // Convert notes to card view models with tags
+  const notesWithTags: LoreNoteCardViewModel[] = useMemo(() => {
+    if (!notes) return [];
+
+    return notes.map((note) => {
+      // Extract tags from JOIN result
+      const noteTags = (note as import('@/types/lore-notes').LoreNoteWithJoins).lore_note_tag_assignments?.map((assignment) => assignment.lore_note_tags).filter(Boolean) || [];
+
+      return {
+        note,
+        tags: noteTags,
+      };
+    });
+  }, [notes]);
 
   // Mutations
   const createMutation = useCreateLoreNoteMutation(campaignId);
@@ -200,7 +215,7 @@ export default function LoreNotesPage() {
 
       {/* Main content */}
       <LoreNotesLayout
-        notes={notes}
+        notes={notesWithTags}
         selectedNoteId={selectedNoteId}
         onNoteSelect={handleNoteSelect}
         onCreateNote={handleCreateNote}

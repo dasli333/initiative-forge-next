@@ -173,7 +173,7 @@ export function LoreNoteDetailPanel({
                 </div>
               </>
             ) : (
-              <>
+              <div className="flex items-center gap-3">
                 <h1 className="text-xl font-semibold">{note.title}</h1>
                 <div
                   className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-sm ${getCategoryColor(note.category as LoreNoteCategory)}`}
@@ -181,7 +181,7 @@ export function LoreNoteDetailPanel({
                   {renderCategoryIcon()}
                   {note.category}
                 </div>
-              </>
+              </div>
             )}
           </div>
 

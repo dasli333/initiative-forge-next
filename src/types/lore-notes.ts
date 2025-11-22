@@ -41,6 +41,15 @@ export interface LoreNoteWithJoins extends LoreNoteDTO {
   }> | null;
 }
 
+/**
+ * Card view model for lore note list items
+ * Includes flattened tags array for display
+ */
+export interface LoreNoteCardViewModel {
+  note: LoreNoteDTO;
+  tags: LoreNoteTagDTO[];
+}
+
 // ============================================================================
 // COMMAND MODELS
 // ============================================================================

@@ -3,14 +3,14 @@
 import { SplitLayout } from '@/components/shared/SplitLayout';
 import { LoreNotesList } from './LoreNotesList';
 import { LoreNoteDetailPanel } from './LoreNoteDetailPanel';
-import type { LoreNoteDTO, LoreNoteFilters, LoreNoteCategory } from '@/types/lore-notes';
+import type { LoreNoteDTO, LoreNoteCardViewModel, LoreNoteFilters, LoreNoteCategory } from '@/types/lore-notes';
 import type { LoreNoteTagDTO, TagIcon } from '@/types/lore-note-tags';
 import type { JSONContent } from '@tiptap/react';
 
 interface LoreNotesLayoutProps {
   // List props
   campaignId: string;
-  notes: LoreNoteDTO[];
+  notes: LoreNoteCardViewModel[];
   selectedNoteId: string | null;
   onNoteSelect: (noteId: string) => void;
   onCreateNote: () => void;

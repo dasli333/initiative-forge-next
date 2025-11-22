@@ -4,15 +4,15 @@ import { useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Plus } from 'lucide-react';
+import { Search, Plus, ArrowUpDown } from 'lucide-react';
 import { LoreNoteListItem } from './LoreNoteListItem';
 import { LoreNoteFiltersCompact } from './LoreNoteFiltersCompact';
 import { useLoreNoteTagsQuery } from '@/hooks/useLoreNoteTags';
-import type { LoreNoteDTO, LoreNoteFilters } from '@/types/lore-notes';
+import type { LoreNoteCardViewModel, LoreNoteFilters } from '@/types/lore-notes';
 
 interface LoreNotesListProps {
   campaignId: string;
-  notes: LoreNoteDTO[];
+  notes: LoreNoteCardViewModel[];
   selectedNoteId: string | null;
   onNoteSelect: (noteId: string) => void;
   onCreateNote: () => void;
@@ -45,8 +45,8 @@ export function LoreNotesList({
     let filtered = notes;
     if (localSearch) {
       const searchLower = localSearch.toLowerCase();
-      filtered = notes.filter((note) =>
-        note.title.toLowerCase().includes(searchLower)
+      filtered = notes.filter((noteVM) =>
+        noteVM.note.title.toLowerCase().includes(searchLower)
       );
     }
 
@@ -54,13 +54,13 @@ export function LoreNotesList({
     const sorted = [...filtered].sort((a, b) => {
       switch (sortBy) {
         case 'recent':
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          return new Date(b.note.created_at).getTime() - new Date(a.note.created_at).getTime();
         case 'name-asc':
-          return a.title.localeCompare(b.title);
+          return a.note.title.localeCompare(b.note.title);
         case 'name-desc':
-          return b.title.localeCompare(a.title);
+          return b.note.title.localeCompare(a.note.title);
         case 'category':
-          return a.category.localeCompare(b.category);
+          return a.note.category.localeCompare(b.note.category);
         default:
           return 0;
       }
@@ -87,7 +87,7 @@ export function LoreNotesList({
             placeholder="Search notes..."
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
-            className="pl-9"
+            className="pl-9 h-9 text-sm"
           />
         </div>
       </div>
@@ -95,11 +95,12 @@ export function LoreNotesList({
       {/* Sort dropdown */}
       <div className="px-3 pb-2">
         <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
-          <SelectTrigger>
+          <SelectTrigger className="h-8 text-xs w-full">
+            <ArrowUpDown className="w-3 h-3 mr-2" />
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="recent">Recent</SelectItem>
+            <SelectItem value="recent">Recently added</SelectItem>
             <SelectItem value="name-asc">Name (A-Z)</SelectItem>
             <SelectItem value="name-desc">Name (Z-A)</SelectItem>
             <SelectItem value="category">Category</SelectItem>
@@ -145,12 +146,12 @@ export function LoreNotesList({
         )}
 
         {!isLoading &&
-          filteredAndSortedNotes.map((note) => (
+          filteredAndSortedNotes.map((noteVM) => (
             <LoreNoteListItem
-              key={note.id}
-              note={note}
-              isSelected={note.id === selectedNoteId}
-              onClick={() => onNoteSelect(note.id)}
+              key={noteVM.note.id}
+              noteVM={noteVM}
+              isSelected={noteVM.note.id === selectedNoteId}
+              onClick={() => onNoteSelect(noteVM.note.id)}
             />
           ))}
       </div>
