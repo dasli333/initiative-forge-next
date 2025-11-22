@@ -106,7 +106,6 @@ export default function QuestsPage() {
       quest: questDetails,
       objectivesProgress: calculateObjectivesProgress(questDetails.objectives_json),
       rewardsSummary: formatRewardsSummary(questDetails.rewards_json),
-      relatedEntities: [], // TODO: Extract from @mentions
       backlinks: backlinks.map((mention) => ({
         source_type: mention.source_type as 'npc' | 'quest' | 'session' | 'location' | 'faction' | 'story_arc' | 'lore_note',
         source_id: mention.source_id,

@@ -870,35 +870,6 @@ export type Database = {
           },
         ]
       }
-      quest_entities: {
-        Row: {
-          entity_id: string
-          entity_type: string
-          quest_id: string
-          role: string | null
-        }
-        Insert: {
-          entity_id: string
-          entity_type: string
-          quest_id: string
-          role?: string | null
-        }
-        Update: {
-          entity_id?: string
-          entity_type?: string
-          quest_id?: string
-          role?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "quest_entities_quest_id_fkey"
-            columns: ["quest_id"]
-            isOneToOne: false
-            referencedRelation: "quests"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       quests: {
         Row: {
           campaign_id: string
@@ -1144,7 +1115,6 @@ export type Database = {
           description_json: Json | null
           event_date: string
           id: string
-          related_entities_json: Json | null
           sort_date: string
           source_id: string | null
           source_type: string | null
@@ -1157,7 +1127,6 @@ export type Database = {
           description_json?: Json | null
           event_date: string
           id?: string
-          related_entities_json?: Json | null
           sort_date?: string
           source_id?: string | null
           source_type?: string | null
@@ -1170,7 +1139,6 @@ export type Database = {
           description_json?: Json | null
           event_date?: string
           id?: string
-          related_entities_json?: Json | null
           sort_date?: string
           source_id?: string | null
           source_type?: string | null

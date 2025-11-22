@@ -89,23 +89,6 @@ export function RelatedTab({ viewModel, campaignId }: RelatedTabProps) {
 
   return (
     <div className="space-y-6">
-      {/* Related Entities (auto-extracted from @mentions) */}
-      {viewModel.relatedEntities.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Related Entities</CardTitle>
-            <CardDescription>
-              Entities mentioned in quest description
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm text-muted-foreground">
-              {viewModel.relatedEntities.length} related entities (feature in progress)
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Backlinks ("Mentioned In") */}
       <Card>
         <CardHeader>
