@@ -2,7 +2,6 @@ import { TimelineEventDTO } from '@/types/timeline-events';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2, Link as LinkIcon } from 'lucide-react';
-import { RelatedEntitiesBadges } from './RelatedEntitiesBadges';
 import { RichTextEditor } from '@/components/shared/RichTextEditor';
 
 interface EventCardHeaderProps {
@@ -24,17 +23,6 @@ export function EventCardHeader({ event, campaignId }: EventCardHeaderProps) {
                     </Badge>
                 )}
             </div>
-
-            {/* Related Entities */}
-            {event.related_entities_json.length > 0 && (
-                <div>
-                    <RelatedEntitiesBadges
-                        entities={event.related_entities_json}
-                        campaignId={campaignId}
-                        limit={3}
-                    />
-                </div>
-            )}
         </div>
     );
 }

@@ -6,14 +6,12 @@ import {
   UpdateTimelineEventCommand,
   TimelineEventFilters
 } from '@/types/timeline-events';
-import { RelatedEntity } from '@/types/timeline-view.types';
 import { JSONContent } from '@tiptap/react';
 import { extractMentionsFromJson } from '@/lib/utils/mentionUtils';
 import { deleteMentionsBySource, batchCreateEntityMentions } from '@/lib/api/entity-mentions';
 
 function mapToDTO(event: TimelineEvent): TimelineEventDTO {
   let descriptionJson: JSONContent | null = null;
-  let relatedEntities: RelatedEntity[] = [];
 
   if (event.description_json) {
     try {
@@ -25,20 +23,6 @@ function mapToDTO(event: TimelineEvent): TimelineEventDTO {
     }
   }
 
-  if (event.related_entities_json) {
-    try {
-      const parsed = typeof event.related_entities_json === 'string'
-        ? JSON.parse(event.related_entities_json)
-        : event.related_entities_json;
-
-      if (Array.isArray(parsed)) {
-        relatedEntities = parsed.filter((e: any) => e.type && e.id && e.name);
-      }
-    } catch (error) {
-      console.error('Failed to parse related_entities_json:', error);
-    }
-  }
-
   return {
     id: event.id,
     campaign_id: event.campaign_id,
@@ -46,7 +30,6 @@ function mapToDTO(event: TimelineEvent): TimelineEventDTO {
     description_json: descriptionJson,
     event_date: event.event_date,
     sort_date: event.sort_date,
-    related_entities_json: relatedEntities,
     source_type: event.source_type,
     source_id: event.source_id,
     created_at: event.created_at,
@@ -98,7 +81,6 @@ export async function createTimelineEvent(
       description_json: command.description_json,
       event_date: command.event_date,
       sort_date: command.sort_date,
-      related_entities_json: command.related_entities_json || [],
       source_type: command.source_type || 'manual',
       source_id: command.source_id,
     })
@@ -141,7 +123,7 @@ export async function updateTimelineEvent(
 ): Promise<TimelineEventDTO> {
   const supabase = getSupabaseClient();
 
-  const updateData: any = {
+  const updateData = {
     title: command.title,
     description_json: command.description_json,
     event_date: command.event_date,
@@ -149,10 +131,6 @@ export async function updateTimelineEvent(
     source_type: command.source_type,
     source_id: command.source_id,
   };
-
-  if (command.related_entities_json !== undefined) {
-    updateData.related_entities_json = command.related_entities_json;
-  }
 
   const { data, error } = await supabase
     .from('timeline_events')
