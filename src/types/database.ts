@@ -1144,8 +1144,8 @@ export type Database = {
           description_json: Json | null
           event_date: string
           id: string
-          real_date: string | null
           related_entities_json: Json | null
+          sort_date: string
           source_id: string | null
           source_type: string | null
           title: string
@@ -1157,8 +1157,8 @@ export type Database = {
           description_json?: Json | null
           event_date: string
           id?: string
-          real_date?: string | null
           related_entities_json?: Json | null
+          sort_date?: string
           source_id?: string | null
           source_type?: string | null
           title: string
@@ -1170,8 +1170,8 @@ export type Database = {
           description_json?: Json | null
           event_date?: string
           id?: string
-          real_date?: string | null
           related_entities_json?: Json | null
+          sort_date?: string
           source_id?: string | null
           source_type?: string | null
           title?: string

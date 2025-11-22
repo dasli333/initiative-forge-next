@@ -27,6 +27,7 @@ const ENTITY_ICONS = {
   story_item: Package,
   faction: Users,
   lore_note: FileText,
+  timeline_event: Calendar,
 };
 
 const ENTITY_COLORS = {
@@ -39,6 +40,7 @@ const ENTITY_COLORS = {
   story_item: 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300',
   faction: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300',
   lore_note: 'bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300',
+  timeline_event: 'bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300',
 };
 
 const ENTITY_ROUTE_MAP = {
@@ -51,6 +53,7 @@ const ENTITY_ROUTE_MAP = {
   story_item: 'story-items',
   faction: 'factions',
   lore_note: 'lore-notes',
+  timeline_event: 'timeline',
 };
 
 /**

@@ -110,10 +110,8 @@ export function CampaignNav({ selectedCampaignId, currentPath }: CampaignNavProp
         <NavItem
           icon={Clock}
           label="Timeline"
-          href="#"
-          isActive={false}
-          isDisabled
-          badge={{ text: 'Soon', variant: 'default' }}
+          href={`/campaigns/${selectedCampaignId}/timeline`}
+          isActive={currentPath === `/campaigns/${selectedCampaignId}/timeline`}
         />
       </ul>
     </div>
