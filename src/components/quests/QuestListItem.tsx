@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
@@ -21,14 +20,14 @@ export function QuestListItem({ quest, isSelected, onClick }: QuestListItemProps
   };
 
   return (
-    <Button
-      variant="ghost"
+    <button
+      type="button"
       className={cn(
-        'relative flex h-auto w-full items-start gap-3 border-l-4 px-3 py-2.5 transition-colors',
+        'relative flex h-auto w-full items-start gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors',
         'hover:bg-accent/50',
         isSelected
-          ? 'border-l-primary bg-primary/10'
-          : 'border-l-transparent bg-card'
+          ? 'border-primary bg-primary/10'
+          : 'bg-card'
       )}
       onClick={onClick}
     >
@@ -76,6 +75,6 @@ export function QuestListItem({ quest, isSelected, onClick }: QuestListItemProps
           )}
         </div>
       </div>
-    </Button>
+    </button>
   );
 }
