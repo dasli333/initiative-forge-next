@@ -6,10 +6,9 @@ import { RichTextEditor } from '@/components/shared/RichTextEditor';
 
 interface EventCardHeaderProps {
     event: TimelineEventDTO;
-    campaignId: string;
 }
 
-export function EventCardHeader({ event, campaignId }: EventCardHeaderProps) {
+export function EventCardHeader({ event }: EventCardHeaderProps) {
     return (
         <div className="flex flex-col gap-2 w-full">
             <div className="flex items-center gap-2 flex-wrap">

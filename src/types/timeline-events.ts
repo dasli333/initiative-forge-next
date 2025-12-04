@@ -1,4 +1,4 @@
-import { Tables, Json } from '@/types/database';
+import { Tables } from '@/types/database';
 import { JSONContent } from '@tiptap/react';
 
 export type TimelineEvent = Tables<'timeline_events'>;

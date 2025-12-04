@@ -9,13 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -55,8 +48,6 @@ interface StoryItemDetailPanelProps {
   onDelete: () => void;
   // Edit state
   isEditing: boolean;
-  editedData: Partial<StoryItemDTO> | null;
-  onEditedDataChange: (field: string, value: unknown) => void;
   // Action states
   isUpdating?: boolean;
   isDeleting?: boolean;
@@ -137,8 +128,6 @@ export function StoryItemDetailPanel({
   onCancelEdit,
   onDelete,
   isEditing,
-  editedData,
-  onEditedDataChange,
   isUpdating = false,
   isDeleting = false,
 }: StoryItemDetailPanelProps) {

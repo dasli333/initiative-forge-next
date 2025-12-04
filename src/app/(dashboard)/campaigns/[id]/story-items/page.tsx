@@ -19,7 +19,6 @@ import { useFactionsQuery } from '@/hooks/useFactions';
 import { useLocationsQuery } from '@/hooks/useLocations';
 import type { StoryItemDTO, StoryItemFilters } from '@/types/story-items';
 import type { StoryItemFormData } from '@/lib/schemas/story-items';
-import type { JSONContent } from '@tiptap/core';
 
 /**
  * Main Story Items page
@@ -42,7 +41,6 @@ export default function StoryItemsPage() {
 
   // Edit mode state
   const [isEditing, setIsEditing] = useState(false);
-  const [editedData, setEditedData] = useState<Partial<StoryItemDTO> | null>(null);
 
   // Queries
   const { data: items = [], isLoading: itemsLoading } = useStoryItemsQuery(campaignId, filters);
@@ -69,59 +67,21 @@ export default function StoryItemsPage() {
   };
 
   const handleEdit = () => {
-    if (detailItem) {
-      setEditedData({
-        name: detailItem.name,
-        description_json: detailItem.description_json,
-        image_url: detailItem.image_url,
-        ownership_history_json: detailItem.ownership_history_json,
-      });
-      setIsEditing(true);
-    }
+    setIsEditing(true);
   };
 
   const handleSave = (data: Partial<StoryItemDTO>) => {
-    if (selectedId && detailItem) {
-      const changes: Record<string, unknown> = {};
-
-      // Compare each field with original
-      if (data.name !== undefined && data.name !== detailItem.name) {
-        changes.name = data.name;
-      }
-      if (data.image_url !== undefined && data.image_url !== detailItem.image_url) {
-        changes.image_url = data.image_url;
-      }
-      if (data.description_json !== undefined &&
-          JSON.stringify(data.description_json) !== JSON.stringify(detailItem.description_json)) {
-        changes.description_json = data.description_json;
-      }
-      if (data.ownership_history_json !== undefined &&
-          JSON.stringify(data.ownership_history_json) !== JSON.stringify(detailItem.ownership_history_json)) {
-        changes.ownership_history_json = data.ownership_history_json;
-      }
-
-      // Update if there are changes
-      if (Object.keys(changes).length > 0) {
-        updateMutation.mutate({
-          id: selectedId,
-          command: changes,
-        });
-      }
-
+    if (selectedId) {
+      updateMutation.mutate({
+        id: selectedId,
+        command: data,
+      });
       setIsEditing(false);
-      setEditedData(null);
     }
   };
 
   const handleCancelEdit = () => {
     setIsEditing(false);
-    setEditedData(null);
-  };
-
-  const handleEditedDataChange = (field: string, value: unknown) => {
-    if (editedData) {
-      setEditedData({ ...editedData, [field]: value });
-    }
   };
 
   const handleDelete = () => {
@@ -169,12 +129,10 @@ export default function StoryItemsPage() {
             detailItem={detailItem}
             isDetailLoading={detailLoading}
             isEditing={isEditing}
-            editedData={editedData}
             onEdit={handleEdit}
             onSave={handleSave}
             onCancelEdit={handleCancelEdit}
             onDelete={handleDelete}
-            onEditedDataChange={handleEditedDataChange}
             isUpdating={updateMutation.isPending}
             isDeleting={deleteMutation.isPending}
         />

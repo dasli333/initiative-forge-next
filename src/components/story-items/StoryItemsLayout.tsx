@@ -26,12 +26,10 @@ interface StoryItemsLayoutProps {
   detailItem: StoryItemDTO | undefined;
   isDetailLoading: boolean;
   isEditing: boolean;
-  editedData: Partial<StoryItemDTO> | null;
   onEdit: () => void;
   onSave: (data: Partial<StoryItemDTO>) => void;
   onCancelEdit: () => void;
   onDelete: () => void;
-  onEditedDataChange: (field: string, value: unknown) => void;
   isUpdating?: boolean;
   isDeleting?: boolean;
 }
@@ -56,12 +54,10 @@ export function StoryItemsLayout({
   detailItem,
   isDetailLoading,
   isEditing,
-  editedData,
   onEdit,
   onSave,
   onCancelEdit,
   onDelete,
-  onEditedDataChange,
   isUpdating = false,
   isDeleting = false,
 }: StoryItemsLayoutProps) {
@@ -95,8 +91,6 @@ export function StoryItemsLayout({
           onCancelEdit={onCancelEdit}
           onDelete={onDelete}
           isEditing={isEditing}
-          editedData={editedData}
-          onEditedDataChange={onEditedDataChange}
           isUpdating={isUpdating}
           isDeleting={isDeleting}
         />

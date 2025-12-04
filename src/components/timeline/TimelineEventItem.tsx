@@ -36,7 +36,7 @@ export function TimelineEventItem({ event, campaignId, onEdit, onDelete }: Timel
                 <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value={event.id} className="border rounded-lg bg-card px-4">
                         <AccordionTrigger className="hover:no-underline py-4">
-                            <EventCardHeader event={event} campaignId={campaignId} />
+                            <EventCardHeader event={event} />
                         </AccordionTrigger>
                         <AccordionContent className="pt-0 pb-4">
                             <EventCardContent

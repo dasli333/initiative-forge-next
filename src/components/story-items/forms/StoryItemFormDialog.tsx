@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Form,
   FormControl,
@@ -21,13 +20,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { RichTextEditor } from '@/components/shared/RichTextEditor';
 import { ImageUpload } from '@/components/shared/ImageUpload';
 import { createStoryItemSchema, type StoryItemFormData } from '@/lib/schemas/story-items';
