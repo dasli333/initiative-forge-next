@@ -151,17 +151,13 @@ export async function createStoryItem(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('User not authenticated');
 
-  // Initialize ownership history if owner is set
-  let ownershipHistory = command.ownership_history_json || null;
-  if (command.current_owner_type && command.current_owner_id && !ownershipHistory) {
-    ownershipHistory = [{
-      owner_type: command.current_owner_type,
-      owner_id: command.current_owner_id,
-      owner_name: '', // Frontend can populate this
-      from: new Date().toISOString(),
-      to: null,
-    }];
-  }
+  // Initialize ownership history (empty array if not provided)
+  const ownershipHistory = command.ownership_history_json || [];
+
+  // Derive current owner from history (entry with to: null)
+  const currentEntry = ownershipHistory.find(e => e.to === null);
+  const current_owner_type = currentEntry?.owner_type || null;
+  const current_owner_id = currentEntry?.owner_id || null;
 
   const { data, error } = await supabase
     .from('story_items')
@@ -170,8 +166,8 @@ export async function createStoryItem(
       name: command.name,
       description_json: (command.description_json as unknown as Json) || null,
       image_url: command.image_url || null,
-      current_owner_type: command.current_owner_type || null,
-      current_owner_id: command.current_owner_id || null,
+      current_owner_type: current_owner_type,
+      current_owner_id: current_owner_id,
       ownership_history_json: ownershipHistory as unknown as Json,
     })
     .select()
@@ -215,52 +211,40 @@ export async function updateStoryItem(
 ): Promise<StoryItemDTO> {
   const supabase = getSupabaseClient();
 
-  // Fetch current item to track ownership changes
-  const { data: currentItem } = await supabase
-    .from('story_items')
-    .select('*')
-    .eq('id', storyItemId)
-    .single();
-
   const updateData: Record<string, unknown> = {};
   if (command.name !== undefined) updateData.name = command.name;
   if (command.description_json !== undefined) updateData.description_json = command.description_json;
   if (command.image_url !== undefined) updateData.image_url = command.image_url;
 
-  // AUTO-TRACKING: If owner changes, update ownership history
-  const ownerChanged =
-    command.current_owner_type !== undefined &&
-    command.current_owner_id !== undefined &&
-    currentItem &&
-    (command.current_owner_type !== currentItem.current_owner_type ||
-      command.current_owner_id !== currentItem.current_owner_id);
-
-  if (ownerChanged && currentItem) {
-    const now = new Date().toISOString();
-    const history = (currentItem.ownership_history_json as unknown[] | null) || [];
-
-    // Close current owner's entry
-    const updatedHistory = history.map((entry: unknown) =>
-      (entry as { to: string | null }).to === null ? { ...(entry as Record<string, unknown>), to: now } : entry
+  // OWNERSHIP LOGIC: Historia ZAWSZE jest source of truth
+  if (command.ownership_history_json !== undefined) {
+    // Enrich owner names
+    const enrichedHistory = await Promise.all(
+      (command.ownership_history_json || []).map(async (entry) => {
+        const ownerName = await resolveOwnerName(
+          supabase,
+          entry.owner_type,
+          entry.owner_id
+        );
+        return {
+          ...entry,
+          owner_name: ownerName || entry.owner_name || undefined,
+        };
+      })
     );
 
-    // Add new owner entry
-    if (command.current_owner_type && command.current_owner_id) {
-      updatedHistory.push({
-        owner_type: command.current_owner_type,
-        owner_id: command.current_owner_id,
-        owner_name: '', // Frontend can populate this
-        from: now,
-        to: null,
-      });
-    }
+    updateData.ownership_history_json = enrichedHistory as unknown as Json;
 
-    updateData.ownership_history_json = updatedHistory as unknown as Json;
-    updateData.current_owner_type = command.current_owner_type;
-    updateData.current_owner_id = command.current_owner_id;
-  } else {
-    if (command.current_owner_type !== undefined) updateData.current_owner_type = command.current_owner_type;
-    if (command.current_owner_id !== undefined) updateData.current_owner_id = command.current_owner_id;
+    // DERIVE current owner from history (cached fields)
+    const currentEntry = enrichedHistory.find(e => e.to === null);
+    if (currentEntry) {
+      updateData.current_owner_type = currentEntry.owner_type;
+      updateData.current_owner_id = currentEntry.owner_id;
+    } else {
+      // No current owner
+      updateData.current_owner_type = null;
+      updateData.current_owner_id = null;
+    }
   }
 
   const { data, error } = await supabase

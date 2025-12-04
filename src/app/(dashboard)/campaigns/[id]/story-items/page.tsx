@@ -74,8 +74,7 @@ export default function StoryItemsPage() {
         name: detailItem.name,
         description_json: detailItem.description_json,
         image_url: detailItem.image_url,
-        current_owner_type: detailItem.current_owner_type,
-        current_owner_id: detailItem.current_owner_id,
+        ownership_history_json: detailItem.ownership_history_json,
       });
       setIsEditing(true);
     }
@@ -96,11 +95,9 @@ export default function StoryItemsPage() {
           JSON.stringify(data.description_json) !== JSON.stringify(detailItem.description_json)) {
         changes.description_json = data.description_json;
       }
-      if (data.current_owner_type !== undefined && data.current_owner_type !== detailItem.current_owner_type) {
-        changes.current_owner_type = data.current_owner_type;
-      }
-      if (data.current_owner_id !== undefined && data.current_owner_id !== detailItem.current_owner_id) {
-        changes.current_owner_id = data.current_owner_id;
+      if (data.ownership_history_json !== undefined &&
+          JSON.stringify(data.ownership_history_json) !== JSON.stringify(detailItem.ownership_history_json)) {
+        changes.ownership_history_json = data.ownership_history_json;
       }
 
       // Update if there are changes
@@ -143,8 +140,6 @@ export default function StoryItemsPage() {
       name: data.name!,
       description_json: data.description_json,
       image_url: data.image_url,
-      current_owner_type: data.current_owner_type,
-      current_owner_id: data.current_owner_id,
     });
 
     setIsCreateDialogOpen(false);
@@ -188,10 +183,6 @@ export default function StoryItemsPage() {
       <StoryItemFormDialog
         isOpen={isCreateDialogOpen}
         campaignId={campaignId}
-        npcs={npcsSimple}
-        playerCharacters={pcsSimple}
-        factions={factionsSimple}
-        locations={locationsSimple}
         onClose={() => setIsCreateDialogOpen(false)}
         onSubmit={handleCreateSubmit}
       />

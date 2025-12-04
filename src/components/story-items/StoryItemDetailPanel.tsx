@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Edit2, Trash2, Save, X, Users, User, Building, MapPin, HelpCircle, Sparkles } from 'lucide-react';
@@ -28,6 +28,9 @@ import {
 import { RichTextEditor } from '@/components/shared/RichTextEditor';
 import { ImageUpload } from '@/components/shared/ImageUpload';
 import { OwnershipTimeline } from './OwnershipTimeline';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { updateStoryItemSchema, type UpdateStoryItemFormData } from '@/lib/schemas/story-items';
 import type { StoryItemDTO, OwnershipHistoryEntry } from '@/types/story-items';
 import type { JSONContent } from '@tiptap/core';
 
@@ -141,6 +144,29 @@ export function StoryItemDetailPanel({
 }: StoryItemDetailPanelProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
+  // React Hook Form for edit mode
+  const form = useForm<UpdateStoryItemFormData>({
+    resolver: zodResolver(updateStoryItemSchema),
+    defaultValues: {
+      name: item?.name || '',
+      description_json: item?.description_json || null,
+      image_url: item?.image_url || null,
+      ownership_history_json: (item?.ownership_history_json as unknown as OwnershipHistoryEntry[]) || [],
+    },
+  });
+
+  // Reset form when item changes or edit mode changes
+  useEffect(() => {
+    if (item && isEditing) {
+      form.reset({
+        name: item.name,
+        description_json: item.description_json,
+        image_url: item.image_url,
+        ownership_history_json: (item.ownership_history_json as unknown as OwnershipHistoryEntry[]) || [],
+      });
+    }
+  }, [item, isEditing, form]);
+
   // No selection state
   if (!item && !isLoading) {
     return (
@@ -167,26 +193,6 @@ export function StoryItemDetailPanel({
     );
   }
 
-  // Get owner options based on selected type
-  const getOwnerOptions = () => {
-    const ownerType = isEditing ? editedData?.current_owner_type : item.current_owner_type;
-    switch (ownerType) {
-      case 'npc':
-        return npcs;
-      case 'player_character':
-        return playerCharacters;
-      case 'faction':
-        return factions;
-      case 'location':
-        return locations;
-      default:
-        return [];
-    }
-  };
-
-  const ownerOptions = getOwnerOptions();
-  const showOwnerSelect = isEditing && editedData?.current_owner_type && editedData.current_owner_type !== 'unknown';
-
   // Parse ownership history
   const ownershipHistory: OwnershipHistoryEntry[] = (item.ownership_history_json as unknown as OwnershipHistoryEntry[]) || [];
 
@@ -200,8 +206,9 @@ export function StoryItemDetailPanel({
     : null;
 
   const handleSave = () => {
-    if (!editedData) return;
-    onSave(editedData);
+    const formData = form.getValues();
+    // Cast form data to match StoryItemDTO partial
+    onSave(formData as Partial<StoryItemDTO>);
   };
 
   const handleDelete = () => {
@@ -216,12 +223,18 @@ export function StoryItemDetailPanel({
         {isEditing ? (
           <div>
             <Label>Image</Label>
-            <ImageUpload
-              value={editedData?.image_url || item.image_url}
-              onChange={(url) => onEditedDataChange('image_url', url)}
-              campaignId={campaignId}
-              entityType="story_item"
-              maxSizeMB={5}
+            <Controller
+              name="image_url"
+              control={form.control}
+              render={({ field }) => (
+                <ImageUpload
+                  value={field.value || item.image_url}
+                  onChange={field.onChange}
+                  campaignId={campaignId}
+                  entityType="story_item"
+                  maxSizeMB={5}
+                />
+              )}
             />
           </div>
         ) : item.image_url ? (
@@ -242,11 +255,17 @@ export function StoryItemDetailPanel({
             {isEditing ? (
               <div className="flex-1">
                 <Label>Name</Label>
-                <Input
-                  value={editedData?.name ?? item.name}
-                  onChange={(e) => onEditedDataChange('name', e.target.value)}
-                  placeholder="Item name"
-                  className="text-2xl font-bold h-auto py-2"
+                <Controller
+                  name="name"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      value={field.value || ''}
+                      placeholder="Item name"
+                      className="text-2xl font-bold h-auto py-2"
+                    />
+                  )}
                 />
               </div>
             ) : (
@@ -308,74 +327,34 @@ export function StoryItemDetailPanel({
             Current Owner
           </h3>
 
-          {isEditing ? (
-            <div className="space-y-3">
-              {/* Owner Type Select */}
-              <div>
-                <Label>Owner Type</Label>
-                <Select
-                  value={editedData?.current_owner_type || 'none'}
-                  onValueChange={(value) => {
-                    if (value === 'none') {
-                      onEditedDataChange('current_owner_type', null);
-                      onEditedDataChange('current_owner_id', null);
-                    } else {
-                      onEditedDataChange('current_owner_type', value);
-                      onEditedDataChange('current_owner_id', null); // Reset owner ID
-                    }
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select owner type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">No Owner</SelectItem>
-                    <SelectItem value="npc">NPC</SelectItem>
-                    <SelectItem value="player_character">Player Character</SelectItem>
-                    <SelectItem value="faction">Faction</SelectItem>
-                    <SelectItem value="location">Location</SelectItem>
-                    <SelectItem value="unknown">Unknown</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Owner ID Select (conditional) */}
-              {showOwnerSelect && (
-                <div>
-                  <Label>Specific Owner</Label>
-                  <Select
-                    value={editedData?.current_owner_id || ''}
-                    onValueChange={(value) => onEditedDataChange('current_owner_id', value)}
+          {/* VIEW MODE: Show current owner */}
+          {!isEditing && (
+            <>
+              {item.current_owner_type && item.current_owner_id ? (
+                <div className="flex items-center gap-3">
+                  <Badge variant="outline" className="flex items-center gap-2">
+                    {getOwnerTypeIcon(item.current_owner_type)}
+                    <span>{getOwnerTypeLabel(item.current_owner_type)}</span>
+                  </Badge>
+                  <Link
+                    href={getOwnerTypePath(item.current_owner_type, campaignId, item.current_owner_id)}
+                    className="font-medium text-emerald-600 dark:text-emerald-400 hover:underline"
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select owner" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ownerOptions.map((owner) => (
-                        <SelectItem key={owner.id} value={owner.id}>
-                          {owner.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    {item.current_owner_name || 'Unknown'}
+                  </Link>
                 </div>
+              ) : (
+                <p className="text-sm text-gray-500 dark:text-gray-400">No owner assigned</p>
               )}
+            </>
+          )}
+
+          {/* EDIT MODE: Show info message */}
+          {isEditing && (
+            <div className="text-sm text-muted-foreground italic border-l-4 border-emerald-500 pl-4 py-2">
+              Current owner is determined by the history entry with no end date (to = empty).
+              Edit the ownership history below to change the current owner.
             </div>
-          ) : item.current_owner_type && item.current_owner_id ? (
-            <div className="flex items-center gap-3">
-              <Badge variant="outline" className="flex items-center gap-2">
-                {getOwnerTypeIcon(item.current_owner_type)}
-                <span>{getOwnerTypeLabel(item.current_owner_type)}</span>
-              </Badge>
-              <Link
-                href={getOwnerTypePath(item.current_owner_type, campaignId, item.current_owner_id)}
-                className="font-medium text-emerald-600 dark:text-emerald-400 hover:underline"
-              >
-                {item.current_owner_name || 'Unknown'}
-              </Link>
-            </div>
-          ) : (
-            <p className="text-sm text-gray-500 dark:text-gray-400">No owner assigned</p>
           )}
         </div>
 
@@ -386,11 +365,17 @@ export function StoryItemDetailPanel({
           </h3>
 
           {isEditing ? (
-            <RichTextEditor
-              value={editedData?.description_json as JSONContent || item.description_json}
-              onChange={(content) => onEditedDataChange('description_json', content)}
-              campaignId={campaignId}
-              placeholder="Describe this story item..."
+            <Controller
+              name="description_json"
+              control={form.control}
+              render={({ field }) => (
+                <RichTextEditor
+                  value={(field.value as JSONContent) || item.description_json}
+                  onChange={field.onChange}
+                  campaignId={campaignId}
+                  placeholder="Describe this story item..."
+                />
+              )}
             />
           ) : item.description_json ? (
             <RichTextEditor
@@ -406,19 +391,23 @@ export function StoryItemDetailPanel({
           )}
         </div>
 
-        {/* Ownership History Section (View Mode Only) */}
-        {!isEditing && (
-          <div className="space-y-3 border-t pt-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              Ownership History
-            </h3>
-            <OwnershipTimeline
-              entries={ownershipHistory}
-              currentOwner={currentOwner}
-              campaignId={campaignId}
-            />
-          </div>
-        )}
+        {/* Ownership History Section */}
+        <div className="space-y-3 border-t pt-4">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            Ownership History
+          </h3>
+          <OwnershipTimeline
+            entries={ownershipHistory}
+            currentOwner={currentOwner}
+            campaignId={campaignId}
+            editable={isEditing}
+            control={isEditing ? form.control : undefined}
+            npcs={npcs}
+            playerCharacters={playerCharacters}
+            factions={factions}
+            locations={locations}
+          />
+        </div>
 
         {/* Backlinks section would go here (future enhancement) */}
       </div>

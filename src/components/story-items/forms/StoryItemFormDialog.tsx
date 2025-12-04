@@ -32,18 +32,9 @@ import { RichTextEditor } from '@/components/shared/RichTextEditor';
 import { ImageUpload } from '@/components/shared/ImageUpload';
 import { createStoryItemSchema, type StoryItemFormData } from '@/lib/schemas/story-items';
 
-interface Owner {
-  id: string;
-  name: string;
-}
-
 interface StoryItemFormDialogProps {
   isOpen: boolean;
   campaignId: string;
-  npcs: Owner[];
-  playerCharacters: Owner[];
-  factions: Owner[];
-  locations: Owner[];
   onClose: () => void;
   onSubmit: (data: StoryItemFormData) => Promise<void>;
 }
@@ -51,10 +42,6 @@ interface StoryItemFormDialogProps {
 export function StoryItemFormDialog({
   isOpen,
   campaignId,
-  npcs,
-  playerCharacters,
-  factions,
-  locations,
   onClose,
   onSubmit,
 }: StoryItemFormDialogProps) {
@@ -64,31 +51,8 @@ export function StoryItemFormDialog({
       name: '',
       description_json: null,
       image_url: null,
-      current_owner_type: null,
-      current_owner_id: null,
     },
   });
-
-  const watchOwnerType = form.watch('current_owner_type');
-
-  // Get owner options based on selected type
-  const getOwnerOptions = () => {
-    switch (watchOwnerType) {
-      case 'npc':
-        return npcs;
-      case 'player_character':
-        return playerCharacters;
-      case 'faction':
-        return factions;
-      case 'location':
-        return locations;
-      default:
-        return [];
-    }
-  };
-
-  const ownerOptions = getOwnerOptions();
-  const showOwnerSelect = watchOwnerType && watchOwnerType !== 'unknown';
 
   // Reset form when dialog opens/closes
   useEffect(() => {
@@ -171,75 +135,6 @@ export function StoryItemFormDialog({
                 </FormItem>
               )}
             />
-
-            {/* Owner Type */}
-            <FormField
-              control={form.control}
-              name="current_owner_type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Current Owner Type</FormLabel>
-                  <Select
-                    onValueChange={(value) => {
-                      if (value === 'none') {
-                        field.onChange(null);
-                        form.setValue('current_owner_id', null);
-                      } else {
-                        field.onChange(value);
-                        form.setValue('current_owner_id', null); // Reset owner ID
-                      }
-                    }}
-                    defaultValue={field.value || 'none'}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select owner type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="none">No Owner</SelectItem>
-                      <SelectItem value="npc">NPC</SelectItem>
-                      <SelectItem value="player_character">Player Character</SelectItem>
-                      <SelectItem value="faction">Faction</SelectItem>
-                      <SelectItem value="location">Location</SelectItem>
-                      <SelectItem value="unknown">Unknown</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Owner ID (conditional) */}
-            {showOwnerSelect && (
-              <FormField
-                control={form.control}
-                name="current_owner_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Specific Owner *</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value || ''}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select owner" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {ownerOptions.map((owner) => (
-                          <SelectItem key={owner.id} value={owner.id}>
-                            {owner.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
 
             <DialogFooter>
               <Button
