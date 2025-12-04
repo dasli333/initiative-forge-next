@@ -21,6 +21,7 @@ export interface OwnershipHistoryEntry {
 export interface StoryItemDTO extends Omit<StoryItem, 'description_json' | 'ownership_history_json'> {
   description_json: JSONContent | null;
   ownership_history_json: OwnershipHistoryEntry[] | null;
+  current_owner_name?: string | null; // Enriched from owner table based on current_owner_type/id
 }
 
 export interface CreateStoryItemCommand {

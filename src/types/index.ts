@@ -3,12 +3,25 @@
 
 import type { Tables, TablesInsert, TablesUpdate } from "@/types/database";
 import type { MonsterAction, MonsterTrait, LegendaryActions } from "@/lib/schemas/monster.schema";
+import type { CampaignViewModel as CampaignViewModelType } from '@/types/campaigns';
+
+// ============================================================================
+// RE-EXPORTS FROM ENTITY-SPECIFIC TYPE FILES
+// ============================================================================
+
+// Re-export Campaign types
+export type {
+  Campaign,
+  CampaignDTO,
+  CreateCampaignCommand,
+  UpdateCampaignCommand,
+  CampaignViewModel,
+} from '@/types/campaigns';
 
 // ============================================================================
 // ENTITY TYPES (Direct mappings from database tables)
 // ============================================================================
 
-export type Campaign = Tables<"campaigns">;
 export type PlayerCharacter = Tables<"player_characters">;
 export type Monster = Tables<"monsters">;
 export type Spell = Tables<"spells">;
@@ -72,38 +85,6 @@ export interface PaginationMetadataDTO {
   limit: number;
   offset: number;
 }
-
-// ============================================================================
-// CAMPAIGN DTOs
-// ============================================================================
-
-/**
- * Campaign DTO (used in GET, POST, PATCH responses)
- */
-export type CampaignDTO = Campaign;
-
-/**
- * List campaigns response with pagination
- */
-export interface ListCampaignsResponseDTO extends PaginationMetadataDTO {
-  campaigns: CampaignDTO[];
-}
-
-// ============================================================================
-// CAMPAIGN COMMAND MODELS
-// ============================================================================
-
-/**
- * Create campaign command (POST /api/campaigns)
- * Only name is required - user_id is added server-side from auth context
- */
-export type CreateCampaignCommand = Pick<TablesInsert<"campaigns">, "name">;
-
-/**
- * Update campaign command (PATCH /api/campaigns/:id)
- * Only name can be updated
- */
-export type UpdateCampaignCommand = Pick<TablesUpdate<"campaigns">, "name">;
 
 // ============================================================================
 // PLAYER CHARACTER DTOs
@@ -454,7 +435,7 @@ export interface ActiveCombatViewModel {
 export interface SidebarViewModel {
   user: UserViewModel | null;
   selectedCampaignId: string | null;
-  campaigns: Campaign[];
+  campaigns: CampaignViewModelType[];
   activeCombat: ActiveCombatViewModel | null;
   currentPath: string;
   isLoadingCampaigns: boolean;

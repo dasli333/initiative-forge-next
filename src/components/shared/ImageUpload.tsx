@@ -6,9 +6,9 @@ import { Upload, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import { uploadLocationImage, deleteLocationImage, uploadNPCImage, deleteNPCImage, uploadPlayerCharacterImage, deletePlayerCharacterImage, uploadFactionImage, deleteFactionImage } from '@/lib/api/storage';
+import { uploadLocationImage, deleteLocationImage, uploadNPCImage, deleteNPCImage, uploadPlayerCharacterImage, deletePlayerCharacterImage, uploadFactionImage, deleteFactionImage, uploadStoryItemImage, deleteStoryItemImage } from '@/lib/api/storage';
 
-type EntityType = 'location' | 'npc' | 'player_character' | 'faction';
+type EntityType = 'location' | 'npc' | 'player_character' | 'faction' | 'story_item';
 
 interface ImageUploadProps {
   value?: string | null;
@@ -96,6 +96,8 @@ export function ImageUpload({
           imageUrl = await uploadPlayerCharacterImage(campaignId, file);
         } else if (entityType === 'faction') {
           imageUrl = await uploadFactionImage(campaignId, file);
+        } else if (entityType === 'story_item') {
+          imageUrl = await uploadStoryItemImage(campaignId, file);
         } else {
           imageUrl = await uploadLocationImage(campaignId, file);
         }
@@ -172,6 +174,8 @@ export function ImageUpload({
           await deletePlayerCharacterImage(currentUrl);
         } else if (entityType === 'faction') {
           await deleteFactionImage(currentUrl);
+        } else if (entityType === 'story_item') {
+          await deleteStoryItemImage(currentUrl);
         } else {
           await deleteLocationImage(currentUrl);
         }

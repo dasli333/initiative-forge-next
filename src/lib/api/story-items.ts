@@ -1,6 +1,51 @@
 import { getSupabaseClient } from '@/lib/supabase';
 import type { StoryItemDTO, CreateStoryItemCommand, UpdateStoryItemCommand, StoryItemFilters } from '@/types/story-items';
 import type { Json } from '@/types/database';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { extractMentionsFromJson } from '@/lib/utils/mentionUtils';
+import { batchCreateEntityMentions, deleteMentionsBySource } from '@/lib/api/entity-mentions';
+
+/**
+ * Resolve owner name based on polymorphic owner type and ID
+ */
+async function resolveOwnerName(
+  supabase: SupabaseClient,
+  ownerType: string | null,
+  ownerId: string | null
+): Promise<string | null> {
+  if (!ownerType || !ownerId) return null;
+
+  try {
+    let tableName: string;
+    switch (ownerType) {
+      case 'npc':
+        tableName = 'npcs';
+        break;
+      case 'player_character':
+        tableName = 'player_characters';
+        break;
+      case 'faction':
+        tableName = 'factions';
+        break;
+      case 'location':
+        tableName = 'locations';
+        break;
+      default:
+        return null;
+    }
+
+    const { data, error } = await supabase
+      .from(tableName)
+      .select('name')
+      .eq('id', ownerId)
+      .single();
+
+    if (error || !data) return null;
+    return data.name;
+  } catch {
+    return null;
+  }
+}
 
 export async function getStoryItems(
   campaignId: string,
@@ -29,7 +74,22 @@ export async function getStoryItems(
     throw new Error(error.message);
   }
 
-  return data as unknown as StoryItemDTO[];
+  // Enrich with owner names
+  const enrichedData = await Promise.all(
+    data.map(async (item) => {
+      const ownerName = await resolveOwnerName(
+        supabase,
+        item.current_owner_type,
+        item.current_owner_id
+      );
+      return {
+        ...(item as unknown as StoryItemDTO),
+        current_owner_name: ownerName,
+      };
+    })
+  );
+
+  return enrichedData;
 }
 
 export async function getStoryItem(storyItemId: string): Promise<StoryItemDTO> {
@@ -49,7 +109,17 @@ export async function getStoryItem(storyItemId: string): Promise<StoryItemDTO> {
     throw new Error(error.message);
   }
 
-  return data as unknown as StoryItemDTO;
+  // Enrich with owner name
+  const ownerName = await resolveOwnerName(
+    supabase,
+    data.current_owner_type,
+    data.current_owner_id
+  );
+
+  return {
+    ...(data as unknown as StoryItemDTO),
+    current_owner_name: ownerName,
+  };
 }
 
 export async function createStoryItem(
@@ -92,7 +162,31 @@ export async function createStoryItem(
     throw new Error(error.message);
   }
 
-  return data as unknown as StoryItemDTO;
+  const storyItem = data as unknown as StoryItemDTO;
+
+  // Sync mentions from description_json (non-blocking)
+  if (command.description_json) {
+    try {
+      const mentions = extractMentionsFromJson(command.description_json);
+      if (mentions.length > 0) {
+        await batchCreateEntityMentions(
+          campaignId,
+          mentions.map((m) => ({
+            source_type: 'story_item',
+            source_id: storyItem.id,
+            source_field: 'description_json',
+            mentioned_type: m.entityType,
+            mentioned_id: m.id,
+          }))
+        );
+      }
+    } catch (mentionError) {
+      console.error('Failed to sync mentions on create:', mentionError);
+      // Don't fail the creation if mention sync fails
+    }
+  }
+
+  return storyItem;
 }
 
 export async function updateStoryItem(
@@ -164,7 +258,35 @@ export async function updateStoryItem(
     throw new Error(error.message);
   }
 
-  return data as unknown as StoryItemDTO;
+  const storyItem = data as unknown as StoryItemDTO;
+
+  // Sync mentions if description_json was updated (non-blocking)
+  if (command.description_json !== undefined) {
+    try {
+      // Delete old mentions for this field
+      await deleteMentionsBySource('story_item', storyItemId, 'description_json');
+
+      // Extract and create new mentions
+      const mentions = extractMentionsFromJson(command.description_json);
+      if (mentions.length > 0) {
+        await batchCreateEntityMentions(
+          storyItem.campaign_id,
+          mentions.map((m) => ({
+            source_type: 'story_item',
+            source_id: storyItemId,
+            source_field: 'description_json',
+            mentioned_type: m.entityType,
+            mentioned_id: m.id,
+          }))
+        );
+      }
+    } catch (mentionError) {
+      console.error('Failed to sync mentions on update:', mentionError);
+      // Don't fail the update if mention sync fails
+    }
+  }
+
+  return storyItem;
 }
 
 export async function deleteStoryItem(storyItemId: string): Promise<void> {

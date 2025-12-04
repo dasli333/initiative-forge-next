@@ -10,7 +10,7 @@ import {
   BookText,
   Shield,
   BookOpen,
-  Package,
+  Sparkles,
   Clock
 } from 'lucide-react';
 import { NavItem } from './NavItem';
@@ -34,6 +34,7 @@ export function CampaignNav({ selectedCampaignId, currentPath }: CampaignNavProp
   const storyArcsHref = `/campaigns/${selectedCampaignId}/story-arcs`;
   const factionsHref = `/campaigns/${selectedCampaignId}/factions`;
   const loreNotesHref = `/campaigns/${selectedCampaignId}/lore-notes`;
+  const storyItemsHref = `/campaigns/${selectedCampaignId}/story-items`;
 
   return (
     <div className="mt-6 space-y-1" data-testid="campaign-nav">
@@ -100,12 +101,10 @@ export function CampaignNav({ selectedCampaignId, currentPath }: CampaignNavProp
           isActive={currentPath === loreNotesHref || currentPath.startsWith(loreNotesHref + '/')}
         />
         <NavItem
-          icon={Package}
+          icon={Sparkles}
           label="Story Items"
-          href="#"
-          isActive={false}
-          isDisabled
-          badge={{ text: 'Soon', variant: 'default' }}
+          href={storyItemsHref}
+          isActive={currentPath === storyItemsHref || currentPath.startsWith(storyItemsHref + '/')}
         />
         <NavItem
           icon={Clock}
