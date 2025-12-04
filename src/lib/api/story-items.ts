@@ -116,9 +116,29 @@ export async function getStoryItem(storyItemId: string): Promise<StoryItemDTO> {
     data.current_owner_id
   );
 
+  // Enrich ownership history with owner names
+  let enrichedHistory = data.ownership_history_json;
+  if (enrichedHistory && Array.isArray(enrichedHistory)) {
+    enrichedHistory = await Promise.all(
+      enrichedHistory.map(async (entry: unknown) => {
+        const historyEntry = entry as { owner_type: string; owner_id: string; owner_name?: string };
+        const resolvedName = await resolveOwnerName(
+          supabase,
+          historyEntry.owner_type,
+          historyEntry.owner_id
+        );
+        return {
+          ...historyEntry,
+          owner_name: resolvedName || historyEntry.owner_name || undefined,
+        };
+      })
+    );
+  }
+
   return {
     ...(data as unknown as StoryItemDTO),
     current_owner_name: ownerName,
+    ownership_history_json: enrichedHistory as unknown as StoryItemDTO['ownership_history_json'],
   };
 }
 
