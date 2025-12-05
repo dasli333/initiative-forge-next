@@ -6,8 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useCampaignStore } from '@/stores/campaignStore';
 import { getCampaigns, getCampaign, createCampaign, updateCampaign, deleteCampaign } from '@/lib/api/campaigns';
 import { transformToCampaignViewModels } from '@/lib/utils/campaignTransformers';
-import type { Campaign } from '@/types';
-import type { CampaignViewModel } from '@/types/campaigns';
+import type { CampaignDTO, CampaignViewModel } from '@/types/campaigns';
 
 /**
  * React Query hook for fetching a single campaign by ID
@@ -17,7 +16,7 @@ export function useCampaignQuery(campaignId: string) {
 
   return useQuery({
     queryKey: ['campaign', campaignId],
-    queryFn: async (): Promise<Campaign> => {
+    queryFn: async (): Promise<CampaignDTO> => {
       try {
         return await getCampaign(campaignId);
       } catch (error) {
@@ -64,7 +63,7 @@ export function useCreateCampaignMutation() {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async (name: string): Promise<Campaign> => {
+    mutationFn: async (name: string): Promise<CampaignDTO> => {
       const trimmedName = name.trim();
 
       if (!trimmedName) {
@@ -141,7 +140,7 @@ export function useUpdateCampaignMutation() {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async ({ id, name }: { id: string; name: string }): Promise<Campaign> => {
+    mutationFn: async ({ id, name }: { id: string; name: string }): Promise<CampaignDTO> => {
       const trimmedName = name.trim();
 
       if (!trimmedName) {
@@ -165,7 +164,7 @@ export function useUpdateCampaignMutation() {
 
       // Snapshot the previous values
       const previousCampaigns = queryClient.getQueryData<CampaignViewModel[]>(['campaigns']);
-      const previousCampaign = queryClient.getQueryData<Campaign>(['campaign', id]);
+      const previousCampaign = queryClient.getQueryData<CampaignDTO>(['campaign', id]);
 
       // Optimistically update the campaigns list
       if (previousCampaigns) {
@@ -177,7 +176,7 @@ export function useUpdateCampaignMutation() {
 
       // Optimistically update the individual campaign
       if (previousCampaign) {
-        queryClient.setQueryData<Campaign>(['campaign', id], {
+        queryClient.setQueryData<CampaignDTO>(['campaign', id], {
           ...previousCampaign,
           name: name.trim(),
         });

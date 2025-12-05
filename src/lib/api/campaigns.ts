@@ -1,11 +1,19 @@
 import { getSupabaseClient } from '@/lib/supabase';
-import type { Campaign, CreateCampaignCommand, UpdateCampaignCommand } from '@/types';
+import type { Campaign, CampaignDTO, CreateCampaignCommand, UpdateCampaignCommand } from '@/types/campaigns';
+
+/**
+ * Convert raw Campaign to CampaignDTO
+ * Currently passthrough, but prepared for Json field transformation
+ */
+function toCampaignDTO(campaign: Campaign): CampaignDTO {
+  return campaign as CampaignDTO;
+}
 
 /**
  * Get all campaigns for the authenticated user
  * Sorted by created_at descending (newest first)
  */
-export async function getCampaigns(): Promise<Campaign[]> {
+export async function getCampaigns(): Promise<CampaignDTO[]> {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
@@ -18,14 +26,14 @@ export async function getCampaigns(): Promise<Campaign[]> {
     throw new Error(error.message);
   }
 
-  return data;
+  return data.map(toCampaignDTO);
 }
 
 /**
  * Get a single campaign by ID
  * RLS will ensure user can only access their own campaigns
  */
-export async function getCampaign(campaignId: string): Promise<Campaign> {
+export async function getCampaign(campaignId: string): Promise<CampaignDTO> {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
@@ -42,14 +50,14 @@ export async function getCampaign(campaignId: string): Promise<Campaign> {
     throw new Error(error.message);
   }
 
-  return data;
+  return toCampaignDTO(data);
 }
 
 /**
  * Create a new campaign
  * user_id is automatically set by RLS
  */
-export async function createCampaign(command: CreateCampaignCommand): Promise<Campaign> {
+export async function createCampaign(command: CreateCampaignCommand): Promise<CampaignDTO> {
   const supabase = getSupabaseClient();
 
   // Get current user
@@ -75,7 +83,7 @@ export async function createCampaign(command: CreateCampaignCommand): Promise<Ca
     throw new Error(error.message);
   }
 
-  return data;
+  return toCampaignDTO(data);
 }
 
 /**
@@ -85,7 +93,7 @@ export async function createCampaign(command: CreateCampaignCommand): Promise<Ca
 export async function updateCampaign(
   campaignId: string,
   command: UpdateCampaignCommand
-): Promise<Campaign> {
+): Promise<CampaignDTO> {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
@@ -106,7 +114,7 @@ export async function updateCampaign(
     throw new Error(error.message);
   }
 
-  return data;
+  return toCampaignDTO(data);
 }
 
 /**

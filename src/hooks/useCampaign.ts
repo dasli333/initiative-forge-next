@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { getCampaign } from '@/lib/api/campaigns';
 import { getCharacterCards } from '@/lib/api/characters';
-import type { Campaign } from '@/types';
+import type { CampaignDTO } from '@/types/campaigns';
 import type { PlayerCharacterCardViewModel } from '@/types/player-characters';
 
 /**
@@ -21,7 +21,7 @@ export function useCampaignQuery(
 
   return useQuery({
     queryKey: ['campaign', campaignId],
-    queryFn: async (): Promise<Campaign> => {
+    queryFn: async (): Promise<CampaignDTO> => {
       if (!campaignId) {
         throw new Error('Campaign ID is required');
       }

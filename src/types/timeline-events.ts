@@ -1,30 +1,26 @@
-import type { Tables } from '@/types/database';
-import type { JSONContent } from '@tiptap/react';
+import { Tables } from '@/types/database';
+import { JSONContent } from '@tiptap/react';
 
 export type TimelineEvent = Tables<'timeline_events'>;
 
-/**
- * Related entity reference structure
- */
-export interface RelatedEntity {
-  entity_type: string;
-  entity_id: string;
-}
-
-/**
- * Timeline Event DTO with typed Json fields
- */
-export interface TimelineEventDTO extends Omit<TimelineEvent, 'description_json' | 'related_entities_json'> {
+export interface TimelineEventDTO {
+  id: string;
+  campaign_id: string;
+  title: string;
   description_json: JSONContent | null;
-  related_entities_json: RelatedEntity[] | null;
+  event_date: string;
+  sort_date: string;
+  source_type: string | null;
+  source_id: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface CreateTimelineEventCommand {
   title: string;
   description_json?: JSONContent | null;
-  event_date: string; // In-game fantasy calendar
-  real_date?: string | null; // YYYY-MM-DD
-  related_entities_json?: RelatedEntity[] | null;
+  event_date: string; // In-game fantasy calendar (display)
+  sort_date: string; // YYYY-MM-DD (for sorting)
   source_type?: string | null;
   source_id?: string | null;
 }
@@ -33,8 +29,7 @@ export interface UpdateTimelineEventCommand {
   title?: string;
   description_json?: JSONContent | null;
   event_date?: string;
-  real_date?: string | null;
-  related_entities_json?: RelatedEntity[] | null;
+  sort_date?: string;
   source_type?: string | null;
   source_id?: string | null;
 }

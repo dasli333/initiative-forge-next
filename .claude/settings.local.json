@@ -7,7 +7,8 @@
       "Bash(ls:*)",
       "WebSearch",
       "Bash(npx playwright test:*)",
-      "Bash(git grep:*)"
+      "Bash(git grep:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []

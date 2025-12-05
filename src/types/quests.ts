@@ -112,17 +112,7 @@ export interface QuestCardViewModel {
  * Quest details view model for detail panel
  */
 export interface QuestDetailsViewModel extends QuestCardViewModel {
-  relatedEntities: RelatedEntity[];
   backlinks: BacklinkItem[];
-}
-
-/**
- * Related entity extracted from @mentions
- */
-export interface RelatedEntity {
-  id: string;
-  name: string;
-  entityType: 'npc' | 'location' | 'faction' | 'story_item' | 'story_arc';
 }
 
 /**

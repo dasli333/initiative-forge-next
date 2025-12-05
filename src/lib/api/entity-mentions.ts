@@ -120,6 +120,7 @@ export async function enrichMentionsWithNames(
       story_item: { table: 'story_items', nameField: 'name' },
       faction: { table: 'factions', nameField: 'name' },
       lore_note: { table: 'lore_notes', nameField: 'title' },
+      timeline_event: { table: 'timeline_events', nameField: 'title' },
     };
 
     const config = typeConfig[sourceType];

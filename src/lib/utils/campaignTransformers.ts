@@ -1,25 +1,24 @@
-import type { Campaign } from '@/types';
-import type { CampaignViewModel } from '@/types/campaigns';
+import type { CampaignDTO, CampaignViewModel } from '@/types/campaigns';
 
 /**
- * Transforms a Campaign to CampaignViewModel
+ * Transforms a CampaignDTO to CampaignViewModel
  *
  * Currently a passthrough, but provides centralized transformation point
  * for future extensions (e.g., computed fields, formatting)
  *
- * @param campaign - The campaign from database
+ * @param campaign - The campaign DTO from API
  * @returns CampaignViewModel
  */
-export function transformToCampaignViewModel(campaign: Campaign): CampaignViewModel {
+export function transformToCampaignViewModel(campaign: CampaignDTO): CampaignViewModel {
   return campaign;
 }
 
 /**
- * Transforms an array of Campaigns to CampaignViewModels
+ * Transforms an array of CampaignDTOs to CampaignViewModels
  *
- * @param campaigns - Array of campaigns from database
+ * @param campaigns - Array of campaign DTOs from API
  * @returns Array of CampaignViewModels
  */
-export function transformToCampaignViewModels(campaigns: Campaign[]): CampaignViewModel[] {
+export function transformToCampaignViewModels(campaigns: CampaignDTO[]): CampaignViewModel[] {
   return campaigns.map(transformToCampaignViewModel);
 }
