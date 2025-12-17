@@ -11,13 +11,8 @@ import { useInfiniteEquipment } from '@/components/hooks/useInfiniteEquipment';
 import { useLanguageStore } from '@/stores/languageStore';
 import { FileSearch } from 'lucide-react';
 
-/**
- * Get primary category from equipment categories
- */
-function getPrimaryCategory(categories: Array<{ id: string; name: string }>): string {
-  if (!categories || categories.length === 0) return 'Item';
-  return categories[0].name;
-}
+import { resolveCategoryInfo } from '@/lib/constants/equipment';
+import { cn } from '@/lib/utils';
 
 /**
  * Format cost for display
@@ -138,9 +133,15 @@ export function EquipmentLibraryView() {
                   <p className="text-sm text-muted-foreground italic mb-3">{selectedEquipment.data.name.en}</p>
                 )}
               <div className="flex flex-wrap gap-2 mt-3">
-                <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1 text-sm shadow-sm">
-                  {getPrimaryCategory(selectedEquipment.data.equipment_categories)}
-                </Badge>
+                {(() => {
+                  const { label, groupIcon: CategoryIcon, color } = resolveCategoryInfo(selectedEquipment.data.equipment_categories);
+                  return (
+                    <Badge className={cn("flex items-center gap-1.5 px-3 py-1 text-sm shadow-sm border", color)}>
+                      <CategoryIcon className="h-4 w-4" />
+                      {label}
+                    </Badge>
+                  );
+                })()}
                 {formatCost(selectedEquipment.data.cost) && (
                   <Badge variant="secondary" className="px-3 py-1 text-sm">
                     {formatCost(selectedEquipment.data.cost)}

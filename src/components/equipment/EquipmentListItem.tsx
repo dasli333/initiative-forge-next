@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import type { EquipmentDTO } from '@/types';
 import { cn } from '@/lib/utils';
 import { useLanguageStore } from '@/stores/languageStore';
+import { resolveCategoryInfo } from '@/lib/constants/equipment';
 
 interface EquipmentListItemProps {
   /** Equipment data to display */
@@ -31,15 +32,6 @@ function formatWeight(weight?: number): string | null {
 }
 
 /**
- * Get primary category from equipment categories
- */
-function getPrimaryCategory(categories: Array<{ id: string; name: string }>): string {
-  if (!categories || categories.length === 0) return 'Item';
-  // Return the first category's name
-  return categories[0].name;
-}
-
-/**
  * Compact list item component for displaying a single equipment item
  * Shows name, primary category badge, cost, and weight
  */
@@ -49,7 +41,7 @@ export function EquipmentListItem({ equipment, isSelected, onClick }: EquipmentL
   // Get selected language from store
   const selectedLanguage = useLanguageStore((state) => state.selectedLanguage);
   const displayName = data.name[selectedLanguage];
-  const primaryCategory = getPrimaryCategory(data.equipment_categories);
+  const { label: categoryLabel, groupIcon: CategoryIcon, color: categoryColor } = resolveCategoryInfo(data.equipment_categories);
   const cost = formatCost(data.cost);
   const weight = formatWeight(data.weight);
 
@@ -80,8 +72,9 @@ export function EquipmentListItem({ equipment, isSelected, onClick }: EquipmentL
       <div className="flex flex-col gap-1">
         <h3 className="text-sm font-medium truncate">{displayName}</h3>
         <div className="flex items-center gap-1 flex-wrap">
-          <Badge className="bg-emerald-500 hover:bg-emerald-600 flex-shrink-0 text-xs shadow-sm">
-            {primaryCategory}
+          <Badge className={cn("flex items-center gap-1 text-xs shadow-sm border", categoryColor)}>
+            <CategoryIcon className="h-3 w-3" />
+            {categoryLabel}
           </Badge>
           {cost && <span className="text-xs bg-muted/40 px-1.5 py-0.5 rounded">{cost}</span>}
           {weight && <span className="text-xs bg-muted/40 px-1.5 py-0.5 rounded">{weight}</span>}
