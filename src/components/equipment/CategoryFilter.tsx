@@ -1,34 +1,58 @@
 'use client';
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 
 /**
- * Equipment categories based on D&D 5e SRD
- * Flat list as per design decision
+ * Equipment categories grouped by type
  */
-const EQUIPMENT_CATEGORIES = [
-  // Weapons
-  { id: 'simple-melee-weapons', label: 'Simple Melee Weapons' },
-  { id: 'simple-ranged-weapons', label: 'Simple Ranged Weapons' },
-  { id: 'martial-melee-weapons', label: 'Martial Melee Weapons' },
-  { id: 'martial-ranged-weapons', label: 'Martial Ranged Weapons' },
-  // Armor
-  { id: 'light-armor', label: 'Light Armor' },
-  { id: 'medium-armor', label: 'Medium Armor' },
-  { id: 'heavy-armor', label: 'Heavy Armor' },
-  { id: 'shields', label: 'Shields' },
-  // Tools
-  { id: 'artisans-tools', label: "Artisan's Tools" },
-  { id: 'gaming-sets', label: 'Gaming Sets' },
-  { id: 'musical-instruments', label: 'Musical Instruments' },
-  { id: 'kits', label: 'Kits' },
-  // Other
-  { id: 'adventuring-gear', label: 'Adventuring Gear' },
-  { id: 'ammunition', label: 'Ammunition' },
-  { id: 'equipment-packs', label: 'Equipment Packs' },
-  { id: 'mounts-and-vehicles', label: 'Mounts and Vehicles' },
-  { id: 'tack-harness-and-drawn-vehicles', label: 'Tack, Harness, and Drawn Vehicles' },
+const EQUIPMENT_GROUPS = [
+  {
+    label: 'Weapons',
+    items: [
+      { id: 'weapons', label: 'All Weapons' },
+      { id: 'simple-melee-weapons', label: 'Simple Melee Weapons' },
+      { id: 'simple-ranged-weapons', label: 'Simple Ranged Weapons' },
+      { id: 'martial-melee-weapons', label: 'Martial Melee Weapons' },
+      { id: 'martial-ranged-weapons', label: 'Martial Ranged Weapons' },
+    ],
+  },
+  {
+    label: 'Armor',
+    items: [
+      { id: 'armor', label: 'All Armor' },
+      { id: 'light-armor', label: 'Light Armor' },
+      { id: 'medium-armor', label: 'Medium Armor' },
+      { id: 'heavy-armor', label: 'Heavy Armor' },
+      { id: 'shields', label: 'Shields' },
+    ],
+  },
+  {
+    label: 'Tools',
+    items: [
+      { id: 'tools', label: 'All Tools' },
+      { id: 'artisans-tools', label: "Artisan's Tools" },
+      { id: 'gaming-sets', label: 'Gaming Sets' },
+      { id: 'musical-instruments', label: 'Musical Instruments' },
+      { id: 'kits', label: 'Kits' },
+    ],
+  },
+  {
+    label: 'Other',
+    items: [
+      { id: 'adventuring-gear', label: 'Adventuring Gear' },
+      { id: 'ammunition', label: 'Ammunition' },
+      { id: 'equipment-packs', label: 'Equipment Packs' },
+    ],
+  },
 ] as const;
 
 interface CategoryFilterProps {
@@ -40,7 +64,7 @@ interface CategoryFilterProps {
 
 /**
  * Dropdown filter for equipment categories
- * Uses flat list of all D&D 5e equipment categories
+ * Uses grouped list of D&D 5e equipment categories
  */
 export function CategoryFilter({ value, onChange }: CategoryFilterProps) {
   const handleValueChange = (newValue: string) => {
@@ -58,10 +82,15 @@ export function CategoryFilter({ value, onChange }: CategoryFilterProps) {
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Categories</SelectItem>
-          {EQUIPMENT_CATEGORIES.map((category) => (
-            <SelectItem key={category.id} value={category.id}>
-              {category.label}
-            </SelectItem>
+          {EQUIPMENT_GROUPS.map((group) => (
+            <SelectGroup key={group.label}>
+              <SelectLabel>{group.label}</SelectLabel>
+              {group.items.map((category) => (
+                <SelectItem key={category.id} value={category.id}>
+                  {category.label}
+                </SelectItem>
+              ))}
+            </SelectGroup>
           ))}
         </SelectContent>
       </Select>

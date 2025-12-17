@@ -53,8 +53,10 @@ export function useInfiniteEquipment(params: UseInfiniteEquipmentParams) {
           );
         }
         if (params.category) {
+
           // Filter by category using JSONB contains operator
-          query = query.contains('data->equipment_categories', [{ id: params.category }]);
+          // Search within the data column for the nested structure
+          query = query.contains('data', { equipment_categories: [{ id: params.category }] });
         }
 
         // Apply pagination

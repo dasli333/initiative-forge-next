@@ -40,7 +40,7 @@ export async function getEquipment(params: FetchEquipmentParams = {}): Promise<L
   if (category && category.trim()) {
     // Filter by category using JSONB contains operator
     // Check if any item in equipment_categories array has matching id
-    queryBuilder = queryBuilder.contains('data->equipment_categories', [{ id: category.trim() }]);
+    queryBuilder = queryBuilder.contains('data', { equipment_categories: [{ id: category.trim() }] });
   }
 
   // Apply pagination and execute query
@@ -93,7 +93,7 @@ export async function getEquipmentByCategory(category: string): Promise<Equipmen
   const { data, error } = await supabase
     .from('equipment')
     .select('*')
-    .contains('data->equipment_categories', [{ id: category }])
+    .contains('data', { equipment_categories: [{ id: category }] })
     .order('name', { ascending: true });
 
   if (error) {
