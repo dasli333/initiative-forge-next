@@ -1,6 +1,6 @@
 'use client';
 
-import { Folder, BookOpen, Sparkles } from 'lucide-react';
+import { Folder, BookOpen, Sparkles, Swords } from 'lucide-react';
 import { NavItem } from './NavItem';
 
 interface GlobalNavProps {
@@ -24,6 +24,12 @@ export function GlobalNav({ currentPath }: GlobalNavProps) {
           label="Spells Library"
           href="/spells"
           isActive={currentPath === '/spells' || currentPath.startsWith('/spells/')}
+        />
+        <NavItem
+          icon={Swords}
+          label="Equipment Library"
+          href="/equipment"
+          isActive={currentPath === '/equipment' || currentPath.startsWith('/equipment/')}
         />
       </ul>
     </div>
