@@ -289,6 +289,34 @@ export interface ListConditionsResponseDTO {
 }
 
 // ============================================================================
+// EQUIPMENT DTOs
+// ============================================================================
+
+export type {
+  EquipmentDataDTO,
+  EquipmentDTO,
+  ListEquipmentResponseDTO,
+} from '@/types/equipment';
+
+// ============================================================================
+// WEAPON PROPERTY DTOs
+// ============================================================================
+
+export type {
+  WeaponPropertyDTO,
+  ListWeaponPropertiesResponseDTO,
+} from '@/types/weapon-properties';
+
+// ============================================================================
+// WEAPON MASTERY PROPERTY DTOs
+// ============================================================================
+
+export type {
+  WeaponMasteryPropertyDTO,
+  ListWeaponMasteryPropertiesResponseDTO,
+} from '@/types/weapon-mastery-properties';
+
+// ============================================================================
 // COMBAT DTOs
 // ============================================================================
 

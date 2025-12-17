@@ -158,6 +158,27 @@ export type Database = {
           },
         ]
       }
+      equipment: {
+        Row: {
+          created_at: string
+          data: Json
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          data: Json
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       faction_relationships: {
         Row: {
           created_at: string
@@ -1154,6 +1175,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      weapon_mastery_properties: {
+        Row: {
+          description: string
+          id: string
+          name: Json
+        }
+        Insert: {
+          description: string
+          id: string
+          name: Json
+        }
+        Update: {
+          description?: string
+          id?: string
+          name?: Json
+        }
+        Relationships: []
+      }
+      weapon_properties: {
+        Row: {
+          description: string
+          id: string
+          name: Json
+        }
+        Insert: {
+          description: string
+          id: string
+          name: Json
+        }
+        Update: {
+          description?: string
+          id?: string
+          name?: Json
+        }
+        Relationships: []
       }
     }
     Views: {
