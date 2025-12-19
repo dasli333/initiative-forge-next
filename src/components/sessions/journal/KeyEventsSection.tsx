@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Plus, Trash2, Star } from 'lucide-react';
 import type { KeyEvent } from '@/types/sessions';
+import { SectionCard } from '../shared/SectionCard';
 
 interface KeyEventsSectionProps {
   keyEvents: KeyEvent[];
@@ -48,14 +48,10 @@ export function KeyEventsSection({ keyEvents, isEditing, onChange }: KeyEventsSe
   };
 
   return (
-    <section className="space-y-3">
-      <div>
-        <Label className="text-base font-semibold">Key Events</Label>
-        <p className="text-xs text-muted-foreground">
-          Important moments and turning points
-        </p>
-      </div>
-
+    <SectionCard
+      title="Key Events"
+      description="Important moments and turning points"
+    >
       {/* Events list */}
       <div className="space-y-2">
         {keyEvents.length === 0 && !isEditing && (
@@ -120,6 +116,6 @@ export function KeyEventsSection({ keyEvents, isEditing, onChange }: KeyEventsSe
           </Button>
         </div>
       )}
-    </section>
+    </SectionCard>
   );
 }

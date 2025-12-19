@@ -1,7 +1,7 @@
 'use client';
 
 import { RichTextEditor } from '@/components/shared/RichTextEditor';
-import { Label } from '@/components/ui/label';
+import { SectionCard } from '../shared/SectionCard';
 import type { JSONContent } from '@tiptap/react';
 
 interface NotesSectionProps {
@@ -13,11 +13,10 @@ interface NotesSectionProps {
 
 export function NotesSection({ notes, isEditing, onChange, campaignId }: NotesSectionProps) {
   return (
-    <section className="space-y-2">
-      <Label className="text-base font-semibold">Notes</Label>
-      <p className="text-xs text-muted-foreground">
-        Additional notes, reminders, and ideas for the session
-      </p>
+    <SectionCard
+      title="Notes"
+      description="Additional notes, reminders, and ideas for the session"
+    >
       <div className="min-h-[100px]">
         <RichTextEditor
           value={notes}
@@ -28,6 +27,6 @@ export function NotesSection({ notes, isEditing, onChange, campaignId }: NotesSe
           className={!isEditing ? 'border-transparent bg-transparent' : ''}
         />
       </div>
-    </section>
+    </SectionCard>
   );
 }

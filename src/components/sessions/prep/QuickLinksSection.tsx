@@ -3,18 +3,29 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Label } from '@/components/ui/label';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card';
 import { Input } from '@/components/ui/input';
-import { Plus, X, Search, MapPin, User, ScrollText, Landmark, BookOpen, Gem, Users, FileText } from 'lucide-react';
+import { Plus, X, Search, MapPin, User, ScrollText, BookOpen, Gem, Users, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { searchCampaignEntities, type EntitySearchResult } from '@/lib/api/entities';
 import type { PinnedEntity, PinnedEntityType } from '@/types/sessions';
+import {
+  useEntityPreview,
+  getEntityMetadata,
+  ENTITY_ROUTE_MAP,
+  type PreviewEntityType,
+} from '@/hooks/useEntityPreview';
+import { SectionCard } from '../shared/SectionCard';
 
 interface QuickLinksSectionProps {
   pinnedEntities: PinnedEntity[];
@@ -23,16 +34,94 @@ interface QuickLinksSectionProps {
   campaignId: string;
 }
 
-const entityTypeConfig: Record<PinnedEntityType, { icon: typeof MapPin; className: string }> = {
-  location: { icon: MapPin, className: 'bg-green-100 text-green-700 border-green-300' },
-  npc: { icon: User, className: 'bg-blue-100 text-blue-700 border-blue-300' },
-  player_character: { icon: User, className: 'bg-indigo-100 text-indigo-700 border-indigo-300' },
-  quest: { icon: ScrollText, className: 'bg-purple-100 text-purple-700 border-purple-300' },
-  story_arc: { icon: BookOpen, className: 'bg-amber-100 text-amber-700 border-amber-300' },
-  story_item: { icon: Gem, className: 'bg-pink-100 text-pink-700 border-pink-300' },
-  faction: { icon: Users, className: 'bg-orange-100 text-orange-700 border-orange-300' },
-  lore_note: { icon: FileText, className: 'bg-slate-100 text-slate-700 border-slate-300' },
+const entityTypeConfig: Record<PinnedEntityType, { icon: typeof MapPin; className: string; hoverClassName: string }> = {
+  location: { icon: MapPin, className: 'bg-green-100 text-green-700 border-green-300', hoverClassName: 'hover:bg-green-200' },
+  npc: { icon: User, className: 'bg-blue-100 text-blue-700 border-blue-300', hoverClassName: 'hover:bg-blue-200' },
+  player_character: { icon: User, className: 'bg-indigo-100 text-indigo-700 border-indigo-300', hoverClassName: 'hover:bg-indigo-200' },
+  quest: { icon: ScrollText, className: 'bg-purple-100 text-purple-700 border-purple-300', hoverClassName: 'hover:bg-purple-200' },
+  story_arc: { icon: BookOpen, className: 'bg-amber-100 text-amber-700 border-amber-300', hoverClassName: 'hover:bg-amber-200' },
+  story_item: { icon: Gem, className: 'bg-pink-100 text-pink-700 border-pink-300', hoverClassName: 'hover:bg-pink-200' },
+  faction: { icon: Users, className: 'bg-orange-100 text-orange-700 border-orange-300', hoverClassName: 'hover:bg-orange-200' },
+  lore_note: { icon: FileText, className: 'bg-slate-100 text-slate-700 border-slate-300', hoverClassName: 'hover:bg-slate-200' },
 };
+
+interface PinnedEntityBadgeProps {
+  entity: PinnedEntity;
+  campaignId: string;
+  isEditing: boolean;
+  onRemove: (id: string) => void;
+}
+
+function PinnedEntityBadge({ entity, campaignId, isEditing, onRemove }: PinnedEntityBadgeProps) {
+  const config = entityTypeConfig[entity.type];
+  const Icon = config.icon;
+  const { data: preview } = useEntityPreview(entity.type as PreviewEntityType, entity.id);
+  const metadata = getEntityMetadata(preview, entity.type as PreviewEntityType);
+
+  const handleClick = () => {
+    const route = ENTITY_ROUTE_MAP[entity.type as PreviewEntityType];
+    const url = `/campaigns/${campaignId}/${route}?selectedId=${entity.id}`;
+    window.open(url, '_blank');
+  };
+
+  const badgeContent = (
+    <Badge
+      variant="outline"
+      className={cn(
+        'flex items-center gap-1 px-2 py-1 cursor-pointer transition-colors',
+        config.className,
+        !isEditing && config.hoverClassName
+      )}
+      onClick={!isEditing ? handleClick : undefined}
+    >
+      <Icon className="h-3 w-3" />
+      <span>{entity.name}</span>
+      {isEditing && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove(entity.id);
+          }}
+          className="ml-1 hover:text-destructive"
+        >
+          <X className="h-3 w-3" />
+        </button>
+      )}
+    </Badge>
+  );
+
+  if (isEditing) {
+    return badgeContent;
+  }
+
+  return (
+    <HoverCard openDelay={300}>
+      <HoverCardTrigger asChild>
+        {badgeContent}
+      </HoverCardTrigger>
+      <HoverCardContent className="w-64">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <div className={cn('rounded-full p-2', config.className)}>
+              <Icon className="h-4 w-4" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h4 className="text-sm font-semibold truncate">{entity.name}</h4>
+              <p className="text-xs text-muted-foreground capitalize">
+                {entity.type.replace('_', ' ')}
+              </p>
+            </div>
+          </div>
+          {metadata && (
+            <p className="text-sm text-muted-foreground">{metadata}</p>
+          )}
+          <p className="text-xs text-muted-foreground italic">Click to open in new tab</p>
+        </div>
+      </HoverCardContent>
+    </HoverCard>
+  );
+}
 
 export function QuickLinksSection({
   pinnedEntities,
@@ -76,14 +165,10 @@ export function QuickLinksSection({
   };
 
   return (
-    <section className="space-y-3">
-      <div>
-        <Label className="text-base font-semibold">Quick Links</Label>
-        <p className="text-xs text-muted-foreground">
-          Pin entities for quick access during the session
-        </p>
-      </div>
-
+    <SectionCard
+      title="Quick Links"
+      description="Pin entities for quick access during the session"
+    >
       {/* Pinned entities */}
       <div className="flex flex-wrap gap-2">
         {pinnedEntities.length === 0 && !isEditing && (
@@ -92,30 +177,15 @@ export function QuickLinksSection({
           </p>
         )}
 
-        {pinnedEntities.map((entity) => {
-          const config = entityTypeConfig[entity.type];
-          const Icon = config.icon;
-
-          return (
-            <Badge
-              key={entity.id}
-              variant="outline"
-              className={cn('flex items-center gap-1 px-2 py-1', config.className)}
-            >
-              <Icon className="h-3 w-3" />
-              <span>{entity.name}</span>
-              {isEditing && (
-                <button
-                  type="button"
-                  onClick={() => handleRemoveEntity(entity.id)}
-                  className="ml-1 hover:text-destructive"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              )}
-            </Badge>
-          );
-        })}
+        {pinnedEntities.map((entity) => (
+          <PinnedEntityBadge
+            key={entity.id}
+            entity={entity}
+            campaignId={campaignId}
+            isEditing={isEditing}
+            onRemove={handleRemoveEntity}
+          />
+        ))}
 
         {/* Add button */}
         {isEditing && pinnedEntities.length < 20 && (
@@ -196,6 +266,6 @@ export function QuickLinksSection({
           </span>
         )}
       </div>
-    </section>
+    </SectionCard>
   );
 }

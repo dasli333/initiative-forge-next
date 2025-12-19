@@ -1,7 +1,7 @@
 'use client';
 
 import { RichTextEditor } from '@/components/shared/RichTextEditor';
-import { Label } from '@/components/ui/label';
+import { SectionCard } from '../shared/SectionCard';
 import type { JSONContent } from '@tiptap/react';
 
 interface OpeningSectionProps {
@@ -13,11 +13,10 @@ interface OpeningSectionProps {
 
 export function OpeningSection({ opening, isEditing, onChange, campaignId }: OpeningSectionProps) {
   return (
-    <section className="space-y-2">
-      <Label className="text-base font-semibold">Session Opening</Label>
-      <p className="text-xs text-muted-foreground">
-        &quot;Previously on...&quot; text to read or present to players
-      </p>
+    <SectionCard
+      title="Session Opening"
+      description='"Previously on..." text to read or present to players'
+    >
       <div className="min-h-[120px]">
         <RichTextEditor
           value={opening}
@@ -28,6 +27,6 @@ export function OpeningSection({ opening, isEditing, onChange, campaignId }: Ope
           className={!isEditing ? 'border-transparent bg-transparent' : ''}
         />
       </div>
-    </section>
+    </SectionCard>
   );
 }

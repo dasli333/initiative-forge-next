@@ -1,7 +1,7 @@
 'use client';
 
 import { RichTextEditor } from '@/components/shared/RichTextEditor';
-import { Label } from '@/components/ui/label';
+import { SectionCard } from '../shared/SectionCard';
 import type { JSONContent } from '@tiptap/react';
 
 interface SummarySectionProps {
@@ -13,11 +13,10 @@ interface SummarySectionProps {
 
 export function SummarySection({ summary, isEditing, onChange, campaignId }: SummarySectionProps) {
   return (
-    <section className="space-y-2">
-      <Label className="text-base font-semibold">Session Summary</Label>
-      <p className="text-xs text-muted-foreground">
-        What happened during this session
-      </p>
+    <SectionCard
+      title="Session Summary"
+      description="What happened during this session"
+    >
       <div className="min-h-[150px]">
         <RichTextEditor
           value={summary}
@@ -28,6 +27,6 @@ export function SummarySection({ summary, isEditing, onChange, campaignId }: Sum
           className={!isEditing ? 'border-transparent bg-transparent' : ''}
         />
       </div>
-    </section>
+    </SectionCard>
   );
 }

@@ -4,10 +4,10 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
 import { Plus, Trash2, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { GoalItem } from '@/types/sessions';
+import { SectionCard } from '../shared/SectionCard';
 
 interface GoalsSectionProps {
   goals: GoalItem[];
@@ -61,21 +61,17 @@ export function GoalsSection({ goals, isEditing, onChange }: GoalsSectionProps) 
   const completedCount = goals.filter((g) => g.completed).length;
 
   return (
-    <section className="space-y-3">
-      <div className="flex items-center justify-between">
-        <div>
-          <Label className="text-base font-semibold">Session Goals</Label>
-          <p className="text-xs text-muted-foreground">
-            Objectives the party should achieve
-          </p>
-        </div>
-        {goals.length > 0 && (
+    <SectionCard
+      title="Session Goals"
+      description="Objectives the party should achieve"
+      headerAction={
+        goals.length > 0 ? (
           <span className="text-sm text-muted-foreground">
             {completedCount}/{goals.length} completed
           </span>
-        )}
-      </div>
-
+        ) : undefined
+      }
+    >
       {/* Goals list */}
       <div className="space-y-2">
         {goals.length === 0 && !isEditing && (
@@ -156,6 +152,6 @@ export function GoalsSection({ goals, isEditing, onChange }: GoalsSectionProps) 
           </Button>
         </div>
       )}
-    </section>
+    </SectionCard>
   );
 }

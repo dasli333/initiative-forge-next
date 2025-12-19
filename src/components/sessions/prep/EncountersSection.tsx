@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import {
   Select,
@@ -16,6 +15,7 @@ import {
 import { Plus, Trash2, BookOpen, Swords, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Encounter } from '@/types/sessions';
+import { SectionCard } from '../shared/SectionCard';
 
 interface EncountersSectionProps {
   encounters: Encounter[];
@@ -79,14 +79,10 @@ export function EncountersSection({ encounters, isEditing, onChange }: Encounter
   };
 
   return (
-    <section className="space-y-3">
-      <div>
-        <Label className="text-base font-semibold">Planned Encounters</Label>
-        <p className="text-xs text-muted-foreground">
-          Story and combat encounters for this session
-        </p>
-      </div>
-
+    <SectionCard
+      title="Planned Encounters"
+      description="Story and combat encounters for this session"
+    >
       {/* Encounters list */}
       <div className="space-y-2">
         {encounters.length === 0 && !isEditing && (
@@ -228,6 +224,6 @@ export function EncountersSection({ encounters, isEditing, onChange }: Encounter
           </Button>
         </div>
       )}
-    </section>
+    </SectionCard>
   );
 }

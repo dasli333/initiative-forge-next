@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Plus, Trash2, Gem, Star } from 'lucide-react';
 import type { LootItem } from '@/types/sessions';
+import { SectionCard } from '../shared/SectionCard';
 
 interface RewardsSectionProps {
   lootGiven: LootItem[];
@@ -56,16 +57,12 @@ export function RewardsSection({
   };
 
   return (
-    <section className="space-y-4">
-      <div>
-        <Label className="text-base font-semibold">Rewards</Label>
-        <p className="text-xs text-muted-foreground">
-          Loot and experience given this session
-        </p>
-      </div>
-
+    <SectionCard
+      title="Rewards"
+      description="Loot and experience given this session"
+    >
       {/* XP Given */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 mb-4">
         <Star className="h-4 w-4 text-amber-500 shrink-0" />
         <Label className="shrink-0">XP Given:</Label>
         {isEditing ? (
@@ -146,6 +143,6 @@ export function RewardsSection({
           )}
         </div>
       </div>
-    </section>
+    </SectionCard>
   );
 }
