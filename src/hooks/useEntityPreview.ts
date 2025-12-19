@@ -102,7 +102,7 @@ export function useEntityPreview(entityType: PreviewEntityType, id: string | und
         case 'session':
           return supabase
             .from('sessions')
-            .select('id, name')
+            .select('id, title')
             .eq('id', id)
             .single()
             .then(({ data }) => data);
