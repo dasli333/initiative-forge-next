@@ -92,7 +92,7 @@ export function GoalsSection({ goals, isEditing, onChange }: GoalsSectionProps) 
               checked={goal.completed}
               onCheckedChange={() => handleToggleGoal(goal.id)}
               disabled={!isEditing}
-              className="shrink-0"
+              className="shrink-0 disabled:opacity-100"
             />
 
             {isEditing ? (
