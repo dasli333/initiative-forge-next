@@ -11,7 +11,8 @@ import {
   Shield,
   BookOpen,
   Sparkles,
-  Clock
+  Clock,
+  CalendarDays
 } from 'lucide-react';
 import { NavItem } from './NavItem';
 
@@ -28,6 +29,7 @@ export function CampaignNav({ selectedCampaignId, currentPath }: CampaignNavProp
   const campaignHomeHref = `/campaigns/${selectedCampaignId}`;
   const combatHref = `/campaigns/${selectedCampaignId}/combats`;
   const charactersHref = `/campaigns/${selectedCampaignId}/characters`;
+  const sessionsHref = `/campaigns/${selectedCampaignId}/sessions`;
   const locationsHref = `/campaigns/${selectedCampaignId}/locations`;
   const npcsHref = `/campaigns/${selectedCampaignId}/npcs`;
   const questsHref = `/campaigns/${selectedCampaignId}/quests`;
@@ -57,6 +59,12 @@ export function CampaignNav({ selectedCampaignId, currentPath }: CampaignNavProp
           label="Player Characters"
           href={charactersHref}
           isActive={currentPath === charactersHref || currentPath.startsWith(charactersHref + '/')}
+        />
+        <NavItem
+          icon={CalendarDays}
+          label="Sessions"
+          href={sessionsHref}
+          isActive={currentPath === sessionsHref || currentPath.startsWith(sessionsHref + '/')}
         />
       </ul>
 
