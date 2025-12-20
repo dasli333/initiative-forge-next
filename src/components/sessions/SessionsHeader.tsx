@@ -1,0 +1,51 @@
+'use client';
+
+import { Button } from '@/components/ui/button';
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+  BreadcrumbPage,
+} from '@/components/ui/breadcrumb';
+import { Plus } from 'lucide-react';
+import { useCampaignStore } from '@/stores/campaignStore';
+
+interface SessionsHeaderProps {
+  onCreateClick: () => void;
+}
+
+export function SessionsHeader({ onCreateClick }: SessionsHeaderProps) {
+  const { selectedCampaign } = useCampaignStore();
+
+  return (
+    <div className="space-y-4 pb-4 border-b">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/campaigns">Campaigns</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href={`/campaigns/${selectedCampaign?.id}`}>
+              {selectedCampaign?.name || 'Campaign'}
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Sessions</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Sessions</h1>
+        <Button onClick={onCreateClick} className="bg-emerald-600 hover:bg-emerald-700">
+          <Plus className="mr-2 h-4 w-4" />
+          New Session
+        </Button>
+      </div>
+    </div>
+  );
+}

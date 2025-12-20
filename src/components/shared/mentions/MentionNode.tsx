@@ -164,7 +164,7 @@ export function MentionNode(props: NodeViewProps) {
         case 'session':
           return supabase
             .from('sessions')
-            .select('id, name, plan_json')
+            .select('id, title, plan_json')
             .eq('id', id)
             .single()
             .then(({ data }) => data);
