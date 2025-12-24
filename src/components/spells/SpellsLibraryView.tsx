@@ -10,6 +10,8 @@ import { useDebouncedValue } from "@/components/hooks/useDebouncedValue";
 import { useSpells } from "@/components/hooks/useSpells";
 import { useLanguageStore } from "@/stores/languageStore";
 import { FileSearch } from "lucide-react";
+import { getSpellLevelInfo } from "@/lib/constants/spells";
+import { cn } from "@/lib/utils";
 
 /**
  * Main container component for the Spells Library view
@@ -82,18 +84,6 @@ export function SpellsLibraryView() {
     setSelectedSpellId(spellId);
   };
 
-  /**
-   * Helper function to format spell level for display
-   */
-  function formatSpellLevel(lvl: number, isCantrip: boolean): string {
-    if (isCantrip || lvl === 0) {
-      return "Cantrip";
-    }
-
-    const suffixes = ["th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"];
-    return `${lvl}${suffixes[lvl]} Level`;
-  }
-
   return (
     <div className="flex h-full -m-4 md:-m-8">
       {/* Left Panel - Spell List (minimum 500px to fit filters, 30% width on larger screens) */}
@@ -141,8 +131,8 @@ export function SpellsLibraryView() {
                 <p className="text-sm text-muted-foreground italic mb-3">{selectedSpell.data.name.en}</p>
               )}
               <div className="flex flex-wrap gap-2 mt-3">
-                <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1 text-sm shadow-sm">
-                  {formatSpellLevel(selectedSpell.data.level, selectedSpell.data.isCantrip)}
+                <Badge className={cn("px-3 py-1 text-sm shadow-sm border", getSpellLevelInfo(selectedSpell.data.level, selectedSpell.data.isCantrip).color)}>
+                  {getSpellLevelInfo(selectedSpell.data.level, selectedSpell.data.isCantrip).label}
                 </Badge>
                 <Badge variant="secondary" className="px-3 py-1 text-sm">
                   {selectedSpell.data.school}

@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import type { SpellDTO } from "@/types";
 import { cn } from "@/lib/utils";
 import { useLanguageStore } from "@/stores/languageStore";
+import { getSpellLevelInfo } from "@/lib/constants/spells";
 
 /**
  * Props for SpellListItem component
@@ -22,18 +23,6 @@ interface SpellListItemProps {
 }
 
 /**
- * Helper function to format spell level for display
- */
-function formatSpellLevel(level: number, isCantrip: boolean): string {
-  if (isCantrip || level === 0) {
-    return "Cantrip";
-  }
-
-  const suffixes = ["th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"];
-  return `${level}${suffixes[level]} Level`;
-}
-
-/**
  * Compact list item component for displaying a single spell
  * Shows name, level badge, school, and casting time
  *
@@ -47,6 +36,7 @@ export function SpellListItem({ spell, isSelected, onClick }: SpellListItemProps
   // Get selected language from store
   const selectedLanguage = useLanguageStore((state) => state.selectedLanguage);
   const displayName = data.name[selectedLanguage];
+  const levelInfo = getSpellLevelInfo(data.level, data.isCantrip);
 
   const handleClick = () => {
     onClick(id);
@@ -76,8 +66,8 @@ export function SpellListItem({ spell, isSelected, onClick }: SpellListItemProps
       <div className="flex flex-col gap-1">
         <h3 className="text-sm font-medium truncate">{displayName}</h3>
         <div className="flex items-center gap-1 flex-wrap">
-          <Badge className="bg-emerald-500 hover:bg-emerald-600 flex-shrink-0 text-xs shadow-sm">
-            {formatSpellLevel(data.level, data.isCantrip)}
+          <Badge className={cn("flex-shrink-0 text-xs shadow-sm border", levelInfo.color)}>
+            {levelInfo.label}
           </Badge>
           <span className="text-xs bg-muted/40 px-1.5 py-0.5 rounded">{data.school}</span>
           <span className="text-xs bg-muted/40 px-1.5 py-0.5 rounded">{data.castingTime.time}</span>
