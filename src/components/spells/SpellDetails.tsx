@@ -2,6 +2,8 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, Info, Sparkles, Swords, Target, Zap } from "lucide-react";
 import { GradientSeparator, SectionHeader, SurfaceContainer, PillGroup, DamageBadge } from "@/components/library";
 import type { SpellDataDTO } from "@/types";
+import { getSpellLevelInfo } from "@/lib/constants/spells";
+import { cn } from "@/lib/utils";
 
 /**
  * Props for SpellDetails component
@@ -11,18 +13,6 @@ interface SpellDetailsProps {
    * Spell data to display
    */
   data: SpellDataDTO;
-}
-
-/**
- * Helper function to format spell level for display
- */
-function formatSpellLevel(level: number, isCantrip: boolean): string {
-  if (isCantrip || level === 0) {
-    return "Cantrip";
-  }
-
-  const suffixes = ["th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"];
-  return `${level}${suffixes[level]} Level`;
 }
 
 /**
@@ -63,9 +53,11 @@ export function SpellDetails({ data }: SpellDetailsProps) {
           <div className="grid grid-cols-2 gap-8 text-sm">
             {/* Column 1: Level, School, Casting Time */}
             <div className="space-y-2">
-              <div>
-                <span className="text-emerald-500/90 font-medium">Level:</span>{" "}
-                <span className="text-foreground font-medium">{formatSpellLevel(data.level, data.isCantrip)}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-emerald-500/90 font-medium">Level:</span>
+                <Badge className={cn("text-xs shadow-sm border", getSpellLevelInfo(data.level, data.isCantrip).color)}>
+                  {getSpellLevelInfo(data.level, data.isCantrip).label}
+                </Badge>
               </div>
               <div>
                 <span className="text-emerald-500/90 font-medium">School:</span>{" "}

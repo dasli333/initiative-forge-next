@@ -10,6 +10,8 @@ import { useDebouncedValue } from "@/components/hooks/useDebouncedValue";
 import { useMonsters } from "@/components/hooks/useMonsters";
 import { useLanguageStore } from "@/stores/languageStore";
 import { FileSearch } from "lucide-react";
+import { getChallengeRatingColor } from "@/lib/constants/monsters";
+import { cn } from "@/lib/utils";
 
 /**
  * Main container component for the Monsters Library view
@@ -138,7 +140,7 @@ export function MonstersLibraryView() {
                 <p className="text-sm text-muted-foreground italic mb-3">{selectedMonster.data.name.en}</p>
               )}
               <div className="flex flex-wrap gap-2 mt-3">
-                <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1 text-sm shadow-sm">
+                <Badge className={cn("px-3 py-1 text-sm shadow-sm border", getChallengeRatingColor(selectedMonster.data.challengeRating.rating))}>
                   CR {selectedMonster.data.challengeRating.rating}
                 </Badge>
                 <Badge variant="secondary" className="px-3 py-1 text-sm">

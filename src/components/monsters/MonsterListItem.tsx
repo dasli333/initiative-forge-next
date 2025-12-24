@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import type { MonsterDTO } from "@/types";
 import { cn } from "@/lib/utils";
 import { useLanguageStore } from "@/stores/languageStore";
+import { getChallengeRatingColor } from "@/lib/constants/monsters";
 
 /**
  * Props for MonsterListItem component
@@ -65,7 +66,7 @@ export function MonsterListItem({ monster, isSelected, onClick }: MonsterListIte
       <div className="flex flex-col gap-1">
         <h3 className="text-sm font-medium truncate">{displayName}</h3>
         <div className="flex items-center gap-1">
-          <Badge className="bg-emerald-500 hover:bg-emerald-600 flex-shrink-0 text-xs shadow-sm">
+          <Badge className={cn("flex-shrink-0 text-xs shadow-sm border", getChallengeRatingColor(data.challengeRating.rating))}>
             CR {data.challengeRating.rating}
           </Badge>
           <span className="text-xs bg-muted/40 px-1.5 py-0.5 rounded">{data.type}</span>
