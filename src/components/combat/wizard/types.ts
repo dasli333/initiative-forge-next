@@ -18,15 +18,11 @@ export interface WizardState {
   combatName: string;
   selectedPlayerCharacterIds: string[];
   addedMonsters: Map<string, AddedMonsterViewModel>; // monster_id -> AddedMonsterViewModel
-  addedNPCs: AdHocNPC[];
+  selectedNPCIds: string[];
 
   // Step 3 specific state
   monsterSearchTerm: string;
   monsterTypeFilter: string | null;
-
-  // Step 4 specific state
-  npcMode: "simple" | "advanced";
-  npcFormData: SimpleNPCFormData | AdvancedNPCFormData;
 }
 
 /**
@@ -36,6 +32,16 @@ export interface PlayerCharacterViewModel {
   id: string;
   name: string;
   max_hp: number | null;
+  armor_class: number | null;
+}
+
+/**
+ * ViewModel dla NPC w Step 4
+ */
+export interface NPCViewModel {
+  id: string;
+  name: string;
+  hp_max: number | null;
   armor_class: number | null;
 }
 
@@ -160,16 +166,15 @@ export interface Step3Props {
  * Props dla Step 4
  */
 export interface Step4Props {
-  mode: "simple" | "advanced";
-  onModeChange: (mode: "simple" | "advanced") => void;
-  npcForm: SimpleNPCFormData | AdvancedNPCFormData;
-  onFormChange: (updates: Partial<SimpleNPCFormData | AdvancedNPCFormData>) => void;
-  onAddNPC: () => void;
-  addedNPCs: AdHocNPC[];
-  onRemoveNPC: (npcId: string) => void;
+  campaignId: string;
+  npcs: NPCViewModel[];
+  selectedIds: string[];
+  onToggle: (id: string) => void;
   onBack: () => void;
   onNext: () => void;
-  isFormValid: boolean;
+  onSkip?: () => void;
+  isLoading: boolean;
+  error: Error | null;
 }
 
 /**
@@ -179,7 +184,7 @@ export interface Step5Props {
   combatName: string;
   selectedPlayerCharacters: PlayerCharacterViewModel[];
   addedMonsters: Map<string, AddedMonsterViewModel>;
-  addedNPCs: AdHocNPC[];
+  selectedNPCs: NPCViewModel[];
   onBack: () => void;
   onSubmit: () => void;
   isSubmitting: boolean;

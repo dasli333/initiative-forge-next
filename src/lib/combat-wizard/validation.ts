@@ -4,7 +4,7 @@ import {
   PlayerCharacterSelectionSchema,
   SimpleNPCFormSchema,
 } from "@/lib/schemas";
-import type { SimpleNPCFormData, AdvancedNPCFormData, AdHocNPC, AddedMonster } from "@/lib/schemas";
+import type { SimpleNPCFormData, AdvancedNPCFormData, AddedMonster } from "@/lib/schemas";
 
 /**
  * Validates Step 1 (Combat Name)
@@ -55,12 +55,13 @@ export function validateStep2(selectedIds: string[]): {
 export function validateStep5(
   selectedPlayerCharacterIds: string[],
   addedMonsters: Map<string, AddedMonster>,
-  addedNPCs: AdHocNPC[]
+  selectedNPCIds: string[]
 ): {
   valid: boolean;
   error?: string;
 } {
-  const hasParticipants = selectedPlayerCharacterIds.length > 0 || addedMonsters.size > 0 || addedNPCs.length > 0;
+  const hasParticipants =
+    selectedPlayerCharacterIds.length > 0 || addedMonsters.size > 0 || selectedNPCIds.length > 0;
 
   if (!hasParticipants) {
     return {

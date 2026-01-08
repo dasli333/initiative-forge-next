@@ -10,6 +10,8 @@ import {
   updateNPC,
   deleteNPC,
   getNPCPCRelationships,
+  getNPCsWithCombatStats,
+  type NPCWithCombatStatsDTO,
 } from '@/lib/api/npcs';
 import {
   getNPCCombatStats,
@@ -49,6 +51,29 @@ export function useNPCsQuery(campaignId: string, filters?: NPCFilters) {
     queryFn: async (): Promise<NPCSDTO[]> => {
       try {
         return await getNPCs(campaignId, filters);
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('auth')) {
+          router.push('/login');
+        }
+        throw error;
+      }
+    },
+    enabled: !!campaignId,
+  });
+}
+
+/**
+ * React Query hook for fetching NPCs with combat stats
+ * Used in combat wizard Step 4 to show which NPCs can be added to combat
+ */
+export function useNPCsWithCombatStatsQuery(campaignId: string) {
+  const router = useRouter();
+
+  return useQuery({
+    queryKey: ['npcs-with-combat-stats', campaignId],
+    queryFn: async (): Promise<NPCWithCombatStatsDTO[]> => {
+      try {
+        return await getNPCsWithCombatStats(campaignId);
       } catch (error) {
         if (error instanceof Error && error.message.includes('auth')) {
           router.push('/login');

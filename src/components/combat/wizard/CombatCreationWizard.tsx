@@ -24,19 +24,11 @@ import { useCombatCreation } from "./hooks/useCombatCreation";
 import { useDebouncedValue } from "@/components/hooks/useDebouncedValue";
 import { useLanguageStore } from "@/stores/languageStore";
 import { useWizardState } from "@/hooks/useWizardState";
+import { useNPCsWithCombatStatsQuery } from "@/hooks/useNpcs";
 
-import {
-  validateStep1,
-  validateStep2,
-  mapWizardStateToCommand,
-  simpleFormToAdHocNPC,
-  advancedFormToAdHocNPC,
-  validateSimpleNPCForm,
-  validateAdvancedNPCForm,
-} from "@/lib/combat-wizard";
+import { validateStep1, validateStep2, mapWizardStateToCommand } from "@/lib/combat-wizard";
 
-import type { MonsterViewModel } from "./types";
-import type { SimpleNPCFormData, AdvancedNPCFormData } from "@/lib/schemas";
+import type { MonsterViewModel, NPCViewModel } from "./types";
 
 interface CombatCreationWizardProps {
   campaignId: string;
@@ -60,6 +52,7 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
     alignment: null,
     limit: 20,
   });
+  const npcsQuery = useNPCsWithCombatStatsQuery(campaignId);
   const createCombatMutation = useCombatCreation(campaignId);
 
   // Language store for monster names
@@ -96,13 +89,13 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
     return playerCharacters.filter((pc) => state.selectedPlayerCharacterIds.includes(pc.id));
   }, [playerCharacters, state.selectedPlayerCharacterIds]);
 
-  const isNPCFormValid = useMemo(() => {
-    if (state.npcMode === "simple") {
-      return validateSimpleNPCForm(state.npcFormData as SimpleNPCFormData).valid;
-    } else {
-      return validateAdvancedNPCForm(state.npcFormData as AdvancedNPCFormData).valid;
-    }
-  }, [state.npcMode, state.npcFormData]);
+  const npcs = useMemo((): NPCViewModel[] => {
+    return npcsQuery.data || [];
+  }, [npcsQuery.data]);
+
+  const selectedNPCs = useMemo(() => {
+    return npcs.filter((npc) => state.selectedNPCIds.includes(npc.id));
+  }, [npcs, state.selectedNPCIds]);
 
   // ARIA announcement derived from current step
   const announcement = useMemo(() => {
@@ -197,28 +190,16 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
     actions.setStep(3);
   }, [state.completedSteps, actions]);
 
-  const handleAddNPC = useCallback(() => {
-    if (!isNPCFormValid) return;
-
-    const npc =
-      state.npcMode === "simple"
-        ? simpleFormToAdHocNPC(state.npcFormData as SimpleNPCFormData)
-        : advancedFormToAdHocNPC(state.npcFormData as AdvancedNPCFormData);
-
-    actions.addNPC(npc);
-    actions.resetNPCForm();
-  }, [isNPCFormValid, state.npcMode, state.npcFormData, actions]);
-
   const handleSubmit = useCallback(() => {
     const command = mapWizardStateToCommand({
       combatName: state.combatName,
       selectedPlayerCharacterIds: state.selectedPlayerCharacterIds,
       addedMonsters: state.addedMonsters,
-      addedNPCs: state.addedNPCs,
+      selectedNPCIds: state.selectedNPCIds,
     });
 
     createCombatMutation.mutate(command);
-  }, [state.combatName, state.selectedPlayerCharacterIds, state.addedMonsters, state.addedNPCs, createCombatMutation]);
+  }, [state.combatName, state.selectedPlayerCharacterIds, state.addedMonsters, state.selectedNPCIds, createCombatMutation]);
 
   const handleCancel = useCallback(() => {
     router.push(`/campaigns/${campaignId}/combats`);
@@ -276,16 +257,14 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
 
         {state.currentStep === 4 && (
           <Step4_AddNPCs
-            mode={state.npcMode}
-            onModeChange={actions.setNPCMode}
-            npcForm={state.npcFormData}
-            onFormChange={actions.updateNPCForm}
-            onAddNPC={handleAddNPC}
-            addedNPCs={state.addedNPCs}
-            onRemoveNPC={actions.removeNPC}
+            campaignId={campaignId}
+            npcs={npcs}
+            selectedIds={state.selectedNPCIds}
+            onToggle={actions.toggleNPC}
             onBack={handleBack}
             onNext={handleNext}
-            isFormValid={isNPCFormValid}
+            isLoading={npcsQuery.isLoading}
+            error={npcsQuery.error}
           />
         )}
 
@@ -294,7 +273,7 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
             combatName={state.combatName}
             selectedPlayerCharacters={selectedPlayerCharacters}
             addedMonsters={state.addedMonsters}
-            addedNPCs={state.addedNPCs}
+            selectedNPCs={selectedNPCs}
             onBack={handleBack}
             onSubmit={handleSubmit}
             isSubmitting={createCombatMutation.isPending}

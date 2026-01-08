@@ -4,16 +4,10 @@
  */
 
 // Default values
-export { defaultAdvancedNPCFormData, defaultSimpleNPCFormData, generateDefaultCombatName } from "./defaults";
+export { generateDefaultCombatName } from "./defaults";
 
 // Mapping functions
-export { advancedFormToAdHocNPC, mapWizardStateToCommand, simpleFormToAdHocNPC } from "./mapping";
+export { mapWizardStateToCommand } from "./mapping";
 
 // Validation functions
-export {
-  validateAdvancedNPCForm,
-  validateSimpleNPCForm,
-  validateStep1,
-  validateStep2,
-  validateStep5,
-} from "./validation";
+export { validateStep1, validateStep2, validateStep5 } from "./validation";

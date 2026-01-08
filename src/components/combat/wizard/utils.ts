@@ -7,14 +7,8 @@
 
 // Re-export all functions from the new modular structure
 export {
-  defaultAdvancedNPCFormData,
-  defaultSimpleNPCFormData,
   generateDefaultCombatName,
-  advancedFormToAdHocNPC,
   mapWizardStateToCommand,
-  simpleFormToAdHocNPC,
-  validateAdvancedNPCForm,
-  validateSimpleNPCForm,
   validateStep1,
   validateStep2,
   validateStep5,
