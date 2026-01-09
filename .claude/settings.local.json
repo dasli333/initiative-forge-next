@@ -9,7 +9,8 @@
       "Bash(npx playwright test:*)",
       "Bash(git grep:*)",
       "Bash(npx tsc:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "mcp__ide__getDiagnostics"
     ],
     "deny": [],
     "ask": []

@@ -26,7 +26,7 @@ import type { NPCDetailsViewModel } from '@/types/npcs';
 import type { UpdateNPCRelationshipCommand } from '@/types/npc-relationships';
 import type { NPCTagDTO } from '@/types/npc-tags';
 import type { JSONContent } from '@tiptap/core';
-import type { ActionDTO } from '@/types';
+import type { MonsterAction, MonsterTrait, LegendaryActions } from '@/lib/schemas/monster.schema';
 
 interface NPCDetailPanelProps {
   npcId: string | null;
@@ -58,14 +58,23 @@ interface NPCDetailPanelProps {
     combatStats: {
       hp_max: number;
       armor_class: number;
-      speed: number;
+      speed: string[];
       strength: number;
       dexterity: number;
       constitution: number;
       intelligence: number;
       wisdom: number;
       charisma: number;
-      actions_json: ActionDTO[] | null;
+      actions_json: MonsterAction[] | null;
+      traits_json: MonsterTrait[] | null;
+      bonus_actions_json: MonsterAction[] | null;
+      reactions_json: MonsterAction[] | null;
+      legendary_actions_json: LegendaryActions | null;
+      damage_vulnerabilities: string[] | null;
+      damage_resistances: string[] | null;
+      damage_immunities: string[] | null;
+      condition_immunities: string[] | null;
+      gear: string[] | null;
     } | null;
   } | null;
   onEditedDataChange: (field: string, value: unknown) => void;

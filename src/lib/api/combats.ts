@@ -11,6 +11,7 @@ import type {
   CombatSummaryDTO,
   ListCombatsResponseDTO,
 } from '@/types';
+import type { MonsterAction, MonsterTrait, LegendaryActions } from '@/lib/schemas/monster.schema';
 
 /**
  * Creates a new combat encounter with initial participants
@@ -284,6 +285,17 @@ async function resolveNPC(
       cha: combatStats.charisma,
     },
     actions: (combatStats.actions_json as unknown as ActionDTO[]) || [],
+    // Additional abilities
+    traits: (combatStats.traits_json as unknown as MonsterTrait[]) || undefined,
+    bonusActions: (combatStats.bonus_actions_json as unknown as MonsterAction[]) || undefined,
+    reactions: (combatStats.reactions_json as unknown as MonsterAction[]) || undefined,
+    legendaryActions: (combatStats.legendary_actions_json as unknown as LegendaryActions) || undefined,
+    // Combat properties
+    damageVulnerabilities: combatStats.damage_vulnerabilities || undefined,
+    damageResistances: combatStats.damage_resistances || undefined,
+    damageImmunities: combatStats.damage_immunities || undefined,
+    conditionImmunities: combatStats.condition_immunities || undefined,
+    gear: combatStats.gear || undefined,
     is_active_turn: false,
     active_conditions: [],
   };
