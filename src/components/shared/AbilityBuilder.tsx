@@ -132,17 +132,18 @@ export function AbilityBuilder({ abilityType, onAdd, maxReached = false }: Abili
           />
         </div>
 
-        {/* Type */}
-        <div>
-          <Label htmlFor="ability-type">Type</Label>
-          <Input
-            id="ability-type"
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-            placeholder="special, melee, ranged, etc."
-            disabled={maxReached}
-          />
-        </div>
+        {/*disabled for now as it seems not needed - dw*/}
+        {/*/!* Type *!/*/}
+        {/*<div>*/}
+        {/*  <Label htmlFor="ability-type">Type</Label>*/}
+        {/*  <Input*/}
+        {/*    id="ability-type"*/}
+        {/*    value={type}*/}
+        {/*    onChange={(e) => setType(e.target.value)}*/}
+        {/*    placeholder="special, melee, ranged, etc."*/}
+        {/*    disabled={maxReached}*/}
+        {/*  />*/}
+        {/*</div>*/}
 
         {/* Attack Roll (Actions only) */}
         {isAction && (

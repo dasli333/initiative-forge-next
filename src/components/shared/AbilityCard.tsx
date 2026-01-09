@@ -1,6 +1,5 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 import type { MonsterAction, MonsterTrait } from '@/lib/schemas/monster.schema';
@@ -25,9 +24,6 @@ export function AbilityCard({ ability, onDelete, editMode = false }: AbilityCard
       <div className="flex-1 space-y-1">
         <div className="flex items-center gap-2">
           <span className="font-medium">{ability.name}</span>
-          <Badge variant="secondary" className="text-xs">
-            {ability.type}
-          </Badge>
         </div>
 
         {/* Description */}
