@@ -1,7 +1,5 @@
 import { useReducer, useCallback } from "react";
 import type { WizardState } from "@/components/combat/wizard/types";
-import type { AdHocNPC, SimpleNPCFormData, AdvancedNPCFormData } from "@/lib/schemas";
-import { defaultSimpleNPCFormData, defaultAdvancedNPCFormData } from "@/lib/combat-wizard";
 
 /**
  * Actions for wizard state reducer
@@ -17,11 +15,8 @@ type WizardAction =
   | { type: "REMOVE_MONSTER"; payload: string }
   | { type: "SET_MONSTER_SEARCH"; payload: string }
   | { type: "SET_MONSTER_TYPE_FILTER"; payload: string | null }
-  | { type: "SET_NPC_MODE"; payload: "simple" | "advanced" }
-  | { type: "UPDATE_NPC_FORM"; payload: Partial<SimpleNPCFormData | AdvancedNPCFormData> }
-  | { type: "ADD_NPC"; payload: AdHocNPC }
-  | { type: "REMOVE_NPC"; payload: string }
-  | { type: "RESET_NPC_FORM" };
+  | { type: "TOGGLE_NPC"; payload: string }
+  | { type: "SET_SELECTED_NPCS"; payload: string[] };
 
 /**
  * Initial state factory
@@ -33,11 +28,9 @@ function createInitialState(): WizardState {
     combatName: "",
     selectedPlayerCharacterIds: [],
     addedMonsters: new Map(),
-    addedNPCs: [],
+    selectedNPCIds: [],
     monsterSearchTerm: "",
     monsterTypeFilter: null,
-    npcMode: "simple",
-    npcFormData: defaultSimpleNPCFormData(),
   };
 }
 
@@ -114,44 +107,19 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
     case "SET_MONSTER_TYPE_FILTER":
       return { ...state, monsterTypeFilter: action.payload };
 
-    case "SET_NPC_MODE": {
-      const newMode = action.payload;
+    case "TOGGLE_NPC": {
+      const id = action.payload;
+      const selectedIds = state.selectedNPCIds;
       return {
         ...state,
-        npcMode: newMode,
-        npcFormData:
-          newMode === "simple"
-            ? defaultSimpleNPCFormData()
-            : defaultAdvancedNPCFormData(),
+        selectedNPCIds: selectedIds.includes(id)
+          ? selectedIds.filter((npcId) => npcId !== id)
+          : [...selectedIds, id],
       };
     }
 
-    case "UPDATE_NPC_FORM":
-      return {
-        ...state,
-        npcFormData: { ...state.npcFormData, ...action.payload },
-      };
-
-    case "ADD_NPC":
-      return {
-        ...state,
-        addedNPCs: [...state.addedNPCs, action.payload],
-      };
-
-    case "REMOVE_NPC":
-      return {
-        ...state,
-        addedNPCs: state.addedNPCs.filter((npc) => npc.id !== action.payload),
-      };
-
-    case "RESET_NPC_FORM":
-      return {
-        ...state,
-        npcFormData:
-          state.npcMode === "simple"
-            ? defaultSimpleNPCFormData()
-            : defaultAdvancedNPCFormData(),
-      };
+    case "SET_SELECTED_NPCS":
+      return { ...state, selectedNPCIds: action.payload };
 
     default:
       return state;
@@ -217,27 +185,12 @@ export function useWizardState() {
       dispatch({ type: "SET_MONSTER_TYPE_FILTER", payload: type });
     }, []),
 
-    setNPCMode: useCallback((mode: "simple" | "advanced") => {
-      dispatch({ type: "SET_NPC_MODE", payload: mode });
+    toggleNPC: useCallback((id: string) => {
+      dispatch({ type: "TOGGLE_NPC", payload: id });
     }, []),
 
-    updateNPCForm: useCallback(
-      (updates: Partial<SimpleNPCFormData | AdvancedNPCFormData>) => {
-        dispatch({ type: "UPDATE_NPC_FORM", payload: updates });
-      },
-      []
-    ),
-
-    addNPC: useCallback((npc: AdHocNPC) => {
-      dispatch({ type: "ADD_NPC", payload: npc });
-    }, []),
-
-    removeNPC: useCallback((id: string) => {
-      dispatch({ type: "REMOVE_NPC", payload: id });
-    }, []),
-
-    resetNPCForm: useCallback(() => {
-      dispatch({ type: "RESET_NPC_FORM" });
+    setSelectedNPCs: useCallback((ids: string[]) => {
+      dispatch({ type: "SET_SELECTED_NPCS", payload: ids });
     }, []),
   };
 

@@ -459,45 +459,72 @@ export type Database = {
         Row: {
           actions_json: Json | null
           armor_class: number
+          bonus_actions_json: Json | null
           charisma: number
+          condition_immunities: string[] | null
           constitution: number
           created_at: string
+          damage_immunities: string[] | null
+          damage_resistances: string[] | null
+          damage_vulnerabilities: string[] | null
           dexterity: number
+          gear: string[] | null
           hp_max: number
           intelligence: number
+          legendary_actions_json: Json | null
           npc_id: string
-          speed: number
+          reactions_json: Json | null
+          speed: string[] | null
           strength: number
+          traits_json: Json | null
           updated_at: string
           wisdom: number
         }
         Insert: {
           actions_json?: Json | null
           armor_class: number
+          bonus_actions_json?: Json | null
           charisma: number
+          condition_immunities?: string[] | null
           constitution: number
           created_at?: string
+          damage_immunities?: string[] | null
+          damage_resistances?: string[] | null
+          damage_vulnerabilities?: string[] | null
           dexterity: number
+          gear?: string[] | null
           hp_max: number
           intelligence: number
+          legendary_actions_json?: Json | null
           npc_id: string
-          speed: number
+          reactions_json?: Json | null
+          speed?: string[] | null
           strength: number
+          traits_json?: Json | null
           updated_at?: string
           wisdom: number
         }
         Update: {
           actions_json?: Json | null
           armor_class?: number
+          bonus_actions_json?: Json | null
           charisma?: number
+          condition_immunities?: string[] | null
           constitution?: number
           created_at?: string
+          damage_immunities?: string[] | null
+          damage_resistances?: string[] | null
+          damage_vulnerabilities?: string[] | null
           dexterity?: number
+          gear?: string[] | null
           hp_max?: number
           intelligence?: number
+          legendary_actions_json?: Json | null
           npc_id?: string
-          speed?: number
+          reactions_json?: Json | null
+          speed?: string[] | null
           strength?: number
+          traits_json?: Json | null
           updated_at?: string
           wisdom?: number
         }

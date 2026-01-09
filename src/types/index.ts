@@ -326,11 +326,12 @@ export type {
  */
 export interface CombatParticipantDTO {
   id: string; // Temporary UUID for this combat instance
-  source: "player_character" | "monster" | "ad_hoc_npc";
+  source: "player_character" | "monster" | "ad_hoc_npc" | "npc";
 
   // Reference IDs (if applicable)
   player_character_id?: string;
   monster_id?: string;
+  npc_id?: string;
 
   // Denormalized data (snapshot at time of adding to combat)
   display_name: string;
@@ -385,7 +386,7 @@ export type CombatDTO = Omit<Combat, "state_snapshot"> & {
 
 /**
  * Initial participant specification for creating a combat
- * Union type supports three sources: player characters, monsters, and ad-hoc NPCs
+ * Union type supports four sources: player characters, monsters, existing NPCs, and ad-hoc NPCs
  */
 export type InitialParticipantCommand =
   | {
@@ -396,6 +397,10 @@ export type InitialParticipantCommand =
       source: "monster";
       monster_id: string;
       count: number; // How many copies of this monster
+    }
+  | {
+      source: "npc";
+      npc_id: string;
     }
   | {
       source: "ad_hoc_npc";

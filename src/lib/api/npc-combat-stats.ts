@@ -54,6 +54,15 @@ export async function upsertNPCCombatStats(
       wisdom: command.wisdom,
       charisma: command.charisma,
       actions_json: (command.actions_json as unknown as Json) || null,
+      traits_json: (command.traits_json as unknown as Json) || null,
+      bonus_actions_json: (command.bonus_actions_json as unknown as Json) || null,
+      reactions_json: (command.reactions_json as unknown as Json) || null,
+      legendary_actions_json: (command.legendary_actions_json as unknown as Json) || null,
+      damage_vulnerabilities: command.damage_vulnerabilities || null,
+      damage_resistances: command.damage_resistances || null,
+      damage_immunities: command.damage_immunities || null,
+      condition_immunities: command.condition_immunities || null,
+      gear: command.gear || null,
     })
     .select()
     .single();

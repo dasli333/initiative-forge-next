@@ -107,6 +107,52 @@ export async function getNPC(npcId: string): Promise<NPCDTO> {
 }
 
 /**
+ * NPC with combat stats for combat wizard
+ */
+export interface NPCWithCombatStatsDTO {
+  id: string;
+  name: string;
+  hp_max: number | null;
+  armor_class: number | null;
+}
+
+/**
+ * Get all NPCs for a campaign with combat stats
+ * Used in combat wizard to show which NPCs can be added to combat
+ */
+export async function getNPCsWithCombatStats(
+  campaignId: string
+): Promise<NPCWithCombatStatsDTO[]> {
+  const supabase = getSupabaseClient();
+
+  const { data, error } = await supabase
+    .from('npcs')
+    .select(`
+      id,
+      name,
+      npc_combat_stats(hp_max, armor_class)
+    `)
+    .eq('campaign_id', campaignId)
+    .order('name', { ascending: true });
+
+  if (error) {
+    console.error('Failed to fetch NPCs with combat stats:', error);
+    throw new Error(error.message);
+  }
+
+  // Map to flat structure with combat stats
+  return (data || []).map((npc) => {
+    const combatStats = npc.npc_combat_stats as { hp_max: number; armor_class: number } | null;
+    return {
+      id: npc.id,
+      name: npc.name,
+      hp_max: combatStats?.hp_max ?? null,
+      armor_class: combatStats?.armor_class ?? null,
+    };
+  });
+}
+
+/**
  * Create a new NPC
  * campaign_id is required for RLS
  */

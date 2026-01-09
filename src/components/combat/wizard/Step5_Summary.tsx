@@ -10,7 +10,7 @@ export function Step5_Summary({
   combatName,
   selectedPlayerCharacters,
   addedMonsters,
-  addedNPCs,
+  selectedNPCs,
   onBack,
   onSubmit,
   isSubmitting,
@@ -18,13 +18,13 @@ export function Step5_Summary({
   const validation = validateStep5(
     selectedPlayerCharacters.map((pc) => pc.id),
     addedMonsters,
-    addedNPCs
+    selectedNPCs.map((npc) => npc.id)
   );
 
   const totalParticipants =
     selectedPlayerCharacters.length +
     Array.from(addedMonsters.values()).reduce((sum, m) => sum + m.count, 0) +
-    addedNPCs.length;
+    selectedNPCs.length;
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -103,24 +103,24 @@ export function Step5_Summary({
         )}
 
         {/* NPCs */}
-        {addedNPCs.length > 0 && (
+        {selectedNPCs.length > 0 && (
           <Card className="border-border bg-card shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg flex items-center justify-between">
                 NPCs
-                <Badge variant="secondary">{addedNPCs.length}</Badge>
+                <Badge variant="secondary">{selectedNPCs.length}</Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {addedNPCs.map((npc) => (
+                {selectedNPCs.map((npc) => (
                   <div
                     key={npc.id}
                     className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border border-border"
                   >
-                    <span className="font-medium">{npc.display_name}</span>
+                    <span className="font-medium">{npc.name}</span>
                     <div className="flex gap-2">
-                      <Badge variant="outline">HP: {npc.max_hp}</Badge>
+                      <Badge variant="outline">HP: {npc.hp_max}</Badge>
                       <Badge variant="outline">AC: {npc.armor_class}</Badge>
                     </div>
                   </div>
@@ -131,7 +131,10 @@ export function Step5_Summary({
         )}
 
         {/* Total Summary */}
-        <Card data-testid="combat-summary-participants" className="border-emerald-500 bg-gradient-to-r from-card via-card/80 to-emerald-500/10 shadow-sm">
+        <Card
+          data-testid="combat-summary-participants"
+          className="border-emerald-500 bg-gradient-to-r from-card via-card/80 to-emerald-500/10 shadow-sm"
+        >
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>

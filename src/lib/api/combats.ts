@@ -11,6 +11,7 @@ import type {
   CombatSummaryDTO,
   ListCombatsResponseDTO,
 } from '@/types';
+import type { MonsterAction, MonsterTrait, LegendaryActions } from '@/lib/schemas/monster.schema';
 
 /**
  * Creates a new combat encounter with initial participants
@@ -89,6 +90,9 @@ async function resolveAllParticipants(
     } else if (participant.source === "monster") {
       const monsters = await resolveMonster(supabase, participant.monster_id, participant.count || 1);
       resolvedParticipants.push(...monsters);
+    } else if (participant.source === "npc") {
+      const npc = await resolveNPC(supabase, campaignId, participant.npc_id);
+      resolvedParticipants.push(npc);
     } else if (participant.source === "ad_hoc_npc") {
       const npc = createAdHocParticipant(participant);
       resolvedParticipants.push(npc);
@@ -227,6 +231,74 @@ async function resolveMonster(
   }
 
   return monsters;
+}
+
+/**
+ * Resolves an existing NPC from the database (with combat stats)
+ */
+async function resolveNPC(
+  supabase: SupabaseClient<Database>,
+  campaignId: string,
+  npcId: string
+): Promise<CombatParticipantDTO> {
+  const { data, error } = await supabase
+    .from("npcs")
+    .select("id, name")
+    .eq("id", npcId)
+    .eq("campaign_id", campaignId)
+    .single();
+
+  if (error || !data) {
+    throw new Error(`NPC not found: ${npcId}`);
+  }
+
+  // Fetch combat stats (required for combat)
+  const { data: combatStats, error: statsError } = await supabase
+    .from("npc_combat_stats")
+    .select("*")
+    .eq("npc_id", npcId)
+    .maybeSingle();
+
+  if (statsError) {
+    throw new Error(`Failed to fetch NPC combat stats: ${statsError.message}`);
+  }
+
+  if (!combatStats) {
+    throw new Error(`NPC ${data.name} has no combat stats and cannot be added to combat`);
+  }
+
+  return {
+    id: crypto.randomUUID(),
+    source: "npc",
+    npc_id: data.id,
+    display_name: data.name,
+    initiative: null,
+    current_hp: combatStats.hp_max,
+    max_hp: combatStats.hp_max,
+    armor_class: combatStats.armor_class,
+    stats: {
+      str: combatStats.strength,
+      dex: combatStats.dexterity,
+      con: combatStats.constitution,
+      int: combatStats.intelligence,
+      wis: combatStats.wisdom,
+      cha: combatStats.charisma,
+    },
+    actions: (combatStats.actions_json as unknown as ActionDTO[]) || [],
+    // Additional abilities
+    traits: (combatStats.traits_json as unknown as MonsterTrait[]) || undefined,
+    bonusActions: (combatStats.bonus_actions_json as unknown as MonsterAction[]) || undefined,
+    reactions: (combatStats.reactions_json as unknown as MonsterAction[]) || undefined,
+    legendaryActions: (combatStats.legendary_actions_json as unknown as LegendaryActions) || undefined,
+    // Combat properties
+    damageVulnerabilities: combatStats.damage_vulnerabilities || undefined,
+    damageResistances: combatStats.damage_resistances || undefined,
+    damageImmunities: combatStats.damage_immunities || undefined,
+    conditionImmunities: combatStats.condition_immunities || undefined,
+    gear: combatStats.gear || undefined,
+    is_active_turn: false,
+    active_conditions: [],
+  };
 }
 
 /**

@@ -17,13 +17,15 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Trash2, X } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { NoCombatStatsState } from '../shared/NoCombatStatsState';
-import { ActionBuilder } from '@/components/characters/ActionBuilder';
+import { AbilityBuilder } from '@/components/shared/AbilityBuilder';
+import { AbilityCard } from '@/components/shared/AbilityCard';
+import { CombatPropertiesForm } from '@/components/shared/CombatPropertiesForm';
 import type { NPCDTO } from '@/types/npcs';
 import type { NPCCombatStatsDTO } from '@/types/npc-combat-stats';
-import type { ActionDTO } from '@/types';
+import type { MonsterAction, MonsterTrait, LegendaryActions } from '@/lib/schemas/monster.schema';
 
 interface CombatTabProps {
   npc: NPCDTO;
@@ -33,14 +35,23 @@ interface CombatTabProps {
   editedCombatStats: {
     hp_max: number;
     armor_class: number;
-    speed: number;
+    speed: string[];
     strength: number;
     dexterity: number;
     constitution: number;
     intelligence: number;
     wisdom: number;
     charisma: number;
-    actions_json: ActionDTO[] | null;
+    actions_json: MonsterAction[] | null;
+    traits_json: MonsterTrait[] | null;
+    bonus_actions_json: MonsterAction[] | null;
+    reactions_json: MonsterAction[] | null;
+    legendary_actions_json: LegendaryActions | null;
+    damage_vulnerabilities: string[] | null;
+    damage_resistances: string[] | null;
+    damage_immunities: string[] | null;
+    condition_immunities: string[] | null;
+    gear: string[] | null;
   } | null;
   onCombatStatsChange: (field: string, value: unknown) => void;
   onAddStats: () => void;
@@ -48,17 +59,10 @@ interface CombatTabProps {
   isUpdating?: boolean;
 }
 
-const MAX_ACTIONS = 20;
+const MAX_ABILITIES = 20;
 
 /**
  * Combat tab component for NPC details
- * - NoCombatStatsState (when combatStats === null)
- * - OR CombatStatsForm:
- *   - Basic stats: HP Max, AC, Speed (inline editable)
- *   - Ability scores grid: STR/DEX/CON/INT/WIS/CHA
- *   - ActionsList + ActionBuilder (reuse from characters)
- *   - "Use in Combat" button → redirect `/campaigns/[id]/combats/new`
- *   - "Remove Combat Stats" button (destructive, confirm dialog)
  */
 export function CombatTab({
   npc,
@@ -82,21 +86,11 @@ export function CombatTab({
     return <NoCombatStatsState onAddStats={onAddStats} />;
   }
 
-  const actions = (displayStats.actions_json as ActionDTO[]) || [];
-
-  const handleAddAction = (action: ActionDTO) => {
-    if (isEditing) {
-      const newActions = [...actions, action];
-      onCombatStatsChange('actions_json', newActions);
-    }
-  };
-
-  const handleRemoveAction = (index: number) => {
-    if (isEditing) {
-      const newActions = actions.filter((_, i) => i !== index);
-      onCombatStatsChange('actions_json', newActions);
-    }
-  };
+  const traits = (displayStats.traits_json as MonsterTrait[]) || [];
+  const actions = (displayStats.actions_json as MonsterAction[]) || [];
+  const bonusActions = (displayStats.bonus_actions_json as MonsterAction[]) || [];
+  const reactions = (displayStats.reactions_json as MonsterAction[]) || [];
+  const legendaryActions = displayStats.legendary_actions_json;
 
   const getModifier = (score: number) => {
     const mod = Math.floor((score - 10) / 2);
@@ -109,6 +103,9 @@ export function CombatTab({
     if (mod < 0) return 'text-red-600 dark:text-red-400';
     return 'text-muted-foreground';
   };
+
+  // Speed helpers
+  const speedDisplay = displayStats.speed?.join(', ') || '30 ft.';
 
   return (
     <div className="space-y-6">
@@ -149,137 +146,206 @@ export function CombatTab({
                   className="max-w-[120px] text-center"
                 />
               </div>
+              <div>
+                <Label htmlFor="speed">Speed</Label>
+                <Input
+                  id="speed"
+                  value={speedDisplay}
+                  onChange={(e) => isEditing && onCombatStatsChange('speed', e.target.value.split(',').map((s) => s.trim()))}
+                  readOnly={!isEditing}
+                  disabled={isUpdating}
+                  placeholder="30 ft., swim 40 ft."
+                  className="max-w-[180px]"
+                />
+              </div>
             </div>
 
             {/* Ability Scores Table - Right Column */}
             <div className="max-w-2xl">
               <div className="rounded-lg overflow-hidden border border-border/50">
                 <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50 hover:bg-muted/50">
-                  <TableHead className="text-center font-semibold">STR</TableHead>
-                  <TableHead className="text-center font-semibold">DEX</TableHead>
-                  <TableHead className="text-center font-semibold">CON</TableHead>
-                  <TableHead className="text-center font-semibold">INT</TableHead>
-                  <TableHead className="text-center font-semibold">WIS</TableHead>
-                  <TableHead className="text-center font-semibold">CHA</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow className="hover:bg-muted/30 transition-colors">
-                  {/* STR */}
-                  <TableCell className="text-center">
-                    <Input
-                      id="str"
-                      type="number"
-                      value={displayStats.strength}
-                      onChange={(e) => isEditing && onCombatStatsChange('strength', parseInt(e.target.value) || 0)}
-                      readOnly={!isEditing}
-                      disabled={isUpdating}
-                      min={1}
-                      max={30}
-                      className="text-center max-w-[70px] mx-auto mb-1"
-                    />
-                    <div className={cn("text-xs font-medium", getModifierColor(displayStats.strength))}>
-                      ({getModifier(displayStats.strength)})
-                    </div>
-                  </TableCell>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50 hover:bg-muted/50">
+                      <TableHead className="text-center font-semibold">STR</TableHead>
+                      <TableHead className="text-center font-semibold">DEX</TableHead>
+                      <TableHead className="text-center font-semibold">CON</TableHead>
+                      <TableHead className="text-center font-semibold">INT</TableHead>
+                      <TableHead className="text-center font-semibold">WIS</TableHead>
+                      <TableHead className="text-center font-semibold">CHA</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow className="hover:bg-muted/30 transition-colors">
+                      {/* STR */}
+                      <TableCell className="text-center">
+                        <Input
+                          id="str"
+                          type="number"
+                          value={displayStats.strength}
+                          onChange={(e) => isEditing && onCombatStatsChange('strength', parseInt(e.target.value) || 0)}
+                          readOnly={!isEditing}
+                          disabled={isUpdating}
+                          min={1}
+                          max={30}
+                          className="text-center max-w-[70px] mx-auto mb-1"
+                        />
+                        <div className={cn('text-xs font-medium', getModifierColor(displayStats.strength))}>
+                          ({getModifier(displayStats.strength)})
+                        </div>
+                      </TableCell>
 
-                  {/* DEX */}
-                  <TableCell className="text-center">
-                    <Input
-                      id="dex"
-                      type="number"
-                      value={displayStats.dexterity}
-                      onChange={(e) => isEditing && onCombatStatsChange('dexterity', parseInt(e.target.value) || 0)}
-                      readOnly={!isEditing}
-                      disabled={isUpdating}
-                      min={1}
-                      max={30}
-                      className="text-center max-w-[70px] mx-auto mb-1"
-                    />
-                    <div className={cn("text-xs font-medium", getModifierColor(displayStats.dexterity))}>
-                      ({getModifier(displayStats.dexterity)})
-                    </div>
-                  </TableCell>
+                      {/* DEX */}
+                      <TableCell className="text-center">
+                        <Input
+                          id="dex"
+                          type="number"
+                          value={displayStats.dexterity}
+                          onChange={(e) => isEditing && onCombatStatsChange('dexterity', parseInt(e.target.value) || 0)}
+                          readOnly={!isEditing}
+                          disabled={isUpdating}
+                          min={1}
+                          max={30}
+                          className="text-center max-w-[70px] mx-auto mb-1"
+                        />
+                        <div className={cn('text-xs font-medium', getModifierColor(displayStats.dexterity))}>
+                          ({getModifier(displayStats.dexterity)})
+                        </div>
+                      </TableCell>
 
-                  {/* CON */}
-                  <TableCell className="text-center">
-                    <Input
-                      id="con"
-                      type="number"
-                      value={displayStats.constitution}
-                      onChange={(e) => isEditing && onCombatStatsChange('constitution', parseInt(e.target.value) || 0)}
-                      readOnly={!isEditing}
-                      disabled={isUpdating}
-                      min={1}
-                      max={30}
-                      className="text-center max-w-[70px] mx-auto mb-1"
-                    />
-                    <div className={cn("text-xs font-medium", getModifierColor(displayStats.constitution))}>
-                      ({getModifier(displayStats.constitution)})
-                    </div>
-                  </TableCell>
+                      {/* CON */}
+                      <TableCell className="text-center">
+                        <Input
+                          id="con"
+                          type="number"
+                          value={displayStats.constitution}
+                          onChange={(e) => isEditing && onCombatStatsChange('constitution', parseInt(e.target.value) || 0)}
+                          readOnly={!isEditing}
+                          disabled={isUpdating}
+                          min={1}
+                          max={30}
+                          className="text-center max-w-[70px] mx-auto mb-1"
+                        />
+                        <div className={cn('text-xs font-medium', getModifierColor(displayStats.constitution))}>
+                          ({getModifier(displayStats.constitution)})
+                        </div>
+                      </TableCell>
 
-                  {/* INT */}
-                  <TableCell className="text-center">
-                    <Input
-                      id="int"
-                      type="number"
-                      value={displayStats.intelligence}
-                      onChange={(e) => isEditing && onCombatStatsChange('intelligence', parseInt(e.target.value) || 0)}
-                      readOnly={!isEditing}
-                      disabled={isUpdating}
-                      min={1}
-                      max={30}
-                      className="text-center max-w-[70px] mx-auto mb-1"
-                    />
-                    <div className={cn("text-xs font-medium", getModifierColor(displayStats.intelligence))}>
-                      ({getModifier(displayStats.intelligence)})
-                    </div>
-                  </TableCell>
+                      {/* INT */}
+                      <TableCell className="text-center">
+                        <Input
+                          id="int"
+                          type="number"
+                          value={displayStats.intelligence}
+                          onChange={(e) => isEditing && onCombatStatsChange('intelligence', parseInt(e.target.value) || 0)}
+                          readOnly={!isEditing}
+                          disabled={isUpdating}
+                          min={1}
+                          max={30}
+                          className="text-center max-w-[70px] mx-auto mb-1"
+                        />
+                        <div className={cn('text-xs font-medium', getModifierColor(displayStats.intelligence))}>
+                          ({getModifier(displayStats.intelligence)})
+                        </div>
+                      </TableCell>
 
-                  {/* WIS */}
-                  <TableCell className="text-center">
-                    <Input
-                      id="wis"
-                      type="number"
-                      value={displayStats.wisdom}
-                      onChange={(e) => isEditing && onCombatStatsChange('wisdom', parseInt(e.target.value) || 0)}
-                      readOnly={!isEditing}
-                      disabled={isUpdating}
-                      min={1}
-                      max={30}
-                      className="text-center max-w-[70px] mx-auto mb-1"
-                    />
-                    <div className={cn("text-xs font-medium", getModifierColor(displayStats.wisdom))}>
-                      ({getModifier(displayStats.wisdom)})
-                    </div>
-                  </TableCell>
+                      {/* WIS */}
+                      <TableCell className="text-center">
+                        <Input
+                          id="wis"
+                          type="number"
+                          value={displayStats.wisdom}
+                          onChange={(e) => isEditing && onCombatStatsChange('wisdom', parseInt(e.target.value) || 0)}
+                          readOnly={!isEditing}
+                          disabled={isUpdating}
+                          min={1}
+                          max={30}
+                          className="text-center max-w-[70px] mx-auto mb-1"
+                        />
+                        <div className={cn('text-xs font-medium', getModifierColor(displayStats.wisdom))}>
+                          ({getModifier(displayStats.wisdom)})
+                        </div>
+                      </TableCell>
 
-                  {/* CHA */}
-                  <TableCell className="text-center">
-                    <Input
-                      id="cha"
-                      type="number"
-                      value={displayStats.charisma}
-                      onChange={(e) => isEditing && onCombatStatsChange('charisma', parseInt(e.target.value) || 0)}
-                      readOnly={!isEditing}
-                      disabled={isUpdating}
-                      min={1}
-                      max={30}
-                      className="text-center max-w-[70px] mx-auto mb-1"
-                    />
-                    <div className={cn("text-xs font-medium", getModifierColor(displayStats.charisma))}>
-                      ({getModifier(displayStats.charisma)})
-                    </div>
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+                      {/* CHA */}
+                      <TableCell className="text-center">
+                        <Input
+                          id="cha"
+                          type="number"
+                          value={displayStats.charisma}
+                          onChange={(e) => isEditing && onCombatStatsChange('charisma', parseInt(e.target.value) || 0)}
+                          readOnly={!isEditing}
+                          disabled={isUpdating}
+                          min={1}
+                          max={30}
+                          className="text-center max-w-[70px] mx-auto mb-1"
+                        />
+                        <div className={cn('text-xs font-medium', getModifierColor(displayStats.charisma))}>
+                          ({getModifier(displayStats.charisma)})
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
               </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Combat Properties */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Combat Properties</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <CombatPropertiesForm
+            damageVulnerabilities={displayStats.damage_vulnerabilities || []}
+            damageResistances={displayStats.damage_resistances || []}
+            damageImmunities={displayStats.damage_immunities || []}
+            conditionImmunities={displayStats.condition_immunities || []}
+            gear={displayStats.gear || []}
+            onChange={onCombatStatsChange}
+            disabled={!isEditing || isUpdating}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Traits */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Traits</CardTitle>
+          <CardDescription>
+            {traits.length} / {MAX_ABILITIES} traits
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="max-w-4xl space-y-4">
+          {traits.length > 0 && (
+            <div className="space-y-2">
+              {traits.map((trait, index) => (
+                <AbilityCard
+                  key={index}
+                  ability={trait}
+                  onDelete={() => {
+                    if (isEditing) {
+                      const updated = traits.filter((_, i) => i !== index);
+                      onCombatStatsChange('traits_json', updated);
+                    }
+                  }}
+                  editMode={isEditing}
+                />
+              ))}
+            </div>
+          )}
+          {isEditing && (
+            <AbilityBuilder
+              abilityType="trait"
+              onAdd={(trait) => {
+                const updated = [...traits, trait];
+                onCombatStatsChange('traits_json', updated);
+              }}
+              maxReached={traits.length >= MAX_ABILITIES}
+            />
+          )}
         </CardContent>
       </Card>
 
@@ -288,67 +354,223 @@ export function CombatTab({
         <CardHeader>
           <CardTitle className="text-base">Actions</CardTitle>
           <CardDescription>
-            {actions.length} / {MAX_ACTIONS} actions
+            {actions.length} / {MAX_ABILITIES} actions
           </CardDescription>
         </CardHeader>
         <CardContent className="max-w-4xl space-y-4">
-          {/* Actions List */}
           {actions.length > 0 && (
             <div className="space-y-2">
               {actions.map((action, index) => (
-                <div
+                <AbilityCard
                   key={index}
-                  className="flex items-start gap-3 p-3 rounded-lg border bg-card"
-                >
-                  <div className="flex-1 space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{action.name}</span>
-                      <Badge variant="secondary" className="text-xs">
-                        {action.type.replace('_', ' ')}
-                      </Badge>
-                    </div>
-                    {action.attack_bonus !== undefined && (
-                      <p className="text-xs text-muted-foreground">
-                        Attack: {action.attack_bonus >= 0 ? '+' : ''}{action.attack_bonus}
-                      </p>
-                    )}
-                    {action.damage_dice && (
-                      <p className="text-xs text-muted-foreground">
-                        Damage: {action.damage_dice}
-                        {action.damage_bonus ? ` + ${action.damage_bonus}` : ''}
-                        {action.damage_type ? ` ${action.damage_type}` : ''}
-                      </p>
-                    )}
-                    {action.reach && (
-                      <p className="text-xs text-muted-foreground">Reach: {action.reach}</p>
-                    )}
-                    {action.range && (
-                      <p className="text-xs text-muted-foreground">Range: {action.range}</p>
-                    )}
-                    {action.description && (
-                      <p className="text-xs text-muted-foreground">{action.description}</p>
-                    )}
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleRemoveAction(index)}
-                    disabled={!isEditing || isUpdating}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
+                  ability={action}
+                  onDelete={() => {
+                    if (isEditing) {
+                      const updated = actions.filter((_, i) => i !== index);
+                      onCombatStatsChange('actions_json', updated);
+                    }
+                  }}
+                  editMode={isEditing}
+                />
               ))}
             </div>
           )}
-
-          {/* Action Builder */}
           {isEditing && (
-            <ActionBuilder
-              onAdd={handleAddAction}
-              maxActionsReached={actions.length >= MAX_ACTIONS}
+            <AbilityBuilder
+              abilityType="action"
+              onAdd={(action) => {
+                const updated = [...actions, action as MonsterAction];
+                onCombatStatsChange('actions_json', updated);
+              }}
+              maxReached={actions.length >= MAX_ABILITIES}
             />
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Bonus Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Bonus Actions</CardTitle>
+          <CardDescription>
+            {bonusActions.length} / {MAX_ABILITIES} bonus actions
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="max-w-4xl space-y-4">
+          {bonusActions.length > 0 && (
+            <div className="space-y-2">
+              {bonusActions.map((action, index) => (
+                <AbilityCard
+                  key={index}
+                  ability={action}
+                  onDelete={() => {
+                    if (isEditing) {
+                      const updated = bonusActions.filter((_, i) => i !== index);
+                      onCombatStatsChange('bonus_actions_json', updated);
+                    }
+                  }}
+                  editMode={isEditing}
+                />
+              ))}
+            </div>
+          )}
+          {isEditing && (
+            <AbilityBuilder
+              abilityType="bonus_action"
+              onAdd={(action) => {
+                const updated = [...bonusActions, action as MonsterAction];
+                onCombatStatsChange('bonus_actions_json', updated);
+              }}
+              maxReached={bonusActions.length >= MAX_ABILITIES}
+            />
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Reactions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Reactions</CardTitle>
+          <CardDescription>
+            {reactions.length} / {MAX_ABILITIES} reactions
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="max-w-4xl space-y-4">
+          {reactions.length > 0 && (
+            <div className="space-y-2">
+              {reactions.map((reaction, index) => (
+                <AbilityCard
+                  key={index}
+                  ability={reaction}
+                  onDelete={() => {
+                    if (isEditing) {
+                      const updated = reactions.filter((_, i) => i !== index);
+                      onCombatStatsChange('reactions_json', updated);
+                    }
+                  }}
+                  editMode={isEditing}
+                />
+              ))}
+            </div>
+          )}
+          {isEditing && (
+            <AbilityBuilder
+              abilityType="reaction"
+              onAdd={(reaction) => {
+                const updated = [...reactions, reaction as MonsterAction];
+                onCombatStatsChange('reactions_json', updated);
+              }}
+              maxReached={reactions.length >= MAX_ABILITIES}
+            />
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Legendary Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Legendary Actions</CardTitle>
+          <CardDescription>
+            {legendaryActions ? `${legendaryActions.actions.length} / ${MAX_ABILITIES} legendary actions` : 'None'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="max-w-4xl space-y-4">
+          {legendaryActions && (
+            <>
+              <div className="grid grid-cols-2 gap-4 p-3 border rounded-lg bg-muted/30">
+                <div>
+                  <Label htmlFor="leg-uses">Uses</Label>
+                  <Input
+                    id="leg-uses"
+                    type="number"
+                    value={legendaryActions.uses}
+                    onChange={(e) => {
+                      if (isEditing) {
+                        onCombatStatsChange('legendary_actions_json', {
+                          ...legendaryActions,
+                          uses: parseInt(e.target.value) || 3,
+                        });
+                      }
+                    }}
+                    readOnly={!isEditing}
+                    disabled={isUpdating}
+                    min={1}
+                    max={10}
+                    className="max-w-[100px]"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="leg-desc">Usage Description</Label>
+                  <Input
+                    id="leg-desc"
+                    value={legendaryActions.usageDescription}
+                    onChange={(e) => {
+                      if (isEditing) {
+                        onCombatStatsChange('legendary_actions_json', {
+                          ...legendaryActions,
+                          usageDescription: e.target.value,
+                        });
+                      }
+                    }}
+                    readOnly={!isEditing}
+                    disabled={isUpdating}
+                    placeholder="can use 3 per round"
+                  />
+                </div>
+              </div>
+
+              {legendaryActions.actions.length > 0 && (
+                <div className="space-y-2">
+                  {legendaryActions.actions.map((action, index) => (
+                    <AbilityCard
+                      key={index}
+                      ability={action}
+                      onDelete={() => {
+                        if (isEditing) {
+                          const updated = legendaryActions.actions.filter((_, i) => i !== index);
+                          onCombatStatsChange('legendary_actions_json', {
+                            ...legendaryActions,
+                            actions: updated,
+                          });
+                        }
+                      }}
+                      editMode={isEditing}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {isEditing && (
+            <>
+              {!legendaryActions ? (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    onCombatStatsChange('legendary_actions_json', {
+                      uses: 3,
+                      usageDescription: 'can use 3 per round',
+                      actions: [],
+                    });
+                  }}
+                >
+                  Enable Legendary Actions
+                </Button>
+              ) : (
+                <AbilityBuilder
+                  abilityType="legendary_action"
+                  onAdd={(action) => {
+                    const updated = [...legendaryActions.actions, action as MonsterAction];
+                    onCombatStatsChange('legendary_actions_json', {
+                      ...legendaryActions,
+                      actions: updated,
+                    });
+                  }}
+                  maxReached={legendaryActions.actions.length >= MAX_ABILITIES}
+                />
+              )}
+            </>
           )}
         </CardContent>
       </Card>
@@ -367,8 +589,8 @@ export function CombatTab({
               <AlertDialogHeader>
                 <AlertDialogTitle>Remove Combat Stats</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Are you sure you want to remove all combat statistics for {npc.name}? This will
-                  delete HP, AC, ability scores, and all actions. This action cannot be undone.
+                  Are you sure you want to remove all combat statistics for {npc.name}? This will delete HP, AC,
+                  ability scores, and all abilities. This action cannot be undone.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

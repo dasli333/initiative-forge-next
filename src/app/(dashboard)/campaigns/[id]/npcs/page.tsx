@@ -34,7 +34,7 @@ import { useLocationsQuery } from '@/hooks/useLocations';
 import type { NPCCardViewModel, NPCFilters } from '@/types/npcs';
 import type { NPCFormData } from '@/lib/schemas/npcs';
 import type { JSONContent } from '@tiptap/core';
-import type { ActionDTO } from '@/types';
+import type { MonsterAction, MonsterTrait, LegendaryActions } from '@/lib/schemas/monster.schema';
 import {TagIcon} from "@/types/npc-tags";
 
 /**
@@ -90,14 +90,23 @@ export default function NPCsPage() {
     combatStats: {
       hp_max: number;
       armor_class: number;
-      speed: number;
+      speed: string[];
       strength: number;
       dexterity: number;
       constitution: number;
       intelligence: number;
       wisdom: number;
       charisma: number;
-      actions_json: ActionDTO[] | null;
+      actions_json: MonsterAction[] | null;
+      traits_json: MonsterTrait[] | null;
+      bonus_actions_json: MonsterAction[] | null;
+      reactions_json: MonsterAction[] | null;
+      legendary_actions_json: LegendaryActions | null;
+      damage_vulnerabilities: string[] | null;
+      damage_resistances: string[] | null;
+      damage_immunities: string[] | null;
+      condition_immunities: string[] | null;
+      gear: string[] | null;
     } | null;
   } | null>(null);
 
@@ -149,7 +158,7 @@ export default function NPCsPage() {
         combatStats: npcDetails.combatStats ? {
           hp_max: npcDetails.combatStats.hp_max,
           armor_class: npcDetails.combatStats.armor_class,
-          speed: npcDetails.combatStats.speed,
+          speed: npcDetails.combatStats.speed || ['30 ft.'],
           strength: npcDetails.combatStats.strength,
           dexterity: npcDetails.combatStats.dexterity,
           constitution: npcDetails.combatStats.constitution,
@@ -157,6 +166,15 @@ export default function NPCsPage() {
           wisdom: npcDetails.combatStats.wisdom,
           charisma: npcDetails.combatStats.charisma,
           actions_json: npcDetails.combatStats.actions_json,
+          traits_json: npcDetails.combatStats.traits_json || null,
+          bonus_actions_json: npcDetails.combatStats.bonus_actions_json || null,
+          reactions_json: npcDetails.combatStats.reactions_json || null,
+          legendary_actions_json: npcDetails.combatStats.legendary_actions_json || null,
+          damage_vulnerabilities: npcDetails.combatStats.damage_vulnerabilities || null,
+          damage_resistances: npcDetails.combatStats.damage_resistances || null,
+          damage_immunities: npcDetails.combatStats.damage_immunities || null,
+          condition_immunities: npcDetails.combatStats.condition_immunities || null,
+          gear: npcDetails.combatStats.gear || null,
         } : null,
       });
       setIsEditing(true);
@@ -224,14 +242,23 @@ export default function NPCsPage() {
         const hasChanges =
           editedData.combatStats.hp_max !== npcDetails.combatStats.hp_max ||
           editedData.combatStats.armor_class !== npcDetails.combatStats.armor_class ||
-          editedData.combatStats.speed !== npcDetails.combatStats.speed ||
+          JSON.stringify(editedData.combatStats.speed) !== JSON.stringify(npcDetails.combatStats.speed) ||
           editedData.combatStats.strength !== npcDetails.combatStats.strength ||
           editedData.combatStats.dexterity !== npcDetails.combatStats.dexterity ||
           editedData.combatStats.constitution !== npcDetails.combatStats.constitution ||
           editedData.combatStats.intelligence !== npcDetails.combatStats.intelligence ||
           editedData.combatStats.wisdom !== npcDetails.combatStats.wisdom ||
           editedData.combatStats.charisma !== npcDetails.combatStats.charisma ||
-          JSON.stringify(editedData.combatStats.actions_json) !== JSON.stringify(npcDetails.combatStats.actions_json);
+          JSON.stringify(editedData.combatStats.actions_json) !== JSON.stringify(npcDetails.combatStats.actions_json) ||
+          JSON.stringify(editedData.combatStats.traits_json) !== JSON.stringify(npcDetails.combatStats.traits_json) ||
+          JSON.stringify(editedData.combatStats.bonus_actions_json) !== JSON.stringify(npcDetails.combatStats.bonus_actions_json) ||
+          JSON.stringify(editedData.combatStats.reactions_json) !== JSON.stringify(npcDetails.combatStats.reactions_json) ||
+          JSON.stringify(editedData.combatStats.legendary_actions_json) !== JSON.stringify(npcDetails.combatStats.legendary_actions_json) ||
+          JSON.stringify(editedData.combatStats.damage_vulnerabilities) !== JSON.stringify(npcDetails.combatStats.damage_vulnerabilities) ||
+          JSON.stringify(editedData.combatStats.damage_resistances) !== JSON.stringify(npcDetails.combatStats.damage_resistances) ||
+          JSON.stringify(editedData.combatStats.damage_immunities) !== JSON.stringify(npcDetails.combatStats.damage_immunities) ||
+          JSON.stringify(editedData.combatStats.condition_immunities) !== JSON.stringify(npcDetails.combatStats.condition_immunities) ||
+          JSON.stringify(editedData.combatStats.gear) !== JSON.stringify(npcDetails.combatStats.gear);
 
         if (hasChanges) {
           upsertCombatStatsMutation.mutate({
@@ -297,7 +324,7 @@ export default function NPCsPage() {
         combatStats: {
           hp_max: 10,
           armor_class: 10,
-          speed: 30,
+          speed: ['30 ft.'],
           strength: 10,
           dexterity: 10,
           constitution: 10,
@@ -305,6 +332,15 @@ export default function NPCsPage() {
           wisdom: 10,
           charisma: 10,
           actions_json: null,
+          traits_json: null,
+          bonus_actions_json: null,
+          reactions_json: null,
+          legendary_actions_json: null,
+          damage_vulnerabilities: null,
+          damage_resistances: null,
+          damage_immunities: null,
+          condition_immunities: null,
+          gear: null,
         },
       });
       setIsEditing(true);
@@ -314,7 +350,7 @@ export default function NPCsPage() {
         combatStats: {
           hp_max: 10,
           armor_class: 10,
-          speed: 30,
+          speed: ['30 ft.'],
           strength: 10,
           dexterity: 10,
           constitution: 10,
@@ -322,6 +358,15 @@ export default function NPCsPage() {
           wisdom: 10,
           charisma: 10,
           actions_json: null,
+          traits_json: null,
+          bonus_actions_json: null,
+          reactions_json: null,
+          legendary_actions_json: null,
+          damage_vulnerabilities: null,
+          damage_resistances: null,
+          damage_immunities: null,
+          condition_immunities: null,
+          gear: null,
         },
       });
     }
