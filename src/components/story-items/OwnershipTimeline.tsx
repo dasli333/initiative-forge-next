@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { useFieldArray, Controller, type Control } from 'react-hook-form';
+import { useFieldArray, useWatch, Controller, type Control } from 'react-hook-form';
 import type { OwnershipHistoryEntry } from '@/types/story-items';
 import type { UpdateStoryItemFormData } from '@/lib/schemas/story-items';
 
@@ -166,6 +166,7 @@ function EditableOwnershipTimeline({
     control,
     name: 'ownership_history_json',
   });
+  const watchedEntries = useWatch({ control, name: 'ownership_history_json' });
 
     return (
       <div className="space-y-4">
@@ -215,7 +216,7 @@ function EditableOwnershipTimeline({
                   control={control}
                   render={({ field: controllerField }) => (
                     <OwnerSelect
-                      ownerType={field.owner_type}
+                      ownerType={watchedEntries?.[index]?.owner_type ?? field.owner_type}
                       value={controllerField.value}
                       onChange={controllerField.onChange}
                       npcs={npcs}
