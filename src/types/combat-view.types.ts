@@ -74,6 +74,10 @@ export interface CombatState {
   addCondition: (participantId: string, condition: import("@/types").ActiveConditionDTO) => void;
   removeCondition: (participantId: string, conditionId: string) => void;
   executeAction: (participantId: string, action: import("@/types").ActionDTO) => void;
+  toggleAlly: (participantId: string) => void;
+  rollDeathSave: (participantId: string) => void;
+  addDeathSaveResult: (participantId: string, type: "success" | "failure") => void;
+  killParticipant: (participantId: string) => void;
   setRollMode: (mode: RollMode) => void;
   saveSnapshot: () => Promise<void>;
   markClean: () => void;

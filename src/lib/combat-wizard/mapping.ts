@@ -9,6 +9,7 @@ export function mapWizardStateToCommand(wizardState: {
   selectedPlayerCharacterIds: string[];
   addedMonsters: Map<string, AddedMonster>;
   selectedNPCIds: string[];
+  npcAllyMap: Record<string, boolean>;
 }): CreateCombatCommand {
   const initial_participants: InitialParticipantCommand[] = [];
 
@@ -34,6 +35,7 @@ export function mapWizardStateToCommand(wizardState: {
     initial_participants.push({
       source: "npc",
       npc_id: npcId,
+      is_ally: wizardState.npcAllyMap[npcId] ?? false,
     });
   });
 

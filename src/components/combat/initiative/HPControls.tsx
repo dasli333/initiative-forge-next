@@ -48,8 +48,9 @@ export function HPControls({ currentHP, maxHP, onHPChange }: HPControlsProps) {
 
   const isValid = !error && value !== "";
 
-  // Calculate HP percentage
+  // Calculate HP percentage and color
   const hpPercentage = maxHP > 0 ? (currentHP / maxHP) * 100 : 0;
+  const hpColor = hpPercentage > 50 ? "bg-emerald-500" : hpPercentage > 25 ? "bg-yellow-500" : "bg-red-500";
 
   return (
     <div className="space-y-1">
@@ -63,7 +64,7 @@ export function HPControls({ currentHP, maxHP, onHPChange }: HPControlsProps) {
               {currentHP}/{maxHP}
             </span>
           </div>
-          <Progress value={hpPercentage} className="h-1.5" data-testid="hp-progress-bar" />
+          <Progress value={hpPercentage} className="h-1.5" indicatorClassName={hpColor} data-testid="hp-progress-bar" />
         </div>
 
         {/* Right: Input + Buttons */}
