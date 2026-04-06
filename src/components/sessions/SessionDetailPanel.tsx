@@ -12,17 +12,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+
 import { Calendar, Pencil, Save, X, Trash2, AlertCircle, BookOpen } from 'lucide-react';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { DeleteConfirmationDialog } from '@/components/shared/DeleteConfirmationDialog';
 import { cn } from '@/lib/utils';
 import { StatusBadge } from './shared/StatusBadge';
 import { PrepTab } from './prep/PrepTab';
@@ -88,20 +81,13 @@ export function SessionDetailPanel({
     setIsDeleteDialogOpen(false);
   };
 
-  // Empty state
   if (!session && !isLoading) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <div className="flex flex-col items-center gap-4 text-center">
-          <BookOpen className="h-16 w-16 text-muted-foreground" />
-          <div>
-            <h3 className="text-lg font-semibold">No Session Selected</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              Select a session from the list to view details, or create a new one to get started.
-            </p>
-          </div>
-        </div>
-      </div>
+      <EmptyState
+        icon={BookOpen}
+        title="No Session Selected"
+        description="Select a session from the list to view details, or create a new one to get started."
+      />
     );
   }
 
@@ -292,27 +278,14 @@ export function SessionDetailPanel({
       </Tabs>
 
       {/* Delete confirmation dialog */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Session</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete Session #{session.session_number}
-              {session.title && ` "${session.title}"`}? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              disabled={isDeleting}
-            >
-              {isDeleting ? 'Deleting...' : 'Delete'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        isOpen={isDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setIsDeleteDialogOpen(false)}
+        isDeleting={isDeleting}
+        entityName={`Session #${session.session_number}${session.title ? ` "${session.title}"` : ''}`}
+        entityType="Session"
+      />
     </div>
   );
 }

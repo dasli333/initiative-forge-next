@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { Users, Shield } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { SidebarListItem } from '@/components/shared/SidebarListItem';
 import type { FactionCardViewModel } from '@/types/factions';
 
 interface FactionListItemProps {
@@ -46,17 +46,7 @@ export function FactionListItem({ faction, isSelected, onClick }: FactionListIte
   const excerpt = getDescriptionExcerpt();
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        'w-full px-3 py-2.5 flex items-start gap-3 rounded-lg border transition-colors text-left',
-        'hover:bg-accent/50',
-        isSelected
-          ? 'bg-primary/10 border-primary'
-          : 'bg-card'
-      )}
-    >
+    <SidebarListItem isSelected={isSelected} onClick={onClick}>
       {/* Avatar/Image */}
       <div className="shrink-0">
         {faction.faction.image_url ? (
@@ -121,6 +111,6 @@ export function FactionListItem({ faction, isSelected, onClick }: FactionListIte
           )}
         </div>
       </div>
-    </button>
+    </SidebarListItem>
   );
 }

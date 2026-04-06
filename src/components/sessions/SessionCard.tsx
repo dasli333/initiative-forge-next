@@ -1,8 +1,9 @@
 'use client';
 
-import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Gamepad2, Target } from 'lucide-react';
+import { SidebarListItem } from '@/components/shared/SidebarListItem';
+import { cn } from '@/lib/utils';
 import type { SessionDTO, SessionStatus } from '@/types/sessions';
 import { calculateGoalsProgress } from '@/lib/api/sessions';
 
@@ -43,15 +44,8 @@ export function SessionCard({ session, isSelected, onClick }: SessionCardProps) 
   };
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        'w-full rounded-lg border p-3 text-left transition-colors',
-        'hover:border-primary/50 hover:bg-accent/50',
-        isSelected && 'border-primary bg-accent'
-      )}
-    >
+    <SidebarListItem isSelected={isSelected} onClick={onClick}>
+      <div className="flex-1 min-w-0">
       {/* Header row: Session # + Status */}
       <div className="flex items-center justify-between gap-2">
         <span className="font-semibold text-sm">
@@ -93,6 +87,7 @@ export function SessionCard({ session, isSelected, onClick }: SessionCardProps) 
           </span>
         )}
       </div>
-    </button>
+      </div>
+    </SidebarListItem>
   );
 }

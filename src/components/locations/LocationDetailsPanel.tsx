@@ -1,6 +1,7 @@
 'use client';
 
 import { MapPin } from 'lucide-react';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { LocationDetails } from './LocationDetails';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { LocationDTO } from '@/types/locations';
@@ -36,17 +37,11 @@ export function LocationDetailsPanel({
     : [];
 
   return !selectedLocation ? (
-    <div className="flex h-full items-center justify-center">
-      <div className="flex flex-col items-center gap-4 text-center">
-        <MapPin className="h-16 w-16 text-muted-foreground" />
-        <div>
-          <h3 className="text-lg font-semibold">No Location Selected</h3>
-          <p className="text-sm text-muted-foreground mt-1">
-            Select a location from the tree to view details, or create a new one to get started.
-          </p>
-        </div>
-      </div>
-    </div>
+    <EmptyState
+      icon={MapPin}
+      title="No Location Selected"
+      description="Select a location from the tree to view details, or create a new one to get started."
+    />
   ) : (
     <ScrollArea className="h-full">
       <div className="p-6">

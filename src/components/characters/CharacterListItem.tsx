@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { User, Users, Swords, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { SidebarListItem } from '@/components/shared/SidebarListItem';
 import type { PlayerCharacterCardViewModel } from '@/types/player-characters';
 
 interface CharacterListItemProps {
@@ -37,17 +38,10 @@ export function CharacterListItem({ character, isSelected, onClick }: CharacterL
     .join(' ');
 
   return (
-    <button
-      type="button"
+    <SidebarListItem
+      isSelected={isSelected}
       onClick={onClick}
       data-testid={`character-card-${character.name}`}
-      className={cn(
-        'w-full px-3 py-2.5 flex items-start gap-3 rounded-lg border transition-colors text-left',
-        'hover:bg-accent/50',
-        isSelected
-          ? 'bg-primary/10 border-primary'
-          : 'bg-card'
-      )}
     >
       {/* Avatar */}
       <div className="relative shrink-0">
@@ -115,6 +109,6 @@ export function CharacterListItem({ character, isSelected, onClick }: CharacterL
           )}
         </div>
       </div>
-    </button>
+    </SidebarListItem>
   );
 }

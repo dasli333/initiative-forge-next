@@ -5,17 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+
 import { Scroll, AlertCircle } from 'lucide-react';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { DeleteConfirmationDialog } from '@/components/shared/DeleteConfirmationDialog';
 import { cn } from '@/lib/utils';
 import { DetailsTab } from './tabs/DetailsTab';
 import { ObjectivesTab } from './tabs/ObjectivesTab';
@@ -85,20 +78,13 @@ export function QuestDetailPanel({
     setIsDeleteDialogOpen(false);
   };
 
-  // Empty state (no quest selected)
   if (!questId) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <div className="flex flex-col items-center gap-4 text-center">
-          <Scroll className="h-16 w-16 text-muted-foreground" />
-          <div>
-            <h3 className="text-lg font-semibold">No Quest Selected</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              Select a quest from the list to view details, or create a new one to get started.
-            </p>
-          </div>
-        </div>
-      </div>
+      <EmptyState
+        icon={Scroll}
+        title="No Quest Selected"
+        description="Select a quest from the list to view details, or create a new one to get started."
+      />
     );
   }
 
@@ -260,27 +246,14 @@ export function QuestDetailPanel({
       </Tabs>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Quest</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete &quot;{viewModel.quest.title}&quot;? This action
-              cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              disabled={isDeleting}
-              className="bg-destructive text-destructive-foreground"
-            >
-              {isDeleting ? 'Deleting...' : 'Delete'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        isOpen={isDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setIsDeleteDialogOpen(false)}
+        isDeleting={isDeleting}
+        entityName={viewModel.quest.title}
+        entityType="Quest"
+      />
     </div>
   );
 }

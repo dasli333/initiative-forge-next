@@ -1,15 +1,8 @@
 'use client';
 
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Plus, Tags } from 'lucide-react';
+import { PageHeader } from '@/components/shared/PageHeader';
 
 interface NPCsHeaderProps {
   campaignName: string;
@@ -18,12 +11,6 @@ interface NPCsHeaderProps {
   onManageTagsClick: () => void;
 }
 
-/**
- * Header component for NPCs page
- * - Breadcrumb: My Campaigns → [Campaign Name] → NPCs
- * - H1: "NPCs"
- * - Actions: "Manage Tags" and "Add NPC" buttons
- */
 export function NPCsHeader({
   campaignName,
   campaignId,
@@ -31,27 +18,14 @@ export function NPCsHeader({
   onManageTagsClick,
 }: NPCsHeaderProps) {
   return (
-    <div className="space-y-4 pb-4 border-b">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/campaigns">My Campaigns</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href={`/campaigns/${campaignId}`}>
-              {campaignName}
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>NPCs</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">NPCs</h1>
+    <PageHeader
+      breadcrumbs={[
+        { label: 'My Campaigns', href: '/campaigns' },
+        { label: campaignName, href: `/campaigns/${campaignId}` },
+        { label: 'NPCs' },
+      ]}
+      title="NPCs"
+      actions={
         <div className="flex gap-2">
           <Button variant="outline" onClick={onManageTagsClick}>
             <Tags className="h-4 w-4 mr-2" />
@@ -62,7 +36,7 @@ export function NPCsHeader({
             Add NPC
           </Button>
         </div>
-      </div>
-    </div>
+      }
+    />
   );
 }

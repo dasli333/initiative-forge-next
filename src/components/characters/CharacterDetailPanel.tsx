@@ -4,17 +4,10 @@ import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+
 import { Pencil, Save, X, User, Trash2 } from 'lucide-react';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { DeleteConfirmationDialog } from '@/components/shared/DeleteConfirmationDialog';
 import { cn } from '@/lib/utils';
 import { StoryTab } from './tabs/StoryTab';
 import { CombatTab } from './tabs/CombatTab';
@@ -111,16 +104,13 @@ export function CharacterDetailPanel({
 }: CharacterDetailPanelProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  // Empty state when no character selected
   if (!characterId) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-center px-6">
-        <User className="w-16 h-16 text-muted-foreground/50 mb-4" />
-        <h3 className="text-lg font-medium text-foreground mb-2">No Character Selected</h3>
-        <p className="text-sm text-muted-foreground max-w-sm">
-          Select a character from the list to view details, or create a new one to get started.
-        </p>
-      </div>
+      <EmptyState
+        icon={User}
+        title="No Character Selected"
+        description="Select a character from the list to view details, or create a new one to get started."
+      />
     );
   }
 
@@ -300,29 +290,13 @@ export function CharacterDetailPanel({
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Character</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete <span className="font-semibold">{viewModel.name}</span>?
-              This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                setShowDeleteDialog(false);
-                onDelete();
-              }}
-              className="bg-destructive hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        isOpen={showDeleteDialog}
+        onConfirm={() => { setShowDeleteDialog(false); onDelete(); }}
+        onCancel={() => setShowDeleteDialog(false)}
+        entityName={viewModel.name}
+        entityType="Character"
+      />
     </div>
   );
 }

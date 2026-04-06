@@ -6,17 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+
 import { BookText } from 'lucide-react';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { DeleteConfirmationDialog } from '@/components/shared/DeleteConfirmationDialog';
 import { DetailsTab, type EditedStoryArcData } from './tabs/DetailsTab';
 import { QuestsTab } from './tabs/QuestsTab';
 import { RelatedTab } from './tabs/RelatedTab';
@@ -61,17 +54,11 @@ export function StoryArcDetailPanel({
 
   if (!storyArcId) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <div className="flex flex-col items-center gap-4 text-center">
-          <BookText className="h-16 w-16 text-muted-foreground" />
-          <div>
-            <h3 className="text-lg font-semibold">No Story Arc Selected</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              Select a story arc from the list to view details, or create a new one to get started.
-            </p>
-          </div>
-        </div>
-      </div>
+      <EmptyState
+        icon={BookText}
+        title="No Story Arc Selected"
+        description="Select a story arc from the list to view details, or create a new one to get started."
+      />
     );
   }
 
@@ -179,29 +166,19 @@ export function StoryArcDetailPanel({
       </Tabs>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Story Arc?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete &quot;{storyArc.title}&quot;?
-              Quests will be unlinked from this arc (story_arc_id set to NULL).
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                onDelete();
-                setShowDeleteDialog(false);
-              }}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        isOpen={showDeleteDialog}
+        onConfirm={() => { onDelete(); setShowDeleteDialog(false); }}
+        onCancel={() => setShowDeleteDialog(false)}
+        isDeleting={isDeleting}
+        entityName={storyArc.title}
+        entityType="Story Arc"
+        warning={
+          <span className="block mt-2 text-destructive">
+            Quests will be unlinked from this arc.
+          </span>
+        }
+      />
     </div>
   );
 }

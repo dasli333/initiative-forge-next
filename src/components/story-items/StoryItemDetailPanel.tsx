@@ -4,20 +4,13 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Edit2, Trash2, Save, X, Users, User, Building, MapPin, HelpCircle, Sparkles } from 'lucide-react';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { DeleteConfirmationDialog } from '@/components/shared/DeleteConfirmationDialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+
 import { RichTextEditor } from '@/components/shared/RichTextEditor';
 import { ImageUpload } from '@/components/shared/ImageUpload';
 import { OwnershipTimeline } from './OwnershipTimeline';
@@ -156,20 +149,13 @@ export function StoryItemDetailPanel({
     }
   }, [item, isEditing, form]);
 
-  // No selection state
   if (!item && !isLoading) {
     return (
-      <div className="flex items-center justify-center h-full text-center p-8">
-        <div className="flex flex-col items-center">
-          <Sparkles className="w-16 h-16 text-muted-foreground/50 mb-4" />
-          <h3 className="text-lg font-medium text-foreground mb-2">
-            No Story Item Selected
-          </h3>
-          <p className="text-sm text-muted-foreground max-w-sm">
-            Select a story item from the list to view its details
-          </p>
-        </div>
-      </div>
+      <EmptyState
+        icon={Sparkles}
+        title="No Story Item Selected"
+        description="Select a story item from the list to view its details."
+      />
     );
   }
 
@@ -402,22 +388,14 @@ export function StoryItemDetailPanel({
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Story Item</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete &quot;{item.name}&quot;? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
-              {isDeleting ? 'Deleting...' : 'Delete'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        isOpen={showDeleteDialog}
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteDialog(false)}
+        isDeleting={isDeleting}
+        entityName={item.name}
+        entityType="Story Item"
+      />
     </div>
   );
 }

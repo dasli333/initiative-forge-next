@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import { getCategoryIcon, getCategoryColor } from '@/lib/utils/loreNoteUtils';
+import { SidebarListItem } from '@/components/shared/SidebarListItem';
 import { TagBadge } from './shared/TagBadge';
 import type { LoreNoteCardViewModel } from '@/types/lore-notes';
 
@@ -25,17 +26,7 @@ export function LoreNoteListItem({ noteVM, isSelected, onClick }: LoreNoteListIt
   const hiddenTagsCount = tags.length - visibleTags.length;
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        'w-full px-3 py-2.5 flex items-start gap-3 rounded-lg border transition-colors text-left',
-        'hover:bg-accent/50',
-        isSelected
-          ? 'bg-primary/10 border-primary'
-          : 'bg-card'
-      )}
-    >
+    <SidebarListItem isSelected={isSelected} onClick={onClick}>
       {/* Category Icon */}
       <div
         className={cn(
@@ -65,6 +56,6 @@ export function LoreNoteListItem({ noteVM, isSelected, onClick }: LoreNoteListIt
           </div>
         )}
       </div>
-    </button>
+    </SidebarListItem>
   );
 }

@@ -2,6 +2,7 @@ import { StoryArcDTO } from '@/types/story-arcs';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { SidebarListItem } from '@/components/shared/SidebarListItem';
 
 interface StoryArcListItemProps {
   storyArc: StoryArcDTO;
@@ -19,14 +20,7 @@ const statusColors = {
 
 export function StoryArcListItem({ storyArc, questCount, isSelected, onClick }: StoryArcListItemProps) {
   return (
-    <div
-      onClick={onClick}
-      className={cn(
-        'cursor-pointer rounded-lg border p-3 transition-colors',
-        'hover:bg-accent/50',
-        isSelected ? 'bg-primary/10 border-primary' : 'bg-card'
-      )}
-    >
+    <SidebarListItem isSelected={isSelected} onClick={onClick}>
       <div className="space-y-2">
         {/* Status Badge */}
         <Badge className={cn('text-xs', statusColors[storyArc.status])}>
@@ -51,6 +45,6 @@ export function StoryArcListItem({ storyArc, questCount, isSelected, onClick }: 
           </div>
         )}
       </div>
-    </div>
+    </SidebarListItem>
   );
 }
