@@ -1,8 +1,9 @@
 // Single participant in initiative list
 
 import { useCallback, useState } from "react";
-import { Skull, Plus } from "lucide-react";
+import { Skull, Plus, X } from "lucide-react";
 import type { CombatParticipantDTO, ConditionDTO } from "@/types";
+import { DeathSaveTracker } from "./DeathSaveTracker";
 import { InitiativeBadge } from "./InitiativeBadge";
 import { ACBadge } from "./ACBadge";
 import { HPControls } from "./HPControls";
@@ -17,6 +18,9 @@ interface InitiativeItemProps {
   onUpdate: (updates: Partial<CombatParticipantDTO>) => void;
   onRemoveCondition: (conditionId: string) => void;
   onAddCondition: (conditionId: string, duration: number | null) => void;
+  onRollDeathSave: () => void;
+  onManualDeathSave: (type: "success" | "failure") => void;
+  onKill: () => void;
   conditions: ConditionDTO[]; // Full conditions list for tooltips
 }
 
@@ -26,10 +30,14 @@ export function InitiativeItem({
   onUpdate,
   onRemoveCondition,
   onAddCondition,
+  onRollDeathSave,
+  onManualDeathSave,
+  onKill,
   conditions,
 }: InitiativeItemProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const isUnconscious = participant.current_hp === 0;
+  const isDead = participant.is_dead ?? false;
   const selectedLanguage = useLanguageStore((state) => state.selectedLanguage);
 
   // Get localized name or fallback to display_name
@@ -44,9 +52,10 @@ export function InitiativeItem({
     [participant.current_hp, participant.max_hp, onUpdate]
   );
 
-  const baseClasses = "px-4 py-3 border-b transition-all duration-200 hover:bg-muted/30";
+  const allyBorder = participant.is_ally ? "border-l-4 border-l-blue-500" : "border-l-4 border-l-red-500";
+  const baseClasses = `px-4 py-3 border-b transition-all duration-200 hover:bg-muted/30 ${allyBorder}`;
   const activeClasses = isActive ? "ring-2 ring-inset ring-emerald-500 bg-emerald-500/10" : "";
-  const unconsciousClasses = isUnconscious ? "opacity-60" : "";
+  const unconsciousClasses = isDead || isUnconscious ? "opacity-60" : "";
 
   return (
     <div className={`${baseClasses} ${activeClasses} ${unconsciousClasses}`} data-testid={`initiative-item-${displayName}`} data-active={isActive}>
@@ -55,10 +64,11 @@ export function InitiativeItem({
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <h3
-              className={`font-semibold truncate ${isActive ? "text-base" : "text-sm"} ${isUnconscious ? "line-through" : ""}`}
+              className={`font-semibold truncate ${isActive ? "text-base" : "text-sm"} ${isDead || isUnconscious ? "line-through" : ""}`}
             >
               {displayName}
-              {isUnconscious && <Skull className="inline ml-1.5 h-3.5 w-3.5" />}
+              {isDead && <Skull className="inline ml-1.5 h-3.5 w-3.5 text-red-500" />}
+              {!isDead && isUnconscious && <Skull className="inline ml-1.5 h-3.5 w-3.5" />}
             </h3>
             <p className="text-xs text-muted-foreground capitalize mt-0.5">{participant.source.replace(/_/g, " ")}</p>
           </div>
@@ -70,6 +80,18 @@ export function InitiativeItem({
 
         {/* HP Controls with Progress Bar */}
         <HPControls currentHP={participant.current_hp} maxHP={participant.max_hp} onHPChange={handleHPChange} />
+
+        {/* Death Save Tracker (at 0 HP) */}
+        {participant.death_saves && !isDead && (
+          <DeathSaveTracker
+            successes={participant.death_saves.successes}
+            failures={participant.death_saves.failures}
+            lastRoll={participant.death_saves.last_roll}
+            onRoll={onRollDeathSave}
+            onManualResult={onManualDeathSave}
+            onKill={onKill}
+          />
+        )}
 
         {/* Add Condition Button */}
         <div className="flex items-center gap-2">

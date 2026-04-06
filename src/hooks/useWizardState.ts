@@ -16,7 +16,8 @@ type WizardAction =
   | { type: "SET_MONSTER_SEARCH"; payload: string }
   | { type: "SET_MONSTER_TYPE_FILTER"; payload: string | null }
   | { type: "TOGGLE_NPC"; payload: string }
-  | { type: "SET_SELECTED_NPCS"; payload: string[] };
+  | { type: "SET_SELECTED_NPCS"; payload: string[] }
+  | { type: "SET_NPC_ALLY"; payload: { id: string; isAlly: boolean } };
 
 /**
  * Initial state factory
@@ -29,6 +30,7 @@ function createInitialState(): WizardState {
     selectedPlayerCharacterIds: [],
     addedMonsters: new Map(),
     selectedNPCIds: [],
+    npcAllyMap: {},
     monsterSearchTerm: "",
     monsterTypeFilter: null,
   };
@@ -121,6 +123,11 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
     case "SET_SELECTED_NPCS":
       return { ...state, selectedNPCIds: action.payload };
 
+    case "SET_NPC_ALLY": {
+      const { id, isAlly } = action.payload;
+      return { ...state, npcAllyMap: { ...state.npcAllyMap, [id]: isAlly } };
+    }
+
     default:
       return state;
   }
@@ -191,6 +198,10 @@ export function useWizardState() {
 
     setSelectedNPCs: useCallback((ids: string[]) => {
       dispatch({ type: "SET_SELECTED_NPCS", payload: ids });
+    }, []),
+
+    setNPCAlly: useCallback((id: string, isAlly: boolean) => {
+      dispatch({ type: "SET_NPC_ALLY", payload: { id, isAlly } });
     }, []),
   };
 

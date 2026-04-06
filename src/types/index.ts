@@ -360,6 +360,13 @@ export interface CombatParticipantDTO {
   legendaryActions?: LegendaryActions;
 
   // Combat-specific state
+  is_ally: boolean;
+  is_dead?: boolean;
+  death_saves?: {
+    successes: number;
+    failures: number;
+    last_roll?: number; // last d20 result for display
+  };
   is_active_turn: boolean;
   active_conditions: ActiveConditionDTO[];
 }
@@ -401,6 +408,7 @@ export type InitialParticipantCommand =
   | {
       source: "npc";
       npc_id: string;
+      is_ally?: boolean;
     }
   | {
       source: "ad_hoc_npc";

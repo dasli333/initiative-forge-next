@@ -20,6 +20,9 @@ interface InitiativeListProps {
   onParticipantUpdate: (id: string, updates: Partial<CombatParticipantDTO>) => void;
   onAddCondition: (participantId: string, conditionId: string, duration: number | null) => void;
   onRemoveCondition: (participantId: string, conditionId: string) => void;
+  onRollDeathSave: (participantId: string) => void;
+  onManualDeathSave: (participantId: string, type: "success" | "failure") => void;
+  onKillParticipant: (participantId: string) => void;
   conditions: ConditionDTO[]; // Full conditions list
 }
 
@@ -37,6 +40,9 @@ export function InitiativeList({
   onParticipantUpdate,
   onAddCondition,
   onRemoveCondition,
+  onRollDeathSave,
+  onManualDeathSave,
+  onKillParticipant,
   conditions,
 }: InitiativeListProps) {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -85,6 +91,9 @@ export function InitiativeList({
                 onUpdate={(updates) => onParticipantUpdate(participant.id, updates)}
                 onRemoveCondition={(conditionId) => onRemoveCondition(participant.id, conditionId)}
                 onAddCondition={(conditionId, duration) => onAddCondition(participant.id, conditionId, duration)}
+                onRollDeathSave={() => onRollDeathSave(participant.id)}
+                onManualDeathSave={(type) => onManualDeathSave(participant.id, type)}
+                onKill={() => onKillParticipant(participant.id)}
                 conditions={conditions}
               />
             </div>

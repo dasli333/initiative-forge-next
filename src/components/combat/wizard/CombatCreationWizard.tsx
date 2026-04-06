@@ -196,10 +196,11 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
       selectedPlayerCharacterIds: state.selectedPlayerCharacterIds,
       addedMonsters: state.addedMonsters,
       selectedNPCIds: state.selectedNPCIds,
+      npcAllyMap: state.npcAllyMap,
     });
 
     createCombatMutation.mutate(command);
-  }, [state.combatName, state.selectedPlayerCharacterIds, state.addedMonsters, state.selectedNPCIds, createCombatMutation]);
+  }, [state.combatName, state.selectedPlayerCharacterIds, state.addedMonsters, state.selectedNPCIds, state.npcAllyMap, createCombatMutation]);
 
   const handleCancel = useCallback(() => {
     router.push(`/campaigns/${campaignId}/combats`);
@@ -260,7 +261,9 @@ export function CombatCreationWizard({ campaignId }: CombatCreationWizardProps) 
             campaignId={campaignId}
             npcs={npcs}
             selectedIds={state.selectedNPCIds}
+            npcAllyMap={state.npcAllyMap}
             onToggle={actions.toggleNPC}
+            onSetNPCAlly={actions.setNPCAlly}
             onBack={handleBack}
             onNext={handleNext}
             isLoading={npcsQuery.isLoading}

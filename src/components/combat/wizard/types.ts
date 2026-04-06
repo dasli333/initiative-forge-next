@@ -19,6 +19,7 @@ export interface WizardState {
   selectedPlayerCharacterIds: string[];
   addedMonsters: Map<string, AddedMonsterViewModel>; // monster_id -> AddedMonsterViewModel
   selectedNPCIds: string[];
+  npcAllyMap: Record<string, boolean>; // npc_id -> is_ally (default false)
 
   // Step 3 specific state
   monsterSearchTerm: string;
@@ -169,7 +170,9 @@ export interface Step4Props {
   campaignId: string;
   npcs: NPCViewModel[];
   selectedIds: string[];
+  npcAllyMap: Record<string, boolean>;
   onToggle: (id: string) => void;
+  onSetNPCAlly: (id: string, isAlly: boolean) => void;
   onBack: () => void;
   onNext: () => void;
   onSkip?: () => void;

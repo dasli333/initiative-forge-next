@@ -5,14 +5,16 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Shield, Swords } from "lucide-react";
 import type { Step4Props } from "./types";
 
 export function Step4_AddNPCs({
   campaignId,
   npcs,
   selectedIds,
+  npcAllyMap,
   onToggle,
+  onSetNPCAlly,
   onBack,
   onNext,
   onSkip,
@@ -133,6 +135,7 @@ export function Step4_AddNPCs({
         {npcs.map((npc) => {
           const isSelected = selectedIds.includes(npc.id);
           const hasCombatStats = !!(npc.hp_max && npc.armor_class);
+          const isAlly = npcAllyMap[npc.id] ?? false;
 
           return (
             <div
@@ -164,38 +167,64 @@ export function Step4_AddNPCs({
               >
                 <div className="flex items-center justify-between gap-4">
                   <span className="font-semibold text-base">{npc.name}</span>
-                  {hasCombatStats ? (
-                    <div className="flex gap-2">
-                      <Badge
-                        className={`
-                          px-3 py-1 text-sm shadow-sm
-                          ${
-                            isSelected
-                              ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-                              : "bg-secondary text-secondary-foreground"
-                          }
-                        `}
-                      >
-                        HP: {npc.hp_max}
+                  <div className="flex items-center gap-2">
+                    {hasCombatStats ? (
+                      <>
+                        {isSelected && (
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            className={`h-7 px-2 text-xs ${
+                              isAlly
+                                ? "border-blue-500 text-blue-600 hover:bg-blue-50"
+                                : "border-red-500 text-red-600 hover:bg-red-50"
+                            }`}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              onSetNPCAlly(npc.id, !isAlly);
+                            }}
+                            data-testid={`npc-ally-toggle-${npc.name}`}
+                          >
+                            {isAlly ? (
+                              <><Shield className="h-3 w-3 mr-1" />Ally</>
+                            ) : (
+                              <><Swords className="h-3 w-3 mr-1" />Enemy</>
+                            )}
+                          </Button>
+                        )}
+                        <Badge
+                          className={`
+                            px-3 py-1 text-sm shadow-sm
+                            ${
+                              isSelected
+                                ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                                : "bg-secondary text-secondary-foreground"
+                            }
+                          `}
+                        >
+                          HP: {npc.hp_max}
+                        </Badge>
+                        <Badge
+                          className={`
+                            px-3 py-1 text-sm shadow-sm
+                            ${
+                              isSelected
+                                ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                                : "bg-secondary text-secondary-foreground"
+                            }
+                          `}
+                        >
+                          AC: {npc.armor_class}
+                        </Badge>
+                      </>
+                    ) : (
+                      <Badge variant="outline" className="px-3 py-1 text-sm text-amber-600 border-amber-400">
+                        Missing combat stats
                       </Badge>
-                      <Badge
-                        className={`
-                          px-3 py-1 text-sm shadow-sm
-                          ${
-                            isSelected
-                              ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-                              : "bg-secondary text-secondary-foreground"
-                          }
-                        `}
-                      >
-                        AC: {npc.armor_class}
-                      </Badge>
-                    </div>
-                  ) : (
-                    <Badge variant="outline" className="px-3 py-1 text-sm text-amber-600 border-amber-400">
-                      Missing combat stats
-                    </Badge>
-                  )}
+                    )}
+                  </div>
                 </div>
               </Label>
             </div>

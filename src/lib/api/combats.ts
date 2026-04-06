@@ -91,7 +91,7 @@ async function resolveAllParticipants(
       const monsters = await resolveMonster(supabase, participant.monster_id, participant.count || 1);
       resolvedParticipants.push(...monsters);
     } else if (participant.source === "npc") {
-      const npc = await resolveNPC(supabase, campaignId, participant.npc_id);
+      const npc = await resolveNPC(supabase, campaignId, participant.npc_id, participant.is_ally);
       resolvedParticipants.push(npc);
     } else if (participant.source === "ad_hoc_npc") {
       const npc = createAdHocParticipant(participant);
@@ -154,6 +154,7 @@ async function resolvePlayerCharacter(
       cha: combatStats.charisma,
     },
     actions: (combatStats.actions_json as unknown as ActionDTO[]) || [],
+    is_ally: true,
     is_active_turn: false,
     active_conditions: [],
   };
@@ -225,6 +226,7 @@ async function resolveMonster(
       bonusActions: monsterData.bonusActions?.length > 0 ? monsterData.bonusActions : undefined,
       reactions: monsterData.reactions?.length > 0 ? monsterData.reactions : undefined,
       legendaryActions: monsterData.legendaryActions,
+      is_ally: false,
       is_active_turn: false,
       active_conditions: [],
     });
@@ -239,7 +241,8 @@ async function resolveMonster(
 async function resolveNPC(
   supabase: SupabaseClient<Database>,
   campaignId: string,
-  npcId: string
+  npcId: string,
+  isAlly?: boolean
 ): Promise<CombatParticipantDTO> {
   const { data, error } = await supabase
     .from("npcs")
@@ -296,6 +299,7 @@ async function resolveNPC(
     damageImmunities: combatStats.damage_immunities || undefined,
     conditionImmunities: combatStats.condition_immunities || undefined,
     gear: combatStats.gear || undefined,
+    is_ally: isAlly ?? false,
     is_active_turn: false,
     active_conditions: [],
   };
@@ -337,6 +341,7 @@ function createAdHocParticipant(
     armor_class: spec.armor_class,
     stats: spec.stats,
     actions: spec.actions || [],
+    is_ally: false,
     is_active_turn: false,
     active_conditions: [],
   };

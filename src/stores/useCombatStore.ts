@@ -21,11 +21,17 @@ export const useCombatStore = create<CombatState>((set, get) => ({
   isSaving: false,
   lastSavedAt: null,
 
-  // Akcja: Załaduj combat z API
+  // Akcja: Załaduj combat z API (z migracją starych snapshotów)
   loadCombat: (combat: CombatDTO) => {
+    const participants = (combat.state_snapshot?.participants || []).map(p => ({
+      ...p,
+      is_ally: p.is_ally ?? (p.source === "player_character"),
+      is_dead: p.is_dead ?? false,
+    }));
+
     set({
       combat,
-      participants: combat.state_snapshot?.participants || [],
+      participants,
       activeParticipantIndex: combat.state_snapshot?.active_participant_index ?? null,
       currentRound: combat.current_round,
       isDirty: false,
@@ -102,28 +108,34 @@ export const useCombatStore = create<CombatState>((set, get) => ({
       };
     });
 
-    const nextIndex = activeParticipantIndex + 1;
+    // Znajdź następnego żywego uczestnika (pomijaj martwych)
+    const total = updatedParticipants.length;
+    let nextIndex = activeParticipantIndex + 1;
+    let roundIncrement = 0;
+    let searched = 0;
 
-    if (nextIndex >= participants.length) {
-      // Koniec rundy
-      set((state) => ({
-        participants: updatedParticipants,
-        activeParticipantIndex: 0,
-        currentRound: state.currentRound + 1,
-        isDirty: true,
-      }));
-
-      // TODO: Toast notification "Round X begins"
-    } else {
-      set({
-        participants: updatedParticipants,
-        activeParticipantIndex: nextIndex,
-        isDirty: true,
-      });
+    while (searched < total) {
+      if (nextIndex >= total) {
+        nextIndex = 0;
+        roundIncrement++;
+      }
+      if (!updatedParticipants[nextIndex].is_dead) break;
+      nextIndex++;
+      searched++;
     }
+
+    // Wszyscy martwi — nie przesuwaj
+    if (searched >= total) return;
+
+    set((state) => ({
+      participants: updatedParticipants,
+      activeParticipantIndex: nextIndex,
+      currentRound: state.currentRound + roundIncrement,
+      isDirty: true,
+    }));
   },
 
-  // Akcja: Aktualizuj HP
+  // Akcja: Aktualizuj HP (z obsługą death saves i is_dead)
   updateHP: (participantId: string, amount: number, type: "damage" | "heal") => {
     set((state) => ({
       participants: state.participants.map((p) => {
@@ -131,6 +143,18 @@ export const useCombatStore = create<CombatState>((set, get) => ({
 
         const delta = type === "damage" ? -amount : amount;
         const newHP = Math.max(0, Math.min(p.max_hp, p.current_hp + delta));
+        const wasAtZero = p.current_hp === 0;
+        const nowAtZero = newHP === 0;
+
+        // Healed from 0 HP — clear death state
+        if (wasAtZero && !nowAtZero) {
+          return { ...p, current_hp: newHP, is_dead: false, death_saves: undefined };
+        }
+
+        // Dropped to 0 HP — all participants get death saves
+        if (!wasAtZero && nowAtZero) {
+          return { ...p, current_hp: 0, death_saves: { successes: 0, failures: 0 } };
+        }
 
         return { ...p, current_hp: newHP };
       }),
@@ -169,6 +193,96 @@ export const useCombatStore = create<CombatState>((set, get) => ({
           active_conditions: p.active_conditions.filter((c) => c.condition_id !== conditionId),
         };
       }),
+      isDirty: true,
+    }));
+  },
+
+  // Akcja: Przełącz sojusznik/wróg
+  toggleAlly: (participantId: string) => {
+    set((state) => ({
+      participants: state.participants.map((p) =>
+        p.id === participantId ? { ...p, is_ally: !p.is_ally } : p
+      ),
+      isDirty: true,
+    }));
+  },
+
+  // Akcja: Rzut na uratowanie przed śmiercią (D&D 5e)
+  rollDeathSave: (participantId: string) => {
+    const { participants } = get();
+    const participant = participants.find((p) => p.id === participantId);
+    if (!participant?.death_saves || participant.is_dead) return;
+
+    const roll = rollDice(1, 20)[0];
+    let { successes, failures } = participant.death_saves;
+
+    if (roll === 20) {
+      // Natural 20: regain 1 HP, clear death saves
+      set((state) => ({
+        participants: state.participants.map((p) =>
+          p.id === participantId
+            ? { ...p, current_hp: 1, death_saves: undefined }
+            : p
+        ),
+        isDirty: true,
+      }));
+      return;
+    }
+
+    if (roll === 1) {
+      failures = Math.min(3, failures + 2);
+    } else if (roll >= 10) {
+      successes = Math.min(3, successes + 1);
+    } else {
+      failures = Math.min(3, failures + 1);
+    }
+
+    const isDead = failures >= 3;
+    const isStabilized = successes >= 3;
+
+    set((state) => ({
+      participants: state.participants.map((p) => {
+        if (p.id !== participantId) return p;
+        if (isDead) return { ...p, is_dead: true, death_saves: { successes, failures, last_roll: roll } };
+        if (isStabilized) return { ...p, death_saves: undefined };
+        return { ...p, death_saves: { successes, failures, last_roll: roll } };
+      }),
+      isDirty: true,
+    }));
+  },
+
+  // Akcja: Ręczne dodanie wyniku death save (gracz rzuca fizycznymi kośćmi)
+  addDeathSaveResult: (participantId: string, type: "success" | "failure") => {
+    set((state) => ({
+      participants: state.participants.map((p) => {
+        if (p.id !== participantId || !p.death_saves || p.is_dead) return p;
+
+        let { successes, failures } = p.death_saves;
+        if (type === "success") {
+          successes = Math.min(3, successes + 1);
+        } else {
+          failures = Math.min(3, failures + 1);
+        }
+
+        const isDead = failures >= 3;
+        const isStabilized = successes >= 3;
+
+        if (isDead) return { ...p, is_dead: true, death_saves: { successes, failures } };
+        if (isStabilized) return { ...p, death_saves: undefined };
+        return { ...p, death_saves: { successes, failures } };
+      }),
+      isDirty: true,
+    }));
+  },
+
+  // Akcja: Natychmiastowe zabicie uczestnika
+  killParticipant: (participantId: string) => {
+    set((state) => ({
+      participants: state.participants.map((p) =>
+        p.id === participantId
+          ? { ...p, current_hp: 0, is_dead: true, death_saves: undefined }
+          : p
+      ),
       isDirty: true,
     }));
   },

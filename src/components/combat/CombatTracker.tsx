@@ -32,6 +32,9 @@ export function CombatTracker({ initialData, campaignId }: CombatTrackerProps) {
     addCondition,
     removeCondition,
     executeAction,
+    rollDeathSave,
+    addDeathSaveResult,
+    killParticipant,
     setRollMode,
     saveSnapshot,
     isDirty,
@@ -129,6 +132,9 @@ export function CombatTracker({ initialData, campaignId }: CombatTrackerProps) {
             onParticipantUpdate={handleParticipantUpdate}
             onAddCondition={handleAddCondition}
             onRemoveCondition={handleRemoveCondition}
+            onRollDeathSave={rollDeathSave}
+            onManualDeathSave={addDeathSaveResult}
+            onKillParticipant={killParticipant}
             conditions={typedConditions}
           />
         </div>
