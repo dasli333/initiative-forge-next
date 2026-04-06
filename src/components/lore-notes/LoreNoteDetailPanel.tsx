@@ -11,17 +11,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+
 import { Scroll, Edit, Save, X, Trash2 } from 'lucide-react';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { DeleteConfirmationDialog } from '@/components/shared/DeleteConfirmationDialog';
 import { RichTextEditor } from '@/components/shared/RichTextEditor';
 import { TagManager } from './shared/TagManager';
 import { getCategoryIcon, getCategoryColor } from '@/lib/utils/loreNoteUtils';
@@ -92,20 +85,13 @@ export function LoreNoteDetailPanel({
     setIsDeleteDialogOpen(false);
   };
 
-  // Empty state (no note selected)
   if (!noteId) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <div className="flex flex-col items-center gap-4 text-center">
-          <Scroll className="h-16 w-16 text-muted-foreground" />
-          <div>
-            <h3 className="text-lg font-semibold">No Lore Note Selected</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Select a note from the list to view details, or create a new one to get started.
-            </p>
-          </div>
-        </div>
-      </div>
+      <EmptyState
+        icon={Scroll}
+        title="No Lore Note Selected"
+        description="Select a note from the list to view details, or create a new one to get started."
+      />
     );
   }
 
@@ -277,25 +263,13 @@ export function LoreNoteDetailPanel({
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Lore Note</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{note.title}"? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        isOpen={isDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setIsDeleteDialogOpen(false)}
+        entityName={note.title}
+        entityType="Lore Note"
+      />
     </div>
   );
 }

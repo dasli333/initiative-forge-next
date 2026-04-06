@@ -3,6 +3,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+import { SidebarListItem } from '@/components/shared/SidebarListItem';
 import type { QuestCardViewModel } from '@/types/quests';
 
 interface QuestListItemProps {
@@ -20,17 +21,7 @@ export function QuestListItem({ quest, isSelected, onClick }: QuestListItemProps
   };
 
   return (
-    <button
-      type="button"
-      className={cn(
-        'relative flex h-auto w-full items-start gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors',
-        'hover:bg-accent/50',
-        isSelected
-          ? 'border-primary bg-primary/10'
-          : 'bg-card'
-      )}
-      onClick={onClick}
-    >
+    <SidebarListItem isSelected={isSelected} onClick={onClick} className="relative">
       {/* Status dot */}
       <div
         className={cn(
@@ -75,6 +66,6 @@ export function QuestListItem({ quest, isSelected, onClick }: QuestListItemProps
           )}
         </div>
       </div>
-    </button>
+    </SidebarListItem>
   );
 }

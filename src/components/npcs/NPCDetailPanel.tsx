@@ -5,17 +5,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+
 import { Pencil, Save, X, Users, Trash2 } from 'lucide-react';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { DeleteConfirmationDialog } from '@/components/shared/DeleteConfirmationDialog';
 import { StoryTab } from './tabs/StoryTab';
 import { CombatTab } from './tabs/CombatTab';
 import { RelationshipsTab } from './tabs/RelationshipsTab';
@@ -126,16 +119,13 @@ export function NPCDetailPanel({
   isDeleting = false,
 }: NPCDetailPanelProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  // Empty state when no NPC selected
   if (!npcId) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-center px-6">
-        <Users className="w-16 h-16 text-muted-foreground/50 mb-4" />
-        <h3 className="text-lg font-medium text-foreground mb-2">No NPC Selected</h3>
-        <p className="text-sm text-muted-foreground max-w-sm">
-          Select an NPC from the list to view details, or create a new one to get started.
-        </p>
-      </div>
+      <EmptyState
+        icon={Users}
+        title="No NPC Selected"
+        description="Select an NPC from the list to view details, or create a new one to get started."
+      />
     );
   }
 
@@ -259,38 +249,19 @@ export function NPCDetailPanel({
         </div>
       </div>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete NPC</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete <strong>{npc.name}</strong>?
-              {relationships.length > 0 && (
-                <span className="block mt-2 text-destructive">
-                  This will also remove {relationships.length} relationship{relationships.length > 1 ? 's' : ''}.
-                </span>
-              )}
-              <span className="block mt-2">
-                This action cannot be undone.
-              </span>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                setShowDeleteDialog(false);
-                onDelete();
-              }}
-              disabled={isDeleting}
-              className="bg-destructive hover:bg-destructive/90"
-            >
-              {isDeleting ? 'Deleting...' : 'Delete'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        isOpen={showDeleteDialog}
+        onConfirm={() => { setShowDeleteDialog(false); onDelete(); }}
+        onCancel={() => setShowDeleteDialog(false)}
+        isDeleting={isDeleting}
+        entityName={npc.name}
+        entityType="NPC"
+        warning={relationships.length > 0 ? (
+          <span className="block mt-2 text-destructive">
+            This will also remove {relationships.length} relationship{relationships.length > 1 ? 's' : ''}.
+          </span>
+        ) : undefined}
+      />
 
       {/* Tabs */}
       <div className="flex-1 overflow-hidden">

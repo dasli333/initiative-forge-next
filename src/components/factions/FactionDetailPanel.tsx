@@ -5,17 +5,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+
 import { Pencil, Save, X, Shield, Trash2 } from 'lucide-react';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { DeleteConfirmationDialog } from '@/components/shared/DeleteConfirmationDialog';
 import { DetailsTab } from './tabs/DetailsTab';
 import { MembersTab } from './tabs/MembersTab';
 import { RelationshipsTab } from './tabs/RelationshipsTab';
@@ -75,16 +68,13 @@ export function FactionDetailPanel({
 }: FactionDetailPanelProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  // Empty state when no faction selected
   if (!factionId) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-center px-6">
-        <Shield className="w-16 h-16 text-muted-foreground/50 mb-4" />
-        <h3 className="text-lg font-medium text-foreground mb-2">No Faction Selected</h3>
-        <p className="text-sm text-muted-foreground max-w-sm">
-          Select a faction from the list to view details, or create a new one to get started.
-        </p>
-      </div>
+      <EmptyState
+        icon={Shield}
+        title="No Faction Selected"
+        description="Select a faction from the list to view details, or create a new one to get started."
+      />
     );
   }
 
@@ -185,36 +175,18 @@ export function FactionDetailPanel({
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Faction</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete <strong>{faction.name}</strong>?
-              {members.length > 0 && (
-                <span className="block mt-2 text-destructive">
-                  {members.length} NPC{members.length > 1 ? 's' : ''} will be unassigned from this faction.
-                </span>
-              )}
-              <span className="block mt-2">
-                This action cannot be undone.
-              </span>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                setShowDeleteDialog(false);
-                onDelete();
-              }}
-              className="bg-destructive hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        isOpen={showDeleteDialog}
+        onConfirm={() => { setShowDeleteDialog(false); onDelete(); }}
+        onCancel={() => setShowDeleteDialog(false)}
+        entityName={faction.name}
+        entityType="Faction"
+        warning={members.length > 0 ? (
+          <span className="block mt-2 text-destructive">
+            {members.length} NPC{members.length > 1 ? 's' : ''} will be unassigned from this faction.
+          </span>
+        ) : undefined}
+      />
 
       {/* Tabs */}
       <div className="flex-1 overflow-hidden">

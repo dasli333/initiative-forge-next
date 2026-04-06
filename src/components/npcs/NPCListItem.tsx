@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { Users, MapPin, Swords } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { SidebarListItem } from '@/components/shared/SidebarListItem';
 import { TagBadge } from './shared/TagBadge';
 import type { NPCCardViewModel } from '@/types/npcs';
 
@@ -28,17 +29,7 @@ export function NPCListItem({ npc, isSelected, onClick }: NPCListItemProps) {
   const hiddenTagsCount = npc.tags.length - visibleTags.length;
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        'w-full px-3 py-2.5 flex items-start gap-3 rounded-lg border transition-colors text-left',
-        'hover:bg-accent/50',
-        isSelected
-          ? 'bg-primary/10 border-primary'
-          : 'bg-card'
-      )}
-    >
+    <SidebarListItem isSelected={isSelected} onClick={onClick}>
       {/* Avatar */}
       <div className="relative shrink-0">
         {npc.npc.image_url ? (
@@ -117,6 +108,6 @@ export function NPCListItem({ npc, isSelected, onClick }: NPCListItemProps) {
           </div>
         )}
       </div>
-    </button>
+    </SidebarListItem>
   );
 }
