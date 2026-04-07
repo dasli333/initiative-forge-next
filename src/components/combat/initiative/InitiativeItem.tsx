@@ -1,7 +1,7 @@
 // Single participant in initiative list
 
 import { useCallback, useState } from "react";
-import { Skull, Plus, X } from "lucide-react";
+import { Skull, Plus } from "lucide-react";
 import type { CombatParticipantDTO, ConditionDTO } from "@/types";
 import { DeathSaveTracker } from "./DeathSaveTracker";
 import { InitiativeBadge } from "./InitiativeBadge";

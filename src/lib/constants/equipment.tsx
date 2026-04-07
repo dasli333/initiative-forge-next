@@ -3,19 +3,8 @@ import {
     Shield,
     Hammer,
     Package,
-    Crosshair,
-    CircleDot,
-    Hexagon,
     Box,
-    Music,
-    Dna,
-    Archive,
-    Tent,
-    Zap,
-    Briefcase,
-    Layers,
     LucideIcon,
-    ShoppingBag
 } from 'lucide-react';
 
 export interface CategoryItem {
@@ -206,7 +195,7 @@ export function resolveCategoryInfo(categories: Array<{ id: string; name: string
     };
 }
 
-function packageIconForName(name: string): LucideIcon {
+function packageIconForName(_name: string): LucideIcon {
     // Simple heuristic if needed, or just return default
     return Box;
 }
