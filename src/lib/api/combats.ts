@@ -308,7 +308,7 @@ async function resolveNPC(
 /**
  * Maps monster actions to the common ActionDTO format
  */
-function mapMonsterActions(monsterActions: MonsterDataDTO["actions"]): ActionDTO[] {
+export function mapMonsterActions(monsterActions: MonsterDataDTO["actions"]): ActionDTO[] {
   if (!monsterActions || !Array.isArray(monsterActions)) {
     return [];
   }
