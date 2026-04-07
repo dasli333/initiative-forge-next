@@ -8,6 +8,7 @@ import { Search } from "lucide-react";
 import type { ConditionDTO } from "@/types";
 import type { RollMode, RollResult } from "@/types/combat-view.types";
 import { ConditionsTab } from "./ConditionsTab";
+import { SpellsTab } from "./SpellsTab";
 import { RollControls } from "../character-sheet/RollControls";
 import { RollLog } from "../character-sheet/RollLog";
 import { GradientSeparator } from "@/components/library";
@@ -71,23 +72,29 @@ export function ReferencePanel({ conditions, rollMode, recentRolls, onRollModeCh
             <TabsTrigger value="monsters">Monsters</TabsTrigger>
           </TabsList>
 
-          <ScrollArea className="flex-1">
-            <TabsContent value="conditions" className="p-4 mt-0">
-              <ConditionsTab conditions={filteredConditions} />
-            </TabsContent>
-
-            <TabsContent value="spells" className="p-4 mt-0">
-              <div className="text-center text-muted-foreground">
-                <p className="text-sm">Spells tab - coming soon</p>
+          <TabsContent value="conditions" className="flex-1 overflow-hidden mt-0">
+            <ScrollArea className="h-full">
+              <div className="p-4">
+                <ConditionsTab conditions={filteredConditions} />
               </div>
-            </TabsContent>
+            </ScrollArea>
+          </TabsContent>
 
-            <TabsContent value="monsters" className="p-4 mt-0">
-              <div className="text-center text-muted-foreground">
+          <TabsContent value="spells" className="flex-1 overflow-hidden mt-0">
+            <ScrollArea className="h-full">
+              <div className="p-4">
+                <SpellsTab searchTerm={searchTerm} />
+              </div>
+            </ScrollArea>
+          </TabsContent>
+
+          <TabsContent value="monsters" className="flex-1 overflow-hidden mt-0">
+            <ScrollArea className="h-full">
+              <div className="p-4 text-center text-muted-foreground">
                 <p className="text-sm">Monsters tab - coming soon</p>
               </div>
-            </TabsContent>
-          </ScrollArea>
+            </ScrollArea>
+          </TabsContent>
         </Tabs>
       </div>
     </div>
