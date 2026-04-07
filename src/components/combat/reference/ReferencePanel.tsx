@@ -9,6 +9,7 @@ import type { ConditionDTO } from "@/types";
 import type { RollMode, RollResult } from "@/types/combat-view.types";
 import { ConditionsTab } from "./ConditionsTab";
 import { SpellsTab } from "./SpellsTab";
+import { MonstersTab } from "./MonstersTab";
 import { RollControls } from "../character-sheet/RollControls";
 import { RollLog } from "../character-sheet/RollLog";
 import { GradientSeparator } from "@/components/library";
@@ -90,8 +91,8 @@ export function ReferencePanel({ conditions, rollMode, recentRolls, onRollModeCh
 
           <TabsContent value="monsters" className="flex-1 overflow-hidden mt-0">
             <ScrollArea className="h-full">
-              <div className="p-4 text-center text-muted-foreground">
-                <p className="text-sm">Monsters tab - coming soon</p>
+              <div className="p-4">
+                <MonstersTab searchTerm={searchTerm} />
               </div>
             </ScrollArea>
           </TabsContent>

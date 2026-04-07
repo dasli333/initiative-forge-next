@@ -197,6 +197,35 @@ export const useCombatStore = create<CombatState>((set, get) => ({
     }));
   },
 
+  // Akcja: Dodaj uczestników w trakcie walki (z automatyczną inicjatywą)
+  addParticipants: (newParticipants) => {
+    const { participants, activeParticipantIndex } = get();
+
+    // Roll initiative for new participants
+    const withInitiative = newParticipants.map((p) => ({
+      ...p,
+      initiative: rollDice(1, 20)[0] + calculateModifier(p.stats.dex),
+    }));
+
+    // Merge and re-sort by initiative (preserve active participant tracking)
+    const activeId = activeParticipantIndex !== null ? participants[activeParticipantIndex]?.id : null;
+    const merged = [...participants, ...withInitiative];
+    merged.sort((a, b) => {
+      if (a.initiative === null) return 1;
+      if (b.initiative === null) return -1;
+      return b.initiative - a.initiative;
+    });
+
+    // Restore active participant index after sort
+    const newActiveIndex = activeId ? merged.findIndex((p) => p.id === activeId) : null;
+
+    set({
+      participants: merged,
+      activeParticipantIndex: newActiveIndex !== -1 ? newActiveIndex : activeParticipantIndex,
+      isDirty: true,
+    });
+  },
+
   // Akcja: Przełącz sojusznik/wróg
   toggleAlly: (participantId: string) => {
     set((state) => ({
