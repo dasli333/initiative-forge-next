@@ -81,7 +81,7 @@ export function InitiativeList({
         onSave={onSave}
         campaignId={campaignId}
       />
-      <ScrollArea className="flex-1" ref={scrollAreaRef}>
+      <ScrollArea className="flex-1 min-h-0" ref={scrollAreaRef}>
         {participants.length === 0 ? (
           <div className="p-4 text-center text-muted-foreground">
             <p>No participants in combat</p>
