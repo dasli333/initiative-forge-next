@@ -68,6 +68,7 @@ export interface CombatState {
   // Akcje
   loadCombat: (combat: CombatDTO) => void;
   rollInitiative: () => void;
+  setManualInitiative: (entries: { id: string; initiative: number }[]) => void;
   startCombat: () => void;
   nextTurn: () => void;
   updateHP: (participantId: string, amount: number, type: "damage" | "heal") => void;

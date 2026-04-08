@@ -26,6 +26,7 @@ export function CombatTracker({ initialData, campaignId }: CombatTrackerProps) {
     rollMode,
     recentRolls,
     rollInitiative,
+    setManualInitiative,
     startCombat,
     nextTurn,
     updateHP,
@@ -123,6 +124,7 @@ export function CombatTracker({ initialData, campaignId }: CombatTrackerProps) {
             currentRound={currentRound}
             activeParticipantIndex={activeParticipantIndex}
             onRollInitiative={rollInitiative}
+            onSetManualInitiative={setManualInitiative}
             onStartCombat={startCombat}
             onNextTurn={nextTurn}
             onSave={saveSnapshot}

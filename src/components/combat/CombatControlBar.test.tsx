@@ -28,6 +28,7 @@ vi.mock("next/navigation", () => ({
 
 // Mock handlers
 const mockOnRollInitiative = vi.fn();
+const mockOnSetManualInitiative = vi.fn();
 const mockOnStartCombat = vi.fn();
 const mockOnNextTurn = vi.fn();
 const mockOnSave = vi.fn();
@@ -40,7 +41,9 @@ const defaultProps = {
   allInitiativesSet: true,
   isDirty: false,
   isSaving: false,
+  participants: [],
   onRollInitiative: mockOnRollInitiative,
+  onSetManualInitiative: mockOnSetManualInitiative,
   onStartCombat: mockOnStartCombat,
   onNextTurn: mockOnNextTurn,
   onSave: mockOnSave,

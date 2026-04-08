@@ -11,6 +11,7 @@ interface InitiativeListProps {
   currentRound: number;
   activeParticipantIndex: number | null;
   onRollInitiative: () => void;
+  onSetManualInitiative: (entries: { id: string; initiative: number }[]) => void;
   onStartCombat: () => void;
   onNextTurn: () => void;
   onSave: () => void;
@@ -31,6 +32,7 @@ export function InitiativeList({
   currentRound,
   activeParticipantIndex,
   onRollInitiative,
+  onSetManualInitiative,
   onStartCombat,
   onNextTurn,
   onSave,
@@ -69,9 +71,11 @@ export function InitiativeList({
         isCombatStarted={isCombatStarted}
         hasParticipants={hasParticipants}
         allInitiativesSet={allInitiativesSet}
+        participants={participants}
         isDirty={isDirty}
         isSaving={isSaving}
         onRollInitiative={onRollInitiative}
+        onSetManualInitiative={onSetManualInitiative}
         onStartCombat={onStartCombat}
         onNextTurn={onNextTurn}
         onSave={onSave}
