@@ -5,9 +5,12 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Dices, Play, ArrowRight, Save, ArrowLeft } from "lucide-react";
 import { RoundCounter } from "./initiative/RoundCounter";
+import { PlayerInitiativeDialog } from "./initiative/PlayerInitiativeDialog";
 import { useLanguageStore } from "@/stores/languageStore";
 import { useRouter } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useState, useMemo } from "react";
+import type { CombatParticipantDTO } from "@/types";
+import { rollDice, calculateModifier } from "@/lib/dice";
 
 interface CombatControlBarProps {
   // Combat state
@@ -17,9 +20,11 @@ interface CombatControlBarProps {
   allInitiativesSet: boolean;
   isDirty: boolean;
   isSaving: boolean;
+  participants: CombatParticipantDTO[];
 
   // Handlers
   onRollInitiative: () => void;
+  onSetManualInitiative: (entries: { id: string; initiative: number }[]) => void;
   onStartCombat: () => void;
   onNextTurn: () => void;
   onSave: () => void;
@@ -35,7 +40,9 @@ export function CombatControlBar({
   allInitiativesSet,
   isDirty,
   isSaving,
+  participants,
   onRollInitiative,
+  onSetManualInitiative,
   onStartCombat,
   onNextTurn,
   onSave,
@@ -47,6 +54,38 @@ export function CombatControlBar({
 
   // Next.js router
   const router = useRouter();
+
+  // Player initiative dialog
+  const [showPlayerDialog, setShowPlayerDialog] = useState(false);
+  const playerCharacters = useMemo(
+    () => participants.filter((p) => p.source === "player_character"),
+    [participants]
+  );
+
+  const handleRollInitiative = useCallback(() => {
+    onRollInitiative(); // Auto-rolls non-PCs (or all if no PCs)
+    if (playerCharacters.length > 0) {
+      setShowPlayerDialog(true);
+    }
+  }, [onRollInitiative, playerCharacters.length]);
+
+  const handlePlayerInitiativeConfirm = useCallback(
+    (entries: { id: string; initiative: number }[]) => {
+      onSetManualInitiative(entries);
+      setShowPlayerDialog(false);
+    },
+    [onSetManualInitiative]
+  );
+
+  const handlePlayerInitiativeCancel = useCallback(() => {
+    // Auto-roll PCs as fallback so combat isn't stuck
+    const autoRolled = playerCharacters.map((p) => ({
+      id: p.id,
+      initiative: rollDice(1, 20)[0] + calculateModifier(p.stats.dex),
+    }));
+    onSetManualInitiative(autoRolled);
+    setShowPlayerDialog(false);
+  }, [playerCharacters, onSetManualInitiative]);
 
   // Back button handler
   const handleBack = useCallback(() => {
@@ -60,7 +99,7 @@ export function CombatControlBar({
         <div className="flex items-center justify-between gap-4 flex-wrap">
           {/* Left side - Combat controls */}
           <div className="flex items-center gap-2 flex-wrap">
-            <Button onClick={onRollInitiative} variant="outline" size="sm" data-testid="roll-initiative-button">
+            <Button onClick={handleRollInitiative} variant="outline" size="sm" data-testid="roll-initiative-button">
               <Dices className="mr-2 h-4 w-4" />
               Roll Initiative
             </Button>
@@ -124,6 +163,13 @@ export function CombatControlBar({
           </div>
         </>
       )}
+      {/* Player Initiative Dialog */}
+      <PlayerInitiativeDialog
+        open={showPlayerDialog}
+        participants={playerCharacters}
+        onConfirm={handlePlayerInitiativeConfirm}
+        onCancel={handlePlayerInitiativeCancel}
+      />
     </div>
   );
 }

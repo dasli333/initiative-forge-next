@@ -39,24 +39,55 @@ export const useCombatStore = create<CombatState>((set, get) => ({
     });
   },
 
-  // Akcja: Rzuć inicjatywę dla wszystkich
+  // Akcja: Rzuć inicjatywę (auto-roll dla nie-PC, PC czekają na manual input)
   rollInitiative: () => {
     const { participants } = get();
 
-    const withInitiative = participants.map((p) => ({
-      ...p,
-      initiative: rollDice(1, 20)[0] + calculateModifier(p.stats.dex),
-    }));
+    const hasPlayerCharacters = participants.some((p) => p.source === "player_character");
 
-    // Sortuj malejąco po inicjatywie (null na końcu)
-    const sorted = withInitiative.sort((a, b) => {
+    const withInitiative = participants.map((p) => {
+      if (p.source === "player_character" && hasPlayerCharacters) {
+        return p; // PC initiative set via setManualInitiative
+      }
+      return {
+        ...p,
+        initiative: rollDice(1, 20)[0] + calculateModifier(p.stats.dex),
+      };
+    });
+
+    // If no PCs, sort immediately
+    if (!hasPlayerCharacters) {
+      withInitiative.sort((a, b) => {
+        if (a.initiative === null) return 1;
+        if (b.initiative === null) return -1;
+        return b.initiative - a.initiative;
+      });
+    }
+
+    set({
+      participants: withInitiative,
+      isDirty: true,
+    });
+  },
+
+  // Akcja: Ustaw inicjatywę manualnie (dla PC) i posortuj wszystkich
+  setManualInitiative: (entries) => {
+    const { participants } = get();
+
+    const entryMap = new Map(entries.map((e) => [e.id, e.initiative]));
+    const updated = participants.map((p) => {
+      const manual = entryMap.get(p.id);
+      return manual !== undefined ? { ...p, initiative: manual } : p;
+    });
+
+    updated.sort((a, b) => {
       if (a.initiative === null) return 1;
       if (b.initiative === null) return -1;
       return b.initiative - a.initiative;
     });
 
     set({
-      participants: sorted,
+      participants: updated,
       isDirty: true,
     });
   },

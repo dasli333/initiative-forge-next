@@ -26,6 +26,7 @@ export function CombatTracker({ initialData, campaignId }: CombatTrackerProps) {
     rollMode,
     recentRolls,
     rollInitiative,
+    setManualInitiative,
     startCombat,
     nextTurn,
     updateHP,
@@ -115,7 +116,7 @@ export function CombatTracker({ initialData, campaignId }: CombatTrackerProps) {
 
   return (
     <>
-      <div className="h-full -m-4 md:-m-8 grid grid-cols-[minmax(0,30%)_minmax(0,50%)_minmax(0,20%)] overflow-x-hidden">
+      <div className="h-full -m-4 md:-m-8 grid grid-cols-[minmax(0,22%)_minmax(0,50%)_minmax(0,28%)] overflow-x-hidden">
         {/* Left Column: Initiative List */}
         <div className="overflow-hidden min-w-0">
           <InitiativeList
@@ -123,6 +124,7 @@ export function CombatTracker({ initialData, campaignId }: CombatTrackerProps) {
             currentRound={currentRound}
             activeParticipantIndex={activeParticipantIndex}
             onRollInitiative={rollInitiative}
+            onSetManualInitiative={setManualInitiative}
             onStartCombat={startCombat}
             onNextTurn={nextTurn}
             onSave={saveSnapshot}
