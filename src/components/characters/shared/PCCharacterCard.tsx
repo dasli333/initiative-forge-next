@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { ImageUpload } from '@/components/shared/ImageUpload';
+import { ImageLightbox } from '@/components/shared/ImageLightbox';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { User, Target, Calendar, Users, Shield, BookOpen, TrendingUp, Activity } from 'lucide-react';
@@ -106,16 +107,19 @@ export function PCCharacterCard({
                 entityType="player_character"
                 maxSizeMB={5}
                 className="[&_img]:h-40 [&_img]:w-40"
+                deferStorageDelete
               />
             </div>
           ) : displayData.image_url ? (
-            <Image
-              src={displayData.image_url}
-              alt={viewModel.name}
-              width={160}
-              height={160}
-              className="w-40 h-40 rounded-lg object-cover border-2 border-border"
-            />
+            <ImageLightbox src={displayData.image_url} alt={viewModel.name}>
+              <Image
+                src={displayData.image_url}
+                alt={viewModel.name}
+                width={160}
+                height={160}
+                className="w-40 h-40 rounded-lg object-cover border-2 border-border"
+              />
+            </ImageLightbox>
           ) : (
             <div className="w-40 h-40 rounded-lg bg-muted border-2 border-dashed border-border flex items-center justify-center">
               <User className="w-16 h-16 text-muted-foreground/50" />

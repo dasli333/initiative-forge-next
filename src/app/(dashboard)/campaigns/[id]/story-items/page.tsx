@@ -19,6 +19,7 @@ import { useFactionsQuery } from '@/hooks/useFactions';
 import { useLocationsQuery } from '@/hooks/useLocations';
 import type { StoryItemDTO, StoryItemFilters } from '@/types/story-items';
 import type { StoryItemFormData } from '@/lib/schemas/story-items';
+import { deleteStoryItemImage } from '@/lib/api/storage';
 
 /**
  * Main Story Items page
@@ -72,10 +73,25 @@ export default function StoryItemsPage() {
 
   const handleSave = (data: Partial<StoryItemDTO>) => {
     if (selectedId) {
-      updateMutation.mutate({
-        id: selectedId,
-        command: data,
-      });
+      // If image_url changed away from a previous storage URL, delete the old
+      // object after the DB update succeeds (staged-delete pattern).
+      const oldUrl = detailItem?.image_url ?? null;
+      const newUrl = data.image_url ?? null;
+      const shouldDeleteOld =
+        oldUrl !== newUrl && typeof oldUrl === 'string' && oldUrl.startsWith('http');
+
+      updateMutation.mutate(
+        { id: selectedId, command: data },
+        {
+          onSuccess: () => {
+            if (shouldDeleteOld && oldUrl) {
+              deleteStoryItemImage(oldUrl).catch((err) => {
+                console.error('Failed to delete old story item image:', err);
+              });
+            }
+          },
+        },
+      );
       setIsEditing(false);
     }
   };

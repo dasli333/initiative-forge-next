@@ -1,8 +1,10 @@
 'use client';
 
 import Image from 'next/image';
+import { Shield } from 'lucide-react';
 import { RichTextEditor } from '@/components/shared/RichTextEditor';
 import { ImageUpload } from '@/components/shared/ImageUpload';
+import { ImageLightbox } from '@/components/shared/ImageLightbox';
 import type { FactionDTO } from '@/types/factions';
 import type { JSONContent } from '@tiptap/core';
 
@@ -41,26 +43,30 @@ export function DetailsTab({
       <div>
         <label className="text-sm font-medium mb-2 block">Faction Image</label>
         {isEditing ? (
-          <ImageUpload
-            value={displayData.image_url}
-            onChange={(url) => onEditedDataChange('image_url', url)}
-            campaignId={campaignId}
-            entityType="faction"
-            maxSizeMB={5}
-          />
+          <div className="w-40">
+            <ImageUpload
+              value={displayData.image_url}
+              onChange={(url) => onEditedDataChange('image_url', url)}
+              campaignId={campaignId}
+              entityType="faction"
+              maxSizeMB={5}
+              className="[&_img]:h-40 [&_img]:w-40"
+              deferStorageDelete
+            />
+          </div>
         ) : displayData.image_url ? (
-          <div className="relative w-full max-w-2xl rounded-lg overflow-hidden" style={{ aspectRatio: '16/9' }}>
+          <ImageLightbox src={displayData.image_url} alt={faction.name}>
             <Image
               src={displayData.image_url}
               alt={faction.name}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 672px"
+              width={160}
+              height={160}
+              className="w-40 h-40 rounded-lg object-cover border-2 border-border"
             />
-          </div>
+          </ImageLightbox>
         ) : (
-          <div className="w-full max-w-2xl rounded-lg bg-muted flex items-center justify-center text-muted-foreground" style={{ aspectRatio: '16/9' }}>
-            No image
+          <div className="w-40 h-40 rounded-lg bg-muted border-2 border-dashed border-border flex items-center justify-center">
+            <Shield className="w-16 h-16 text-muted-foreground/50" />
           </div>
         )}
       </div>

@@ -17,6 +17,13 @@ interface ImageUploadProps {
   className?: string;
   campaignId: string;
   entityType?: EntityType;
+  /**
+   * If true, the X button clears the local preview and calls onChange(null)
+   * without hitting Supabase Storage. Parent must delete the old object in
+   * its save mutation (after comparing old vs new image_url). Prevents
+   * storage orphans when the user clicks X then Cancel.
+   */
+  deferStorageDelete?: boolean;
 }
 
 interface ImageUploadState {
@@ -36,6 +43,7 @@ export function ImageUpload({
   className,
   campaignId,
   entityType = 'location',
+  deferStorageDelete = false,
 }: ImageUploadProps) {
   const [state, setState] = useState<ImageUploadState>({
     file: null,
@@ -163,6 +171,19 @@ export function ImageUpload({
     const currentUrl = state.uploadedImageUrl || value;
     if (!currentUrl) return;
 
+    // Staged mode: clear preview only, parent commits storage delete on Save.
+    if (deferStorageDelete) {
+      setState({
+        file: null,
+        uploadedImageUrl: null,
+        isUploading: false,
+        progress: 0,
+        error: null,
+      });
+      onChange(null);
+      return;
+    }
+
     setState((prev) => ({ ...prev, isUploading: true, error: null }));
 
     try {
@@ -197,7 +218,7 @@ export function ImageUpload({
         error: 'Failed to delete image. Please try again.',
       }));
     }
-  }, [state.uploadedImageUrl, value, onChange, entityType]);
+  }, [state.uploadedImageUrl, value, onChange, entityType, deferStorageDelete]);
 
   return (
     <div className={cn('space-y-4', className)}>

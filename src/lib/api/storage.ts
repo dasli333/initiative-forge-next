@@ -62,13 +62,17 @@ export async function deleteLocationImage(imageUrl: string): Promise<void> {
     throw new Error('Invalid image URL');
   }
 
-  const { error } = await supabase.storage
+  const { data, error } = await supabase.storage
     .from('location-images')
     .remove([fileName]);
 
   if (error) {
     console.error('Failed to delete image:', error);
     throw error;
+  }
+  // Supabase returns empty data array when RLS silently denies delete.
+  if (!data || data.length === 0) {
+    throw new Error(`Storage delete returned empty result for ${fileName}. Likely RLS deny or file already gone.`);
   }
 }
 
@@ -121,13 +125,16 @@ export async function deleteNPCImage(imageUrl: string): Promise<void> {
     throw new Error('Invalid image URL');
   }
 
-  const { error } = await supabase.storage
+  const { data, error } = await supabase.storage
     .from('npc-images')
     .remove([fileName]);
 
   if (error) {
     console.error('Failed to delete NPC image:', error);
     throw error;
+  }
+  if (!data || data.length === 0) {
+    throw new Error(`Storage delete returned empty result for ${fileName}. Likely RLS deny or file already gone.`);
   }
 }
 
@@ -180,13 +187,16 @@ export async function deletePlayerCharacterImage(imageUrl: string): Promise<void
     throw new Error('Invalid image URL');
   }
 
-  const { error } = await supabase.storage
+  const { data, error } = await supabase.storage
     .from('pc-images')
     .remove([fileName]);
 
   if (error) {
     console.error('Failed to delete player character image:', error);
     throw error;
+  }
+  if (!data || data.length === 0) {
+    throw new Error(`Storage delete returned empty result for ${fileName}. Likely RLS deny or file already gone.`);
   }
 }
 
@@ -239,13 +249,16 @@ export async function deleteFactionImage(imageUrl: string): Promise<void> {
     throw new Error('Invalid image URL');
   }
 
-  const { error } = await supabase.storage
+  const { data, error } = await supabase.storage
     .from('faction-images')
     .remove([fileName]);
 
   if (error) {
     console.error('Failed to delete faction image:', error);
     throw error;
+  }
+  if (!data || data.length === 0) {
+    throw new Error(`Storage delete returned empty result for ${fileName}. Likely RLS deny or file already gone.`);
   }
 }
 
@@ -298,12 +311,15 @@ export async function deleteStoryItemImage(imageUrl: string): Promise<void> {
     throw new Error('Invalid image URL');
   }
 
-  const { error } = await supabase.storage
+  const { data, error } = await supabase.storage
     .from('story-item-images')
     .remove([fileName]);
 
   if (error) {
     console.error('Failed to delete story item image:', error);
     throw error;
+  }
+  if (!data || data.length === 0) {
+    throw new Error(`Storage delete returned empty result for ${fileName}. Likely RLS deny or file already gone.`);
   }
 }

@@ -25,6 +25,7 @@ import type { PlayerCharacterFilters, PlayerCharacterStatus } from '@/types/play
 import type { JSONContent } from '@tiptap/core';
 import type { ActionDTO } from '@/types';
 import type { CharacterFormData } from '@/lib/schemas/player-character.schema';
+import { deletePlayerCharacterImage } from '@/lib/api/storage';
 
 interface CharactersViewProps {
   campaignId: string;
@@ -162,7 +163,27 @@ export function CharactersView({ campaignId, campaignName }: CharactersViewProps
 
       // Update character
       if (Object.keys(changes).length > 0) {
-        updateMutation.mutate({ characterId: selectedCharacterId, command: changes });
+        // Capture old image URL for post-save storage cleanup (staged-delete).
+        const oldImageUrl = characterDetails.image_url;
+        const imageChanged = 'image_url' in changes;
+        const shouldDeleteOld =
+          imageChanged &&
+          typeof oldImageUrl === 'string' &&
+          oldImageUrl.startsWith('http') &&
+          oldImageUrl !== editedData.image_url;
+
+        updateMutation.mutate(
+          { characterId: selectedCharacterId, command: changes },
+          {
+            onSuccess: () => {
+              if (shouldDeleteOld && oldImageUrl) {
+                deletePlayerCharacterImage(oldImageUrl).catch((err) => {
+                  console.error('Failed to delete old PC image:', err);
+                });
+              }
+            },
+          },
+        );
       }
 
       // Handle combat stats
@@ -194,6 +215,21 @@ export function CharactersView({ campaignId, campaignName }: CharactersViewProps
   };
 
   const handleCancelEdit = () => {
+    // Staged-delete: if user uploaded a new image during this edit session but
+    // then cancels, the new storage object is orphaned unless we clean it up.
+    if (editedData && characterDetails) {
+      const origUrl = characterDetails.image_url;
+      const newUrl = editedData.image_url;
+      if (
+        typeof newUrl === 'string' &&
+        newUrl.startsWith('http') &&
+        newUrl !== origUrl
+      ) {
+        deletePlayerCharacterImage(newUrl).catch((err) => {
+          console.error('Failed to delete abandoned PC image:', err);
+        });
+      }
+    }
     setIsEditing(false);
     setEditedData(null);
   };

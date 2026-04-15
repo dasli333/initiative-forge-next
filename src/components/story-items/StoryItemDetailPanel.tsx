@@ -13,6 +13,8 @@ import { Badge } from '@/components/ui/badge';
 
 import { RichTextEditor } from '@/components/shared/RichTextEditor';
 import { ImageUpload } from '@/components/shared/ImageUpload';
+import { ImageLightbox } from '@/components/shared/ImageLightbox';
+import { deleteStoryItemImage } from '@/lib/api/storage';
 import { OwnershipTimeline } from './OwnershipTimeline';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -186,6 +188,22 @@ export function StoryItemDetailPanel({
     onSave(formData as Partial<StoryItemDTO>);
   };
 
+  const handleCancel = () => {
+    // Staged-delete: delete newly-uploaded image if user cancels edit.
+    const newUrl = form.getValues().image_url;
+    const origUrl = item?.image_url ?? null;
+    if (
+      typeof newUrl === 'string' &&
+      newUrl.startsWith('http') &&
+      newUrl !== origUrl
+    ) {
+      deleteStoryItemImage(newUrl).catch((err) => {
+        console.error('Failed to delete abandoned story item image:', err);
+      });
+    }
+    onCancelEdit();
+  };
+
   const handleDelete = () => {
     setShowDeleteDialog(false);
     onDelete();
@@ -194,64 +212,105 @@ export function StoryItemDetailPanel({
   return (
     <div className="flex flex-col h-full overflow-y-auto">
       <div className="p-6 space-y-6">
-        {/* Image */}
-        {isEditing ? (
-          <div>
-            <Label>Image</Label>
-            <Controller
-              name="image_url"
-              control={form.control}
-              render={({ field }) => (
-                <ImageUpload
-                  value={field.value || item.image_url}
-                  onChange={field.onChange}
-                  campaignId={campaignId}
-                  entityType="story_item"
-                  maxSizeMB={5}
-                />
+        {/* Header Card: Image + Name + Current Owner + Actions */}
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0 flex gap-4 p-4 bg-muted/30 rounded-lg border">
+            {/* Left: Image */}
+            <div className="shrink-0">
+              {isEditing ? (
+                <div className="w-40">
+                  <Controller
+                    name="image_url"
+                    control={form.control}
+                    render={({ field }) => (
+                      <ImageUpload
+                        value={field.value ?? null}
+                        onChange={field.onChange}
+                        campaignId={campaignId}
+                        entityType="story_item"
+                        maxSizeMB={5}
+                        className="[&_img]:h-40 [&_img]:w-40"
+                        deferStorageDelete
+                      />
+                    )}
+                  />
+                </div>
+              ) : item.image_url ? (
+                <ImageLightbox src={item.image_url} alt={item.name}>
+                  <Image
+                    src={item.image_url}
+                    alt={item.name}
+                    width={160}
+                    height={160}
+                    className="w-40 h-40 rounded-lg object-cover border-2 border-border"
+                  />
+                </ImageLightbox>
+              ) : (
+                <div className="w-40 h-40 rounded-lg bg-muted border-2 border-dashed border-border flex items-center justify-center">
+                  <Sparkles className="w-16 h-16 text-muted-foreground/50" />
+                </div>
               )}
-            />
-          </div>
-        ) : item.image_url ? (
-          <div className="relative w-full h-64 rounded-lg overflow-hidden">
-            <Image
-              src={item.image_url}
-              alt={item.name}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 600px"
-            />
-          </div>
-        ) : null}
+            </div>
 
-        {/* Header Section */}
-        <div className="space-y-4">
-          <div className="flex items-start justify-between gap-4">
-            {isEditing ? (
-              <div className="flex-1">
-                <Label>Name</Label>
-                <Controller
-                  name="name"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      value={field.value || ''}
-                      placeholder="Item name"
-                      className="text-2xl font-bold h-auto py-2"
-                    />
-                  )}
-                />
+            {/* Right: Name + Current Owner */}
+            <div className="flex-1 min-w-0 space-y-3">
+              {isEditing ? (
+                <div>
+                  <Label>Name</Label>
+                  <Controller
+                    name="name"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        value={field.value || ''}
+                        placeholder="Item name"
+                        className="text-2xl font-bold h-auto py-2"
+                      />
+                    )}
+                  />
+                </div>
+              ) : (
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 truncate">
+                  {item.name}
+                </h1>
+              )}
+
+              {/* Current Owner */}
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Current Owner
+                </h3>
+                {!isEditing ? (
+                  item.current_owner_type && item.current_owner_id ? (
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge variant="outline" className="flex items-center gap-2">
+                        {getOwnerTypeIcon(item.current_owner_type)}
+                        <span>{getOwnerTypeLabel(item.current_owner_type)}</span>
+                      </Badge>
+                      <Link
+                        href={getOwnerTypePath(item.current_owner_type, campaignId, item.current_owner_id)}
+                        className="font-medium text-emerald-600 dark:text-emerald-400 hover:underline truncate"
+                      >
+                        {item.current_owner_name || 'Unknown'}
+                      </Link>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No owner assigned</p>
+                  )
+                ) : (
+                  <div className="text-xs text-muted-foreground italic border-l-4 border-emerald-500 pl-3 py-1">
+                    Current owner = history entry with no end date. Edit history below to change.
+                  </div>
+                )}
               </div>
-            ) : (
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 flex-1">
-                {item.name}
-              </h1>
-            )}
+            </div>
+          </div>
 
-            {/* Action buttons */}
+          {/* Action buttons */}
+          <div className="flex gap-2 shrink-0">
             {!isEditing ? (
-              <div className="flex gap-2">
+              <>
                 <Button
                   onClick={onEdit}
                   variant="outline"
@@ -270,9 +329,9 @@ export function StoryItemDetailPanel({
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete
                 </Button>
-              </div>
+              </>
             ) : (
-              <div className="flex gap-2">
+              <>
                 <Button
                   onClick={handleSave}
                   size="sm"
@@ -283,7 +342,7 @@ export function StoryItemDetailPanel({
                   {isUpdating ? 'Saving...' : 'Save'}
                 </Button>
                 <Button
-                  onClick={onCancelEdit}
+                  onClick={handleCancel}
                   variant="ghost"
                   size="sm"
                   disabled={isUpdating}
@@ -291,46 +350,9 @@ export function StoryItemDetailPanel({
                   <X className="h-4 w-4 mr-2" />
                   Cancel
                 </Button>
-              </div>
+              </>
             )}
           </div>
-        </div>
-
-        {/* Current Owner Section */}
-        <div className="space-y-3 border-t pt-4">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            Current Owner
-          </h3>
-
-          {/* VIEW MODE: Show current owner */}
-          {!isEditing && (
-            <>
-              {item.current_owner_type && item.current_owner_id ? (
-                <div className="flex items-center gap-3">
-                  <Badge variant="outline" className="flex items-center gap-2">
-                    {getOwnerTypeIcon(item.current_owner_type)}
-                    <span>{getOwnerTypeLabel(item.current_owner_type)}</span>
-                  </Badge>
-                  <Link
-                    href={getOwnerTypePath(item.current_owner_type, campaignId, item.current_owner_id)}
-                    className="font-medium text-emerald-600 dark:text-emerald-400 hover:underline"
-                  >
-                    {item.current_owner_name || 'Unknown'}
-                  </Link>
-                </div>
-              ) : (
-                <p className="text-sm text-gray-500 dark:text-gray-400">No owner assigned</p>
-              )}
-            </>
-          )}
-
-          {/* EDIT MODE: Show info message */}
-          {isEditing && (
-            <div className="text-sm text-muted-foreground italic border-l-4 border-emerald-500 pl-4 py-2">
-              Current owner is determined by the history entry with no end date (to = empty).
-              Edit the ownership history below to change the current owner.
-            </div>
-          )}
         </div>
 
         {/* Description Section */}
