@@ -14,6 +14,7 @@ interface LocationDetailsPanelProps {
   onLocationSelect: (locationId: string) => void;
   onNameUpdate: (locationId: string, name: string) => Promise<void>;
   onDescriptionUpdate: (locationId: string, descriptionJson: JSONContent) => Promise<void>;
+  onImageUpdate: (locationId: string, oldImageUrl: string | null, newImageUrl: string | null) => Promise<void>;
   onDeleteLocation: (locationId: string) => Promise<void>;
   onAddChild: (parentId: string) => void;
 }
@@ -25,6 +26,7 @@ export function LocationDetailsPanel({
   onLocationSelect,
   onNameUpdate,
   onDescriptionUpdate,
+  onImageUpdate,
   onDeleteLocation,
   onAddChild,
 }: LocationDetailsPanelProps) {
@@ -53,6 +55,9 @@ export function LocationDetailsPanel({
           onNameUpdate={(name) => onNameUpdate(selectedLocation.id, name)}
           onDescriptionUpdate={(json) =>
             onDescriptionUpdate(selectedLocation.id, json)
+          }
+          onImageUpdate={(oldUrl, newUrl) =>
+            onImageUpdate(selectedLocation.id, oldUrl, newUrl)
           }
           onDelete={() => onDeleteLocation(selectedLocation.id)}
           onNavigateToLocation={onLocationSelect}

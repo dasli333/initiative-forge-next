@@ -13,6 +13,7 @@ import {
   useDeleteLocationMutation,
 } from '@/hooks/useLocations';
 import { useCampaignQuery } from '@/hooks/useCampaigns';
+import { deleteLocationImage } from '@/lib/api/storage';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import type { CreateLocationCommand, UpdateLocationCommand } from '@/types/locations';
@@ -94,6 +95,33 @@ export default function LocationsPage() {
     }
   };
 
+  const handleImageUpdate = async (
+    locationId: string,
+    oldImageUrl: string | null,
+    newImageUrl: string | null,
+  ) => {
+    try {
+      await updateMutation.mutateAsync({
+        id: locationId,
+        command: { image_url: newImageUrl },
+      });
+      // Staged-delete cleanup for old storage object.
+      if (
+        typeof oldImageUrl === 'string' &&
+        oldImageUrl.startsWith('http') &&
+        oldImageUrl !== newImageUrl
+      ) {
+        deleteLocationImage(oldImageUrl).catch((err) => {
+          console.error('Failed to delete old location image:', err);
+        });
+      }
+      toast.success('Image updated');
+    } catch (error) {
+      toast.error('Failed to update image');
+      console.error('Update image error:', error);
+    }
+  };
+
   const handleDeleteLocation = async (locationId: string) => {
     try {
       await deleteMutation.mutateAsync(locationId);
@@ -172,6 +200,7 @@ export default function LocationsPage() {
         onLocationMove={handleLocationMove}
         onNameUpdate={handleNameUpdate}
         onDescriptionUpdate={handleDescriptionUpdate}
+        onImageUpdate={handleImageUpdate}
         onDeleteLocation={handleDeleteLocation}
         onAddChild={handleAddChild}
       />

@@ -22,6 +22,7 @@ import {
   useDeleteFactionRelationshipMutation,
 } from '@/hooks/useFactionRelationships';
 import { useNPCsQuery } from '@/hooks/useNpcs';
+import { deleteFactionImage } from '@/lib/api/storage';
 import type { FactionCardViewModel, FactionRelationshipViewModel } from '@/types/factions';
 import type { JSONContent } from '@tiptap/core';
 
@@ -125,10 +126,30 @@ export default function FactionsPage() {
 
       // Update faction if there are changes
       if (Object.keys(changes).length > 0) {
-        updateMutation.mutate({
-          id: selectedFactionId,
-          command: changes,
-        });
+        // Staged-delete: clean up old storage object after DB commit.
+        const oldImageUrl = detailViewModel.faction.image_url;
+        const imageChanged = 'image_url' in changes;
+        const shouldDeleteOld =
+          imageChanged &&
+          typeof oldImageUrl === 'string' &&
+          oldImageUrl.startsWith('http') &&
+          oldImageUrl !== editedData.image_url;
+
+        updateMutation.mutate(
+          {
+            id: selectedFactionId,
+            command: changes,
+          },
+          {
+            onSuccess: () => {
+              if (shouldDeleteOld && oldImageUrl) {
+                deleteFactionImage(oldImageUrl).catch((err) => {
+                  console.error('Failed to delete old faction image:', err);
+                });
+              }
+            },
+          },
+        );
       }
 
       setIsEditing(false);
@@ -137,6 +158,20 @@ export default function FactionsPage() {
   };
 
   const handleCancelEdit = () => {
+    // Staged-delete: delete newly-uploaded image if user cancels edit.
+    if (editedData && detailViewModel) {
+      const origUrl = detailViewModel.faction.image_url;
+      const newUrl = editedData.image_url;
+      if (
+        typeof newUrl === 'string' &&
+        newUrl.startsWith('http') &&
+        newUrl !== origUrl
+      ) {
+        deleteFactionImage(newUrl).catch((err) => {
+          console.error('Failed to delete abandoned faction image:', err);
+        });
+      }
+    }
     setIsEditing(false);
     setEditedData(null);
   };

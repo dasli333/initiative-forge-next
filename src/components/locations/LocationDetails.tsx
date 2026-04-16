@@ -16,6 +16,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { RichTextEditor } from '@/components/shared/RichTextEditor';
+import { ImageUpload } from '@/components/shared/ImageUpload';
 import { LocationTypeBadge } from './LocationTypeBadge';
 import { LocationCard } from './LocationCard';
 import { BacklinksSection } from './BacklinksSection';
@@ -28,7 +29,9 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { buildBreadcrumb } from '@/lib/utils/locationTreeUtils';
-import { Trash2, Plus, Pencil, Save, X } from 'lucide-react';
+import { ImageLightbox } from '@/components/shared/ImageLightbox';
+import { deleteLocationImage } from '@/lib/api/storage';
+import { Trash2, Plus, Pencil, Save, X, MapPin } from 'lucide-react';
 import type { LocationDTO } from '@/types/locations';
 import type { JSONContent } from '@tiptap/react';
 
@@ -39,6 +42,7 @@ interface LocationDetailsProps {
   campaignId: string;
   onNameUpdate: (name: string) => Promise<void>;
   onDescriptionUpdate: (descriptionJson: JSONContent) => Promise<void>;
+  onImageUpdate: (oldImageUrl: string | null, newImageUrl: string | null) => Promise<void>;
   onDelete: () => Promise<void>;
   onNavigateToLocation: (locationId: string) => void;
   onAddChild: () => void;
@@ -51,6 +55,7 @@ export function LocationDetails({
   campaignId,
   onNameUpdate,
   onDescriptionUpdate,
+  onImageUpdate,
   onDelete,
   onNavigateToLocation,
   onAddChild,
@@ -63,6 +68,7 @@ export function LocationDetails({
   const [editedDescription, setEditedDescription] = useState<JSONContent | null>(
     location.description_json
   );
+  const [editedImageUrl, setEditedImageUrl] = useState<string | null>(location.image_url);
 
   // Reset edited values when location ID changes
   const [prevLocationId, setPrevLocationId] = useState(location.id);
@@ -71,11 +77,13 @@ export function LocationDetails({
     setIsEditing(false);
     setEditedName(location.name);
     setEditedDescription(location.description_json);
+    setEditedImageUrl(location.image_url);
   }
 
   const handleEditClick = () => {
     setEditedName(location.name);
     setEditedDescription(location.description_json);
+    setEditedImageUrl(location.image_url);
     setIsEditing(true);
   };
 
@@ -88,12 +96,27 @@ export function LocationDetails({
     if (editedDescription !== location.description_json) {
       await onDescriptionUpdate(editedDescription || { type: 'doc', content: [] });
     }
+    // Save image if changed; parent handles old-storage cleanup.
+    if (editedImageUrl !== location.image_url) {
+      await onImageUpdate(location.image_url, editedImageUrl);
+    }
     setIsEditing(false);
   };
 
   const handleCancelClick = () => {
+    // Staged-delete: delete newly-uploaded image if user cancels edit.
+    if (
+      typeof editedImageUrl === 'string' &&
+      editedImageUrl.startsWith('http') &&
+      editedImageUrl !== location.image_url
+    ) {
+      deleteLocationImage(editedImageUrl).catch((err) => {
+        console.error('Failed to delete abandoned location image:', err);
+      });
+    }
     setEditedName(location.name);
     setEditedDescription(location.description_json);
+    setEditedImageUrl(location.image_url);
     setIsEditing(false);
   };
 
@@ -106,23 +129,42 @@ export function LocationDetails({
 
   return (
     <div className="space-y-6">
-      {/* Image */}
-      {location.image_url && (
-        <div className="relative w-full h-96 rounded-lg overflow-hidden">
-          <Image
-            src={location.image_url}
-            alt={location.name}
-            fill
-            className="object-cover"
-            sizes="100vw"
-          />
-        </div>
-      )}
+      {/* Header: image + name/type + actions */}
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1 flex gap-4 min-w-0">
+          {/* Image */}
+          <div className="shrink-0">
+            {isEditing ? (
+              <div className="w-40">
+                <ImageUpload
+                  value={editedImageUrl}
+                  onChange={setEditedImageUrl}
+                  campaignId={campaignId}
+                  entityType="location"
+                  maxSizeMB={5}
+                  className="[&_img]:h-40 [&_img]:w-40"
+                  deferStorageDelete
+                />
+              </div>
+            ) : location.image_url ? (
+              <ImageLightbox src={location.image_url} alt={location.name}>
+                <Image
+                  src={location.image_url}
+                  alt={location.name}
+                  width={160}
+                  height={160}
+                  className="w-40 h-40 rounded-lg object-cover border-2 border-border"
+                />
+              </ImageLightbox>
+            ) : (
+              <div className="w-40 h-40 rounded-lg bg-muted border-2 border-dashed border-border flex items-center justify-center">
+                <MapPin className="w-16 h-16 text-muted-foreground/50" />
+              </div>
+            )}
+          </div>
 
-      {/* Header */}
-      <div className="space-y-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 space-y-2">
+          {/* Name + Type */}
+          <div className="flex-1 min-w-0 space-y-2">
             {isEditing ? (
               <Input
                 value={editedName}
@@ -134,7 +176,8 @@ export function LocationDetails({
             )}
             <LocationTypeBadge type={location.location_type} />
           </div>
-          <div className="flex gap-2">
+        </div>
+        <div className="flex gap-2">
             {isEditing ? (
               <>
                 <Button
@@ -164,7 +207,6 @@ export function LocationDetails({
                 Edit Location
               </Button>
             )}
-          </div>
         </div>
       </div>
 

@@ -36,6 +36,7 @@ import type { NPCFormData } from '@/lib/schemas/npcs';
 import type { JSONContent } from '@tiptap/core';
 import type { MonsterAction, MonsterTrait, LegendaryActions } from '@/lib/schemas/monster.schema';
 import {TagIcon} from "@/types/npc-tags";
+import { deleteNPCImage } from '@/lib/api/storage';
 
 /**
  * Main NPCs page
@@ -230,10 +231,30 @@ export default function NPCsPage() {
 
       // Update NPC if there are story changes
       if (Object.keys(changes).length > 0) {
-        updateMutation.mutate({
-          id: selectedNPCId,
-          command: changes,
-        });
+        // Staged-delete: clean up old storage object after DB commit.
+        const oldImageUrl = npcDetails.npc.image_url;
+        const imageChanged = 'image_url' in changes;
+        const shouldDeleteOld =
+          imageChanged &&
+          typeof oldImageUrl === 'string' &&
+          oldImageUrl.startsWith('http') &&
+          oldImageUrl !== editedData.image_url;
+
+        updateMutation.mutate(
+          {
+            id: selectedNPCId,
+            command: changes,
+          },
+          {
+            onSuccess: () => {
+              if (shouldDeleteOld && oldImageUrl) {
+                deleteNPCImage(oldImageUrl).catch((err) => {
+                  console.error('Failed to delete old NPC image:', err);
+                });
+              }
+            },
+          },
+        );
       }
 
       // Handle combat stats changes
@@ -283,6 +304,20 @@ export default function NPCsPage() {
   };
 
   const handleCancelEdit = () => {
+    // Staged-delete: delete newly-uploaded image if user cancels edit.
+    if (editedData && npcDetails) {
+      const origUrl = npcDetails.npc.image_url;
+      const newUrl = editedData.image_url;
+      if (
+        typeof newUrl === 'string' &&
+        newUrl.startsWith('http') &&
+        newUrl !== origUrl
+      ) {
+        deleteNPCImage(newUrl).catch((err) => {
+          console.error('Failed to delete abandoned NPC image:', err);
+        });
+      }
+    }
     setIsEditing(false);
     setEditedData(null);
   };

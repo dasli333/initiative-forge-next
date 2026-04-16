@@ -14,6 +14,7 @@ interface LocationsLayoutProps {
   onLocationMove: (locationId: string, newParentId: string | null) => void;
   onNameUpdate: (locationId: string, name: string) => Promise<void>;
   onDescriptionUpdate: (locationId: string, descriptionJson: JSONContent) => Promise<void>;
+  onImageUpdate: (locationId: string, oldImageUrl: string | null, newImageUrl: string | null) => Promise<void>;
   onDeleteLocation: (locationId: string) => Promise<void>;
   onAddChild: (parentId: string) => void;
 }
@@ -26,6 +27,7 @@ export function LocationsLayout({
   onLocationMove,
   onNameUpdate,
   onDescriptionUpdate,
+  onImageUpdate,
   onDeleteLocation,
   onAddChild,
 }: LocationsLayoutProps) {
@@ -47,6 +49,7 @@ export function LocationsLayout({
           onLocationSelect={onLocationSelect}
           onNameUpdate={onNameUpdate}
           onDescriptionUpdate={onDescriptionUpdate}
+          onImageUpdate={onImageUpdate}
           onDeleteLocation={onDeleteLocation}
           onAddChild={onAddChild}
         />
