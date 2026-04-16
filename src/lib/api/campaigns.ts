@@ -120,9 +120,21 @@ export async function updateCampaign(
 /**
  * Delete a campaign and all associated data (CASCADE)
  * RLS will ensure user can only delete their own campaigns
+ * Also cleans up orphaned images in storage buckets
  */
 export async function deleteCampaign(campaignId: string): Promise<void> {
   const supabase = getSupabaseClient();
+
+  // Clean up images from all storage buckets before DB delete
+  const buckets = ['pc-images', 'npc-images', 'location-images', 'faction-images', 'story-item-images'];
+  for (const bucket of buckets) {
+    while (true) {
+      const { data: files } = await supabase.storage.from(bucket).list(campaignId, { limit: 100 });
+      if (!files?.length) break;
+      await supabase.storage.from(bucket).remove(files.map(f => `${campaignId}/${f.name}`));
+      if (files.length < 100) break;
+    }
+  }
 
   const { error } = await supabase
     .from('campaigns')
