@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { SessionsHeader } from '@/components/sessions/SessionsHeader';
 import { SessionsLayout } from '@/components/sessions/SessionsLayout';
 import { CreateSessionDialog } from '@/components/sessions/CreateSessionDialog';
 import { useCampaignStore } from '@/stores/campaignStore';
@@ -15,7 +14,7 @@ import {
   useDeleteSessionMutation,
 } from '@/hooks/useSessions';
 import { getNextSessionNumber } from '@/lib/api/sessions';
-import type { SessionFilters, SessionStatus, PlanJson, LogJson } from '@/types/sessions';
+import type { SessionStatus, PlanJson, LogJson } from '@/types/sessions';
 import type { CreateSessionFormData } from '@/lib/schemas/sessions';
 
 export default function SessionsPage() {
@@ -32,7 +31,6 @@ export default function SessionsPage() {
     searchParams.get('selectedId') || null
   );
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [filters, setFilters] = useState<SessionFilters>({});
   const [activeTab, setActiveTab] = useState<'prep' | 'journal'>('prep');
 
   // Sync selectedSessionId with URL changes
@@ -56,7 +54,7 @@ export default function SessionsPage() {
   } | null>(null);
 
   // Queries
-  const { data: sessions = [], isLoading: sessionsLoading } = useSessionsQuery(campaignId, filters);
+  const { data: sessions = [], isLoading: sessionsLoading } = useSessionsQuery(campaignId, {});
   const { data: sessionDetails, isLoading: detailsLoading } = useSessionQuery(selectedSessionId || undefined);
 
   // Get next session number for create dialog
@@ -171,19 +169,11 @@ export default function SessionsPage() {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header */}
-      <SessionsHeader onCreateClick={() => setIsCreateDialogOpen(true)} />
-
-      {/* Main content - 30/70 split */}
       <SessionsLayout
-        // List props
         sessions={sessions}
         selectedSessionId={selectedSessionId}
         onSessionSelect={handleSessionSelect}
-        filters={filters}
-        onFiltersChange={setFilters}
         isLoading={sessionsLoading}
-        // Detail panel props
         selectedSession={sessionDetails}
         isDetailLoading={detailsLoading}
         isEditing={isEditing}
@@ -195,6 +185,7 @@ export default function SessionsPage() {
         onCancelEdit={handleCancelEdit}
         onDelete={handleDelete}
         onEditedDataChange={handleEditedDataChange}
+        onCreateClick={() => setIsCreateDialogOpen(true)}
         campaignId={campaignId}
         isUpdating={updateMutation.isPending}
         isDeleting={deleteMutation.isPending}

@@ -68,7 +68,7 @@ function PinnedEntityBadge({ entity, campaignId, isEditing, onRemove }: PinnedEn
     <Badge
       variant="outline"
       className={cn(
-        'flex items-center gap-1 px-2 py-1 cursor-pointer transition-colors',
+        'flex items-center gap-1 px-2 py-1 cursor-pointer transition-colors shrink-0',
         config.className,
         !isEditing && config.hoverClassName
       )}
@@ -167,10 +167,11 @@ export function QuickLinksSection({
   return (
     <SectionCard
       title="Quick Links"
-      description="Pin entities for quick access during the session"
+      compact
+      className="sticky top-0 z-20 backdrop-blur bg-background/80"
     >
       {/* Pinned entities */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex gap-2 overflow-x-auto pb-1 items-center">
         {pinnedEntities.length === 0 && !isEditing && (
           <p className="text-sm text-muted-foreground italic py-2">
             No entities pinned
@@ -191,7 +192,7 @@ export function QuickLinksSection({
         {isEditing && pinnedEntities.length < 20 && (
           <Popover open={isOpen} onOpenChange={setIsOpen}>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="h-7">
+              <Button variant="outline" size="sm" className="h-7 shrink-0">
                 <Plus className="h-3 w-3 mr-1" />
                 Add
               </Button>
