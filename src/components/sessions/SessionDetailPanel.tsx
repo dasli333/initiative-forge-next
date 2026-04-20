@@ -13,17 +13,20 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-import { Calendar, Pencil, Save, X, Trash2, AlertCircle, BookOpen } from 'lucide-react';
-import { EmptyState } from '@/components/shared/EmptyState';
+import { Calendar, Pencil, Save, X, Trash2, AlertCircle, Menu, Plus } from 'lucide-react';
 import { DeleteConfirmationDialog } from '@/components/shared/DeleteConfirmationDialog';
 import { cn } from '@/lib/utils';
 import { StatusBadge } from './shared/StatusBadge';
 import { PrepTab } from './prep/PrepTab';
 import { JournalTab } from './journal/JournalTab';
+import { SessionsBrowseGrid } from './SessionsBrowseGrid';
 import type { SessionDTO, SessionStatus, PlanJson, LogJson } from '@/types/sessions';
 
 interface SessionDetailPanelProps {
   session: SessionDTO | undefined;
+  sessions: SessionDTO[];
+  sessionsLoading: boolean;
+  onSessionSelect: (sessionId: string) => void;
   isLoading: boolean;
   isEditing: boolean;
   editedData: {
@@ -42,6 +45,8 @@ interface SessionDetailPanelProps {
   onCancelEdit: () => void;
   onDelete: () => void;
   onEditedDataChange: (field: string, value: unknown) => void;
+  onOpenList: () => void;
+  onCreateClick: () => void;
   campaignId: string;
   isUpdating?: boolean;
   isDeleting?: boolean;
@@ -56,6 +61,9 @@ const statusOptions: { value: SessionStatus; label: string }[] = [
 
 export function SessionDetailPanel({
   session,
+  sessions,
+  sessionsLoading,
+  onSessionSelect,
   isLoading,
   isEditing,
   editedData,
@@ -66,6 +74,8 @@ export function SessionDetailPanel({
   onCancelEdit,
   onDelete,
   onEditedDataChange,
+  onOpenList,
+  onCreateClick,
   campaignId,
   isUpdating,
   isDeleting,
@@ -81,17 +91,46 @@ export function SessionDetailPanel({
     setIsDeleteDialogOpen(false);
   };
 
+  // Always-visible top bar (drawer trigger + create) — shown even when no session selected
+  const topBar = (
+    <div className="flex items-center gap-2 shrink-0">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={onOpenList}
+        aria-label="Open sessions list"
+      >
+        <Menu className="h-5 w-5" />
+      </Button>
+    </div>
+  );
+
   if (!session && !isLoading) {
     return (
-      <EmptyState
-        icon={BookOpen}
-        title="No Session Selected"
-        description="Select a session from the list to view details, or create a new one to get started."
-      />
+      <div className="flex h-full flex-col overflow-hidden">
+        <div className="flex items-center justify-between border-b px-3 py-2 shrink-0">
+          <div className="flex items-center gap-2">
+            {topBar}
+            <h2 className="text-lg font-bold">Sessions</h2>
+            <span className="text-xs text-muted-foreground">
+              {sessions.length} total
+            </span>
+          </div>
+          <Button onClick={onCreateClick} size="sm" className="bg-emerald-600 hover:bg-emerald-700">
+            <Plus className="h-4 w-4 mr-1" />
+            New Session
+          </Button>
+        </div>
+        <SessionsBrowseGrid
+          sessions={sessions}
+          isLoading={sessionsLoading}
+          onSessionSelect={onSessionSelect}
+          onCreateClick={onCreateClick}
+        />
+      </div>
     );
   }
 
-  // Loading state
   if (isLoading) {
     return (
       <div className="flex h-full flex-col space-y-4 p-6">
@@ -102,7 +141,6 @@ export function SessionDetailPanel({
     );
   }
 
-  // 404 state
   if (!session) {
     return (
       <div className="flex h-full flex-col items-center justify-center text-center">
@@ -131,117 +169,117 @@ export function SessionDetailPanel({
         isEditing && 'm-1 rounded-lg border-2 border-primary/30'
       )}
     >
-      {/* Header */}
-      <div className={cn('border-b px-6 py-4 shrink-0', isEditing && 'bg-primary/5')}>
-        <div className="space-y-3">
-          {/* Title row */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {isEditing ? (
-                <Input
-                  value={currentData.title || ''}
-                  onChange={(e) => onEditedDataChange('title', e.target.value || null)}
-                  placeholder="Session title..."
-                  className="text-2xl font-bold h-auto py-1 px-2"
-                />
-              ) : (
-                <h2 className="text-2xl font-bold">
-                  Session #{session.session_number}
-                  {session.title && `: ${session.title}`}
-                </h2>
-              )}
-            </div>
+      {/* Compact one-row header */}
+      <div className={cn('border-b px-3 py-2 shrink-0', isEditing && 'bg-primary/5')}>
+        <div className="flex items-center gap-3 flex-wrap">
+          {topBar}
 
-            {/* Actions */}
-            <div className="flex items-center gap-2">
-              {isEditing ? (
-                <>
-                  <Button variant="outline" size="sm" onClick={onCancelEdit}>
-                    <X className="h-4 w-4 mr-1" />
-                    Cancel
-                  </Button>
-                  <Button size="sm" onClick={onSave} disabled={isUpdating}>
-                    <Save className="h-4 w-4 mr-1" />
-                    {isUpdating ? 'Saving...' : 'Save'}
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button variant="outline" size="sm" onClick={onEdit}>
-                    <Pencil className="h-4 w-4 mr-1" />
-                    Edit
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleDeleteClick}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </>
-              )}
-            </div>
+          {/* Title */}
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <span className="text-sm font-mono text-muted-foreground shrink-0">
+              #{session.session_number}
+            </span>
+            {isEditing ? (
+              <Input
+                value={currentData.title || ''}
+                onChange={(e) => onEditedDataChange('title', e.target.value || null)}
+                placeholder="Session title..."
+                className="text-lg font-bold h-8 py-1 px-2"
+              />
+            ) : (
+              <h2 className="text-lg font-bold truncate">
+                {session.title || 'Untitled'}
+              </h2>
+            )}
           </div>
 
-          {/* Meta row: dates + status */}
-          <div className="flex items-center gap-4 text-sm">
-            {/* Session date */}
+          {/* Meta pills */}
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
             {isEditing ? (
-              <div className="flex items-center gap-2">
-                <Label className="text-muted-foreground">Date:</Label>
+              <>
+                <Label className="text-xs">Date:</Label>
                 <Input
                   type="date"
                   value={currentData.session_date}
                   onChange={(e) => onEditedDataChange('session_date', e.target.value)}
-                  className="h-8 w-auto"
+                  className="h-7 w-auto text-xs"
                 />
-              </div>
-            ) : (
-              <span className="flex items-center gap-1 text-muted-foreground">
-                <Calendar className="h-4 w-4" />
-                {new Date(session.session_date).toLocaleDateString()}
-              </span>
-            )}
-
-            {/* In-game date */}
-            {isEditing ? (
-              <div className="flex items-center gap-2">
-                <Label className="text-muted-foreground">In-game:</Label>
+                <Label className="text-xs ml-1">In-game:</Label>
                 <Input
                   value={currentData.in_game_date || ''}
                   onChange={(e) => onEditedDataChange('in_game_date', e.target.value || null)}
                   placeholder="15 Mirtul, 1492 DR"
-                  className="h-8 w-40"
+                  className="h-7 w-36 text-xs"
                 />
-              </div>
+                <Select
+                  value={currentData.status}
+                  onValueChange={(value) => onEditedDataChange('status', value)}
+                >
+                  <SelectTrigger className="h-7 w-[120px] text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statusOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </>
             ) : (
-              session.in_game_date && (
-                <span className="text-muted-foreground">
-                  🎮 {session.in_game_date}
+              <>
+                <span className="flex items-center gap-1">
+                  <Calendar className="h-3.5 w-3.5" />
+                  {new Date(session.session_date).toLocaleDateString()}
                 </span>
-              )
+                {session.in_game_date && (
+                  <span className="px-1.5 py-0.5 rounded bg-muted">
+                    🎮 {session.in_game_date}
+                  </span>
+                )}
+                <StatusBadge status={session.status as SessionStatus} />
+              </>
             )}
+          </div>
 
-            {/* Status */}
+          {/* Actions */}
+          <div className="flex items-center gap-1 shrink-0">
             {isEditing ? (
-              <Select
-                value={currentData.status}
-                onValueChange={(value) => onEditedDataChange('status', value)}
-              >
-                <SelectTrigger className="h-8 w-[140px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {statusOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <>
+                <Button variant="outline" size="sm" onClick={onCancelEdit}>
+                  <X className="h-4 w-4 mr-1" />
+                  Cancel
+                </Button>
+                <Button size="sm" onClick={onSave} disabled={isUpdating}>
+                  <Save className="h-4 w-4 mr-1" />
+                  {isUpdating ? 'Saving...' : 'Save'}
+                </Button>
+              </>
             ) : (
-              <StatusBadge status={session.status as SessionStatus} />
+              <>
+                <Button variant="outline" size="sm" onClick={onEdit}>
+                  <Pencil className="h-4 w-4 mr-1" />
+                  Edit
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleDeleteClick}
+                  className="text-destructive hover:text-destructive h-9 w-9"
+                  aria-label="Delete session"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={onCreateClick}
+                  className="bg-emerald-600 hover:bg-emerald-700"
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  New
+                </Button>
+              </>
             )}
           </div>
         </div>
@@ -253,21 +291,23 @@ export function SessionDetailPanel({
         onValueChange={(value) => onTabChange(value as 'prep' | 'journal')}
         className="flex-1 flex flex-col overflow-hidden"
       >
-        <TabsList className="mx-6 mt-4 w-fit shrink-0">
+        <TabsList className="mx-6 mt-3 w-fit shrink-0">
           <TabsTrigger value="prep">Prep</TabsTrigger>
           <TabsTrigger value="journal">Journal</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="prep" className="flex-1 overflow-y-auto mt-0 px-6 py-4">
+        <TabsContent value="prep" className="flex-1 overflow-y-auto mt-0 px-6 py-3">
           <PrepTab
             planJson={currentData.plan_json}
             isEditing={isEditing}
             onChange={(planJson) => onEditedDataChange('plan_json', planJson)}
             campaignId={campaignId}
+            sessionId={session.id}
+            status={currentData.status}
           />
         </TabsContent>
 
-        <TabsContent value="journal" className="flex-1 overflow-y-auto mt-0 px-6 py-4">
+        <TabsContent value="journal" className="flex-1 overflow-y-auto mt-0 px-6 py-3">
           <JournalTab
             logJson={currentData.log_json}
             isEditing={isEditing}

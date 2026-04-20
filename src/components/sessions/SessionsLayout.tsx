@@ -1,20 +1,17 @@
 'use client';
 
-import { SplitLayout } from '@/components/shared/SplitLayout';
+import { useState } from 'react';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { SessionsList } from './SessionsList';
 import { SessionDetailPanel } from './SessionDetailPanel';
-import type { SessionDTO, SessionFilters, PlanJson, LogJson, SessionStatus } from '@/types/sessions';
+import type { SessionDTO, PlanJson, LogJson, SessionStatus } from '@/types/sessions';
 
 interface SessionsLayoutProps {
-  // List props
   sessions: SessionDTO[];
   selectedSessionId: string | null;
   onSessionSelect: (sessionId: string) => void;
-  filters: SessionFilters;
-  onFiltersChange: (filters: SessionFilters) => void;
   isLoading: boolean;
 
-  // Detail panel props
   selectedSession: SessionDTO | undefined;
   isDetailLoading: boolean;
   isEditing: boolean;
@@ -34,6 +31,7 @@ interface SessionsLayoutProps {
   onCancelEdit: () => void;
   onDelete: () => void;
   onEditedDataChange: (field: string, value: unknown) => void;
+  onCreateClick: () => void;
   campaignId: string;
   isUpdating?: boolean;
   isDeleting?: boolean;
@@ -43,8 +41,6 @@ export function SessionsLayout({
   sessions,
   selectedSessionId,
   onSessionSelect,
-  filters,
-  onFiltersChange,
   isLoading,
   selectedSession,
   isDetailLoading,
@@ -57,25 +53,27 @@ export function SessionsLayout({
   onCancelEdit,
   onDelete,
   onEditedDataChange,
+  onCreateClick,
   campaignId,
   isUpdating,
   isDeleting,
 }: SessionsLayoutProps) {
+  const [isListOpen, setIsListOpen] = useState(false);
+
+  const handleSessionSelect = (sessionId: string) => {
+    onSessionSelect(sessionId);
+    setIsListOpen(false);
+  };
+
   return (
-    <SplitLayout
-      leftPanel={
-        <SessionsList
-          sessions={sessions}
-          selectedSessionId={selectedSessionId}
-          onSessionSelect={onSessionSelect}
-          filters={filters}
-          onFiltersChange={onFiltersChange}
-          isLoading={isLoading}
-        />
-      }
-      rightPanel={
+    <div className="flex-1 flex overflow-hidden">
+      {/* Full-width detail panel */}
+      <div className="flex-1 overflow-hidden">
         <SessionDetailPanel
           session={selectedSession}
+          sessions={sessions}
+          sessionsLoading={isLoading}
+          onSessionSelect={handleSessionSelect}
           isLoading={isDetailLoading}
           isEditing={isEditing}
           editedData={editedData}
@@ -86,11 +84,35 @@ export function SessionsLayout({
           onCancelEdit={onCancelEdit}
           onDelete={onDelete}
           onEditedDataChange={onEditedDataChange}
+          onOpenList={() => setIsListOpen(true)}
+          onCreateClick={onCreateClick}
           campaignId={campaignId}
           isUpdating={isUpdating}
           isDeleting={isDeleting}
         />
-      }
-    />
+      </div>
+
+      {/* Sessions list drawer */}
+      <Sheet open={isListOpen} onOpenChange={setIsListOpen}>
+        <SheetContent side="left" className="p-0 w-[320px] sm:max-w-[320px] flex flex-col">
+          <SheetHeader className="border-b">
+            <SheetTitle>
+              Sessions
+              <span className="ml-2 text-xs font-normal text-muted-foreground">
+                {sessions.length}
+              </span>
+            </SheetTitle>
+          </SheetHeader>
+          <div className="flex-1 overflow-hidden">
+            <SessionsList
+              sessions={sessions}
+              selectedSessionId={selectedSessionId}
+              onSessionSelect={handleSessionSelect}
+              isLoading={isLoading}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
+    </div>
   );
 }
