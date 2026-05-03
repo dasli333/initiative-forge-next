@@ -31,9 +31,9 @@ export function ReferencePanel({ conditions, rollMode, recentRolls, onRollModeCh
   });
 
   return (
-    <div className="flex flex-col h-full border-l">
-      {/* Top Section: Roll Controls & Roll Log - 50% height */}
-      <div className="h-1/2 flex flex-col border-b">
+    <div className="flex flex-col h-full lg:border-l">
+      {/* Top Section: Roll Controls & Roll Log */}
+      <div className="lg:h-1/2 flex flex-col border-b">
         <div className="flex-1 flex flex-col p-4 space-y-4 overflow-hidden">
           {/* Roll Controls */}
           <div className="flex-shrink-0">
@@ -49,8 +49,8 @@ export function ReferencePanel({ conditions, rollMode, recentRolls, onRollModeCh
         </div>
       </div>
 
-      {/* Bottom Section: Reference Tabs - 50% height */}
-      <div className="h-1/2 flex flex-col overflow-hidden">
+      {/* Bottom Section: Reference Tabs */}
+      <div className="flex-1 lg:h-1/2 flex flex-col overflow-hidden">
         {/* Search Bar */}
         <div className="flex-shrink-0 p-4 border-b">
           <div className="relative">

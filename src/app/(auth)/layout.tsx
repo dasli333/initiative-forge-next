@@ -12,7 +12,7 @@ export default function AuthLayout({
             D&D 5e Combat Tracker & Campaign Manager
           </p>
         </div>
-        <div className="rounded-lg border border-border bg-card p-8 shadow-lg">
+        <div className="rounded-lg border border-border bg-card p-6 sm:p-8 shadow-lg">
           {children}
         </div>
       </div>

@@ -214,7 +214,7 @@ export function StoryItemDetailPanel({
       <div className="p-6 space-y-6">
         {/* Header Card: Image + Name + Current Owner + Actions */}
         <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 min-w-0 flex gap-4 p-4 bg-muted/30 rounded-lg border">
+          <div className="flex-1 min-w-0 flex gap-4 p-4 bg-muted/30 rounded-lg border flex-col sm:flex-row">
             {/* Left: Image */}
             <div className="shrink-0">
               {isEditing ? (
@@ -305,53 +305,53 @@ export function StoryItemDetailPanel({
                 )}
               </div>
             </div>
-          </div>
 
-          {/* Action buttons */}
-          <div className="flex gap-2 shrink-0">
-            {!isEditing ? (
-              <>
-                <Button
-                  onClick={onEdit}
-                  variant="outline"
-                  size="sm"
-                  disabled={isUpdating || isDeleting}
-                >
-                  <Edit2 className="h-4 w-4 mr-2" />
-                  Edit
-                </Button>
-                <Button
-                  onClick={() => setShowDeleteDialog(true)}
-                  variant="destructive"
-                  size="sm"
-                  disabled={isUpdating || isDeleting}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  onClick={handleSave}
-                  size="sm"
-                  disabled={isUpdating}
-                  className="bg-emerald-600 hover:bg-emerald-700"
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  {isUpdating ? 'Saving...' : 'Save'}
-                </Button>
-                <Button
-                  onClick={handleCancel}
-                  variant="ghost"
-                  size="sm"
-                  disabled={isUpdating}
-                >
-                  <X className="h-4 w-4 mr-2" />
-                  Cancel
-                </Button>
-              </>
-            )}
+            {/* Action buttons */}
+            <div className="flex gap-2 shrink-0">
+              {!isEditing ? (
+                  <>
+                    <Button
+                        onClick={onEdit}
+                        variant="outline"
+                        size="sm"
+                        disabled={isUpdating || isDeleting}
+                    >
+                      <Edit2 className="h-4 w-4 mr-2" />
+                      Edit
+                    </Button>
+                    <Button
+                        onClick={() => setShowDeleteDialog(true)}
+                        variant="destructive"
+                        size="sm"
+                        disabled={isUpdating || isDeleting}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </Button>
+                  </>
+              ) : (
+                  <>
+                    <Button
+                        onClick={handleSave}
+                        size="sm"
+                        disabled={isUpdating}
+                        className="bg-emerald-600 hover:bg-emerald-700"
+                    >
+                      <Save className="h-4 w-4 mr-2" />
+                      {isUpdating ? 'Saving...' : 'Save'}
+                    </Button>
+                    <Button
+                        onClick={handleCancel}
+                        variant="ghost"
+                        size="sm"
+                        disabled={isUpdating}
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Cancel
+                    </Button>
+                  </>
+              )}
+            </div>
           </div>
         </div>
 

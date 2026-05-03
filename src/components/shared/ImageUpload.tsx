@@ -223,7 +223,7 @@ export function ImageUpload({
   return (
     <div className={cn('space-y-4', className)}>
       {displayUrl ? (
-        <div className="relative w-full h-64 rounded-lg overflow-hidden">
+        <div className="relative w-full h-48 sm:h-64 rounded-lg overflow-hidden">
           <Image
             src={displayUrl}
             alt="Preview"

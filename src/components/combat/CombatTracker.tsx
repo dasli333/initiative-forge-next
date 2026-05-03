@@ -9,6 +9,7 @@ import { InitiativeList } from "./initiative/InitiativeList";
 import { ActiveCharacterSheet } from "./character-sheet/ActiveCharacterSheet";
 import { ReferencePanel } from "./reference/ReferencePanel";
 import { UnsavedChangesDialog } from "./UnsavedChangesDialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface CombatTrackerProps {
   combatId: string;
@@ -114,47 +115,69 @@ export function CombatTracker({ initialData, campaignId }: CombatTrackerProps) {
   // Unsaved changes dialog (simplified for now)
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
 
+  const initiativePanel = (
+    <InitiativeList
+      participants={participants}
+      currentRound={currentRound}
+      activeParticipantIndex={activeParticipantIndex}
+      onRollInitiative={rollInitiative}
+      onSetManualInitiative={setManualInitiative}
+      onStartCombat={startCombat}
+      onNextTurn={nextTurn}
+      onSave={saveSnapshot}
+      isDirty={isDirty}
+      isSaving={isSaving}
+      campaignId={campaignId}
+      onParticipantUpdate={handleParticipantUpdate}
+      onAddCondition={handleAddCondition}
+      onRemoveCondition={handleRemoveCondition}
+      onRollDeathSave={rollDeathSave}
+      onManualDeathSave={addDeathSaveResult}
+      onKillParticipant={killParticipant}
+      conditions={typedConditions}
+    />
+  );
+
+  const activePanel = (
+    <ActiveCharacterSheet participant={activeParticipant} onActionClick={handleActionClick} />
+  );
+
+  const referencePanel = (
+    <ReferencePanel
+      conditions={typedConditions}
+      rollMode={rollMode}
+      recentRolls={recentRolls}
+      onRollModeChange={setRollMode}
+    />
+  );
+
   return (
     <>
-      <div className="h-full -m-4 md:-m-8 grid grid-cols-[minmax(0,22%)_minmax(0,50%)_minmax(0,28%)] overflow-x-hidden">
-        {/* Left Column: Initiative List */}
-        <div className="overflow-hidden min-w-0">
-          <InitiativeList
-            participants={participants}
-            currentRound={currentRound}
-            activeParticipantIndex={activeParticipantIndex}
-            onRollInitiative={rollInitiative}
-            onSetManualInitiative={setManualInitiative}
-            onStartCombat={startCombat}
-            onNextTurn={nextTurn}
-            onSave={saveSnapshot}
-            isDirty={isDirty}
-            isSaving={isSaving}
-            campaignId={campaignId}
-            onParticipantUpdate={handleParticipantUpdate}
-            onAddCondition={handleAddCondition}
-            onRemoveCondition={handleRemoveCondition}
-            onRollDeathSave={rollDeathSave}
-            onManualDeathSave={addDeathSaveResult}
-            onKillParticipant={killParticipant}
-            conditions={typedConditions}
-          />
-        </div>
+      {/* Mobile/Tablet: tabs */}
+      <div className="lg:hidden h-full -m-4 md:-m-8 flex flex-col">
+        <Tabs defaultValue="initiative" className="flex-1 flex flex-col h-full">
+          <TabsList className="px-3 pt-2 gap-2 justify-start overflow-x-auto">
+            <TabsTrigger value="initiative">Initiative</TabsTrigger>
+            <TabsTrigger value="active">Active</TabsTrigger>
+            <TabsTrigger value="reference">Reference</TabsTrigger>
+          </TabsList>
+          <TabsContent value="initiative" className="flex-1 overflow-hidden">
+            {initiativePanel}
+          </TabsContent>
+          <TabsContent value="active" className="flex-1 overflow-hidden">
+            {activePanel}
+          </TabsContent>
+          <TabsContent value="reference" className="flex-1 overflow-hidden">
+            {referencePanel}
+          </TabsContent>
+        </Tabs>
+      </div>
 
-        {/* Middle Column: Active Character Sheet */}
-        <div className="overflow-hidden min-w-0">
-          <ActiveCharacterSheet participant={activeParticipant} onActionClick={handleActionClick} />
-        </div>
-
-        {/* Right Column: Reference Panel */}
-        <div className="overflow-hidden min-w-0">
-          <ReferencePanel
-            conditions={typedConditions}
-            rollMode={rollMode}
-            recentRolls={recentRolls}
-            onRollModeChange={setRollMode}
-          />
-        </div>
+      {/* Desktop: 3-column grid */}
+      <div className="hidden lg:grid h-full -m-4 md:-m-8 grid-cols-[minmax(0,22%)_minmax(0,50%)_minmax(0,28%)] overflow-x-hidden">
+        <div className="overflow-hidden min-w-0">{initiativePanel}</div>
+        <div className="overflow-hidden min-w-0">{activePanel}</div>
+        <div className="overflow-hidden min-w-0">{referencePanel}</div>
       </div>
 
       {/* Unsaved Changes Dialog */}

@@ -95,9 +95,9 @@ export function PCCharacterCard({
   return (
     <div className="space-y-4">
       {/* Character Card */}
-      <div className="flex gap-4 p-4 bg-muted/30 rounded-lg border">
+      <div className="flex flex-col sm:flex-row gap-4 p-4 bg-muted/30 rounded-lg border">
         {/* Left: Avatar */}
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 self-center sm:self-auto">
           {isEditing ? (
             <div className="w-40">
               <ImageUpload
@@ -129,7 +129,7 @@ export function PCCharacterCard({
 
         {/* Right: Stats Grid (View Mode) */}
         {!isEditing && (
-          <div className="flex-1 grid grid-cols-2 gap-3">
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
             <PCStatField icon={User} label="Class" value={displayData.class} />
             <PCStatField icon={TrendingUp} label="Level" value={displayData.level} />
             <PCStatField icon={Shield} label="Race" value={displayData.race} />
@@ -157,7 +157,7 @@ export function PCCharacterCard({
 
         {/* Right: Edit Mode Grid */}
         {isEditing && (
-          <div className="flex-1 grid grid-cols-2 gap-3">
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
             {/* Class */}
             <div>
               <label className="text-xs font-medium mb-1.5 block text-muted-foreground">Class</label>

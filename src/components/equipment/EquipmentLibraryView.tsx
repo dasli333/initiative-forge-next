@@ -6,10 +6,11 @@ import { EquipmentList } from './EquipmentList';
 import { EquipmentDetails } from './EquipmentDetails';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { useDebouncedValue } from '@/components/hooks/useDebouncedValue';
 import { useInfiniteEquipment } from '@/components/hooks/useInfiniteEquipment';
 import { useLanguageStore } from '@/stores/languageStore';
-import { FileSearch } from 'lucide-react';
+import { ArrowLeft, FileSearch } from 'lucide-react';
 
 import { resolveCategoryInfo } from '@/lib/constants/equipment';
 import { cn } from '@/lib/utils';
@@ -86,10 +87,17 @@ export function EquipmentLibraryView() {
     setSelectedEquipmentId(equipmentId);
   };
 
+  const showDetailOnMobile = selectedEquipmentId !== null;
+
   return (
-    <div className="flex h-full -m-4 md:-m-8">
-      {/* Left Panel - Equipment List (minimum 500px to fit filters, 30% width on larger screens) */}
-      <div className="min-w-[500px] w-[30%] border-r border-border flex flex-col">
+    <div className="flex flex-col md:flex-row h-full -m-4 md:-m-8">
+      {/* Left Panel - Equipment List */}
+      <div
+        className={cn(
+          "w-full md:w-[35%] md:min-w-[420px] md:border-r border-border flex-col",
+          showDetailOnMobile ? "hidden md:flex" : "flex"
+        )}
+      >
         {/* Header with filters - fixed at top of left panel */}
         <div className="p-4 border-b border-border">
           <EquipmentHeader
@@ -117,13 +125,27 @@ export function EquipmentLibraryView() {
         </div>
       </div>
 
-      {/* Right Panel - Equipment Details (70% width) */}
-      <div className="w-[70%] flex flex-col">
+      {/* Right Panel - Equipment Details */}
+      <div
+        className={cn(
+          "md:flex-1 flex-col",
+          showDetailOnMobile ? "flex flex-1" : "hidden md:flex"
+        )}
+      >
         {selectedEquipment ? (
           <>
             {/* Equipment header */}
-            <div className="p-6 border-b border-border bg-gradient-to-r from-card via-card/80 to-emerald-500/5">
-              <h2 className="text-3xl font-bold mb-3">{selectedEquipment.data.name[selectedLanguage]}</h2>
+            <div className="p-4 md:p-6 border-b border-border bg-gradient-to-r from-card via-card/80 to-emerald-500/5">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="md:hidden mb-2 -ml-2"
+                onClick={() => setSelectedEquipmentId(null)}
+              >
+                <ArrowLeft className="h-4 w-4 mr-1" />
+                Back to list
+              </Button>
+              <h2 className="text-2xl md:text-3xl font-bold mb-3">{selectedEquipment.data.name[selectedLanguage]}</h2>
               {selectedLanguage === 'en' &&
                 selectedEquipment.data.name.pl !== selectedEquipment.data.name.en && (
                   <p className="text-sm text-muted-foreground italic mb-3">{selectedEquipment.data.name.pl}</p>
@@ -156,7 +178,7 @@ export function EquipmentLibraryView() {
             </div>
 
             {/* Scrollable equipment details */}
-            <ScrollArea className="flex-1 p-6">
+            <ScrollArea className="flex-1 p-4 md:p-6">
               <EquipmentDetails data={selectedEquipment.data} />
             </ScrollArea>
           </>

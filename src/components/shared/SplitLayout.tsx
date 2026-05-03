@@ -12,13 +12,11 @@ interface SplitLayoutProps {
  */
 export function SplitLayout({ leftPanel, rightPanel, className = '' }: SplitLayoutProps) {
   return (
-    <div className={`flex-1 flex gap-6 overflow-hidden ${className}`}>
-      {/* LEFT PANEL (capped at 360px) */}
-      <div className="w-[30%] min-w-[280px] max-w-[360px] border-r overflow-hidden">
+    <div className={`flex-1 flex flex-col md:flex-row gap-4 md:gap-6 overflow-hidden ${className}`}>
+      <div className="w-full md:w-[30%] md:min-w-[280px] md:max-w-[360px] border-b md:border-b-0 md:border-r overflow-hidden">
         {leftPanel}
       </div>
 
-      {/* RIGHT PANEL (70%) */}
       <div className="flex-1 overflow-hidden">
         {rightPanel}
       </div>

@@ -184,12 +184,51 @@ export function NPCDetailPanel({
         <div className="flex items-start justify-between gap-4">
           {/* Left: Name + Tags */}
           <div className="flex-1 min-w-0 space-y-2">
-            <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-bold">{npc.name}</h2>
-              <Badge variant={getStatusBadgeVariant(npc.status)}>
-                {npc.status.charAt(0).toUpperCase() + npc.status.slice(1)}
-              </Badge>
+            <div className="flex flex-col justify-between sm:flex-row">
+              <div className="flex items-center gap-2">
+                <h2 className="text-2xl font-bold">{npc.name}</h2>
+                <Badge variant={getStatusBadgeVariant(npc.status)}>
+                  {npc.status.charAt(0).toUpperCase() + npc.status.slice(1)}
+                </Badge>
+              </div>
+              {/* Right: Action buttons */}
+              <div className="flex gap-2 flex-shrink-0">
+                {isEditing ? (
+                    <>
+                      <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={onCancelEdit}
+                          disabled={isUpdating}
+                      >
+                        <X className="w-4 h-4 mr-2" />
+                        Cancel
+                      </Button>
+                      <Button size="sm" onClick={onSave} disabled={isUpdating}>
+                        <Save className="w-4 h-4 mr-2" />
+                        {isUpdating ? 'Saving...' : 'Save'}
+                      </Button>
+                    </>
+                ) : (
+                    <>
+                      <Button variant="outline" size="sm" onClick={onEdit}>
+                        <Pencil className="w-4 h-4 mr-2" />
+                        Edit
+                      </Button>
+                      <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => setShowDeleteDialog(true)}
+                          disabled={isDeleting}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                      </Button>
+                    </>
+                )}
+              </div>
             </div>
+
             <NPCCharacterCard
               npc={npc}
               campaignId={campaignId}
@@ -208,43 +247,6 @@ export function NPCDetailPanel({
               isUpdating={isUpdating}
               showNameInCard={false}
             />
-          </div>
-
-          {/* Right: Action buttons */}
-          <div className="flex gap-2 flex-shrink-0">
-            {isEditing ? (
-              <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={onCancelEdit}
-                  disabled={isUpdating}
-                >
-                  <X className="w-4 h-4 mr-2" />
-                  Cancel
-                </Button>
-                <Button size="sm" onClick={onSave} disabled={isUpdating}>
-                  <Save className="w-4 h-4 mr-2" />
-                  {isUpdating ? 'Saving...' : 'Save'}
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button variant="outline" size="sm" onClick={onEdit}>
-                  <Pencil className="w-4 h-4 mr-2" />
-                  Edit
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => setShowDeleteDialog(true)}
-                  disabled={isDeleting}
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete
-                </Button>
-              </>
-            )}
           </div>
         </div>
       </div>
