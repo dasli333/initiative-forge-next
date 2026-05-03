@@ -110,9 +110,9 @@ export function CombatTab({
           <CardTitle className="text-base">Combat Statistics</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-[auto_1fr] gap-8 items-start">
+          <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[auto_1fr] lg:gap-8 lg:items-start">
             {/* Basic Stats - Left Column */}
-            <div className="space-y-4 min-w-[180px]">
+            <div className="space-y-4 lg:min-w-[180px]">
               <div>
                 <Label htmlFor="hp-max">HP Max</Label>
                 <Input
@@ -145,8 +145,8 @@ export function CombatTab({
 
             {/* Ability Scores Table - Right Column */}
             <div className="max-w-2xl">
-              <div className="rounded-lg overflow-hidden border border-border/50">
-                <Table>
+              <div className="rounded-lg overflow-hidden border border-border/50 overflow-x-auto">
+                <Table className="min-w-[480px]">
               <TableHeader>
                 <TableRow className="bg-muted/50 hover:bg-muted/50">
                   <TableHead className="text-center font-semibold">STR</TableHead>

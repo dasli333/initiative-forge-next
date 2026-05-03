@@ -6,10 +6,11 @@ import { MonsterList } from "./MonsterList";
 import { MonsterDetails } from "./MonsterDetails";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useDebouncedValue } from "@/components/hooks/useDebouncedValue";
 import { useMonsters } from "@/components/hooks/useMonsters";
 import { useLanguageStore } from "@/stores/languageStore";
-import { FileSearch } from "lucide-react";
+import { ArrowLeft, FileSearch } from "lucide-react";
 import { getChallengeRatingColor } from "@/lib/constants/monsters";
 import { cn } from "@/lib/utils";
 
@@ -91,10 +92,17 @@ export function MonstersLibraryView() {
     setSelectedMonsterId(monsterId);
   };
 
+  const showDetailOnMobile = selectedMonsterId !== null;
+
   return (
-    <div className="flex h-full -m-4 md:-m-8">
-      {/* Left Panel - Monster List (minimum 500px to fit filters, 30% width on larger screens) */}
-      <div className="min-w-[500px] w-[30%] border-r border-border flex flex-col">
+    <div className="flex flex-col md:flex-row h-full -m-4 md:-m-8">
+      {/* Left Panel - Monster List */}
+      <div
+        className={cn(
+          "w-full md:w-[35%] md:min-w-[420px] md:border-r border-border flex-col",
+          showDetailOnMobile ? "hidden md:flex" : "flex"
+        )}
+      >
         {/* Header with filters - fixed at top of left panel */}
         <div className="p-4 border-b border-border">
           <MonstersHeader
@@ -126,13 +134,27 @@ export function MonstersLibraryView() {
         </div>
       </div>
 
-      {/* Right Panel - Monster Details (70% width) */}
-      <div className="w-[70%] flex flex-col">
+      {/* Right Panel - Monster Details */}
+      <div
+        className={cn(
+          "md:flex-1 flex-col",
+          showDetailOnMobile ? "flex flex-1" : "hidden md:flex"
+        )}
+      >
         {selectedMonster ? (
           <>
             {/* Monster header */}
-            <div className="p-6 border-b border-border bg-gradient-to-r from-card via-card/80 to-emerald-500/5">
-              <h2 className="text-3xl font-bold mb-3">{selectedMonster.data.name[selectedLanguage]}</h2>
+            <div className="p-4 md:p-6 border-b border-border bg-gradient-to-r from-card via-card/80 to-emerald-500/5">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="md:hidden mb-2 -ml-2"
+                onClick={() => setSelectedMonsterId(null)}
+              >
+                <ArrowLeft className="h-4 w-4 mr-1" />
+                Back to list
+              </Button>
+              <h2 className="text-2xl md:text-3xl font-bold mb-3">{selectedMonster.data.name[selectedLanguage]}</h2>
               {selectedLanguage === "en" && selectedMonster.data.name.pl !== selectedMonster.data.name.en && (
                 <p className="text-sm text-muted-foreground italic mb-3">{selectedMonster.data.name.pl}</p>
               )}
@@ -156,7 +178,7 @@ export function MonstersLibraryView() {
             </div>
 
             {/* Scrollable monster details */}
-            <ScrollArea className="flex-1 p-6">
+            <ScrollArea className="flex-1 p-4 md:p-6">
               <MonsterDetails data={selectedMonster.data} />
             </ScrollArea>
           </>

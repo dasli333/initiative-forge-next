@@ -54,10 +54,10 @@ export function HPControls({ currentHP, maxHP, onHPChange }: HPControlsProps) {
 
   return (
     <div className="space-y-1">
-      {/* Horizontal layout: Progress bar on left, controls on right */}
-      <div className="flex items-center gap-2">
+      {/* Horizontal layout: Progress bar on left, controls on right; wraps on small screens */}
+      <div className="flex flex-wrap items-center gap-2">
         {/* Left: HP Progress Bar */}
-        <div className="flex-1 min-w-0 space-y-0.5">
+        <div className="flex-1 min-w-[140px] space-y-0.5">
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground font-medium">HP</span>
             <span className="font-semibold text-xs" data-testid="hp-display">
@@ -74,7 +74,7 @@ export function HPControls({ currentHP, maxHP, onHPChange }: HPControlsProps) {
             placeholder="#"
             value={value}
             onChange={handleChange}
-            className={`w-14 h-7 text-xs px-2 ${error ? "border-red-500" : ""}`}
+            className={`w-14 h-9 md:h-7 text-xs px-2 ${error ? "border-red-500" : ""}`}
             min={1}
             data-testid="hp-amount-input"
           />
@@ -83,14 +83,14 @@ export function HPControls({ currentHP, maxHP, onHPChange }: HPControlsProps) {
             variant="destructive"
             onClick={handleDamage}
             disabled={!isValid}
-            className="h-7 px-2 text-xs"
+            className="h-9 md:h-7 px-3 md:px-2 text-xs"
             data-testid="hp-damage-button"
           >
             DMG
           </Button>
           <Button
             size="sm"
-            className="bg-emerald-600 hover:bg-emerald-700 h-7 px-2 text-xs"
+            className="bg-emerald-600 hover:bg-emerald-700 h-9 md:h-7 px-3 md:px-2 text-xs"
             onClick={handleHeal}
             disabled={!isValid}
             data-testid="hp-heal-button"

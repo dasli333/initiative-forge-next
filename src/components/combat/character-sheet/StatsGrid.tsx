@@ -27,7 +27,20 @@ export function StatsGrid({ stats }: StatsGridProps) {
 
   return (
     <div className="rounded-lg overflow-hidden border border-border/50 w-full">
-      <Table className="table-fixed w-full">
+      {/* Mobile: 3-col grid */}
+      <div className="grid grid-cols-3 sm:hidden">
+        {abilities.map((ability) => (
+          <div key={ability.name} className="flex flex-col items-center justify-center py-2 border-b border-r border-border/50 last:border-r-0 [&:nth-child(3n)]:border-r-0 [&:nth-last-child(-n+3)]:border-b-0">
+            <div className="text-xs font-semibold text-muted-foreground">{ability.name}</div>
+            <div className="font-medium text-base">{ability.score}</div>
+            <span className={`text-xs font-medium ${ability.modifier >= 0 ? "text-emerald-500" : "text-red-400"}`}>
+              ({formatModifier(ability.modifier)})
+            </span>
+          </div>
+        ))}
+      </div>
+      {/* sm+: table */}
+      <Table className="hidden sm:table table-fixed w-full">
         <TableHeader>
           <TableRow className="bg-muted/50 hover:bg-muted/50">
             {abilities.map((ability) => (

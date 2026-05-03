@@ -207,7 +207,7 @@ export function RichTextEditor({
     <div className={cn(readonly ? '' : 'border rounded-lg overflow-hidden', className)}>
       {/* Toolbar */}
       {!readonly && (
-        <div className="flex items-center gap-1 p-2 border-b bg-gray-50 dark:bg-gray-900">
+        <div className="flex flex-wrap items-center gap-1 p-2 border-b bg-gray-50 dark:bg-gray-900">
         <Button
           type="button"
           variant="ghost"

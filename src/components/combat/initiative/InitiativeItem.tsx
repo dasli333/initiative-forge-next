@@ -98,7 +98,7 @@ export function InitiativeItem({
           <Button
             size="sm"
             variant="outline"
-            className="h-7 text-xs"
+            className="h-9 md:h-7 text-xs"
             onClick={() => setIsDialogOpen(true)}
             disabled={isUnconscious}
             data-testid="add-condition-button"

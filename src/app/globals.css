@@ -108,7 +108,6 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
-    min-width: 1024px;
   }
   .font-mono {
     font-family: var(--font-mono);

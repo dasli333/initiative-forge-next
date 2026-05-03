@@ -121,9 +121,9 @@ export function NPCCharacterCard({
       )}
 
       {/* Character Card Header */}
-      <div className="flex gap-4 p-4 bg-muted/30 rounded-lg border">
+      <div className="flex flex-col sm:flex-row gap-4 p-4 bg-muted/30 rounded-lg border">
         {/* Left: Avatar */}
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 self-center sm:self-auto">
           {isEditing ? (
             <div className="w-40">
               <ImageUpload
@@ -155,7 +155,7 @@ export function NPCCharacterCard({
 
         {/* Right: Stats Grid (View Mode) */}
         {!isEditing && (
-          <div className="flex-1 grid grid-cols-2 gap-3">
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
             <NPCStatField icon={User} label="Role" value={displayData.role} />
             <NPCStatField icon={Shield} label="Race" value={displayData.race} />
             <NPCStatField icon={Calendar} label="Age" value={displayData.age} />
@@ -171,7 +171,7 @@ export function NPCCharacterCard({
 
         {/* Right: Edit Mode Grid */}
         {isEditing && (
-          <div className="flex-1 grid grid-cols-2 gap-3">
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
             {/* Column 1 - Left */}
             {/* Role */}
             <div>

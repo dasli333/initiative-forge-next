@@ -66,7 +66,7 @@ export function DeathSaveTracker({ successes, failures, lastRoll, onRoll, onManu
         <Button
           size="sm"
           variant="outline"
-          className="h-6 px-2 text-xs"
+          className="h-8 md:h-6 px-2 text-xs"
           onClick={onRoll}
           data-testid="roll-death-save-button"
         >
@@ -76,7 +76,7 @@ export function DeathSaveTracker({ successes, failures, lastRoll, onRoll, onManu
         <Button
           size="sm"
           variant="outline"
-          className="h-6 px-1.5 text-xs text-emerald-600"
+          className="h-8 md:h-6 px-2 md:px-1.5 text-xs text-emerald-600"
           onClick={() => onManualResult("success")}
           data-testid="manual-death-save-success"
           title="Add success"
@@ -86,7 +86,7 @@ export function DeathSaveTracker({ successes, failures, lastRoll, onRoll, onManu
         <Button
           size="sm"
           variant="outline"
-          className="h-6 px-1.5 text-xs text-red-600"
+          className="h-8 md:h-6 px-2 md:px-1.5 text-xs text-red-600"
           onClick={() => onManualResult("failure")}
           data-testid="manual-death-save-failure"
           title="Add failure"
@@ -96,7 +96,7 @@ export function DeathSaveTracker({ successes, failures, lastRoll, onRoll, onManu
         <Button
           size="sm"
           variant="destructive"
-          className="h-6 px-2 text-xs ml-auto"
+          className="h-8 md:h-6 px-2 text-xs ml-auto"
           onClick={onKill}
           data-testid="kill-button"
           title="Instant kill"
